@@ -15,14 +15,38 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/register", response_model = UserOut)
 def register(user:UserCreate, db: Session =  Depends(get_db)):
-    if db.query(Users).filter(Users.email == user.email).first():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
+    existing_email = (
+    db.query(Users)
+    .filter(Users.email == user.email)
+    .first()
+    )
+
+    if existing_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already exists"
+        )
+    
+    existing_phone = (
+    db.query(Users)
+    .filter(Users.phone == user.phone)
+    .first()
+    )
+
+    if existing_phone:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Phone already exists"
+        )
+    
     
     new_user = Users(
         name = user.name,
         email = user.email,
+        phone=user.phone,
         password_hash = hash_password(user.password),
-        role = user.role
+        role="customer",
+        is_active=True
     )
     db.add(new_user)
     db.commit()
