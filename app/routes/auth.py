@@ -59,7 +59,23 @@ def register(user:UserCreate, db: Session =  Depends(get_db)):
 def login(data:LoginRequest, db: Session = Depends(get_db)):
     user = db.query(Users).filter(Users.email == data.email).first()
     if not user or not verify_password(data.password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Invalid credentials"
+        )
     
-    token = create_access_token(data={"sub":str(user.id)},expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    return {"access_token":token}
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User account is inactive",
+        )
+    token = create_access_token(
+        data={"sub":str(user.id)},
+        expires_delta=timedelta(
+            minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+            ),
+            )
+    return {
+        "access_token":token,
+         "token_type": "bearer",
+        }

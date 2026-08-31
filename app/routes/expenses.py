@@ -7,11 +7,16 @@ from app.dependencies.role import require_roles
 from app.dependencies.auth import get_current_user
 from app.db.session import get_db
 from typing import Optional
+from app.core.roles import ADMIN, MANAGER, STAFF
 
 router = APIRouter(prefix="/expenses", tags=["expenses"])
 
 @router.post("/", response_model=ExpenseOut)
-def create_expense(payload: ExpenseCreate, db: Session = Depends(get_db), admin = Depends(require_roles("admin","manager")) ):
+def create_expense(
+    payload: ExpenseCreate, 
+    db: Session = Depends(get_db), 
+    current_user = Depends(require_roles(ADMIN, MANAGER, STAFF)) 
+    ):
     car = db.query(Car).filter(Car.id == payload.car_id).first()
     if not car:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Car not found")
@@ -22,13 +27,35 @@ def create_expense(payload: ExpenseCreate, db: Session = Depends(get_db), admin 
     return expenses
 
 @router.get("/", response_model=list[ExpenseOut])
-def expenses_list( db: Session = Depends(get_db), current_user=Depends(get_current_user), expnses_type:Optional[str] = Query(None), car_id:Optional[int] = Query(None)):
+def expenses_list(
+    db: Session = Depends(get_db), 
+    current_user=Depends(get_current_user), 
+    expnses_type:Optional[str] = Query(None), 
+    car_id:Optional[int] = Query(None)
+    ):
     query = db.query(Expenses).join(Car)
-    if  current_user.role not in ["admin", "manager"]:
+    if  current_user.role not in [ADMIN, MANAGER, STAFF]:
         query = query.filter(Car.owner_id == current_user.id)    
     if expnses_type:
         query = query.filter(Expenses.expense_type == expnses_type)
     if car_id:
-        query = query.filter(Expenses.car_id == car_id)
-    print(query)   
+        query = query.filter(Expenses.car_id == car_id)  
     return query.all()
+
+@router.delete("/{expence_id}",)
+def delete_expence(
+expence_id: int,
+db:Session = Depends(get_db), 
+current_user = Depends(require_roles(ADMIN, MANAGER))
+):
+    expence = db.query(Expenses).filter(Expenses.id == expence_id).first()
+    if not expence:
+        raise HTTPException(
+            status_code= status.HTTP_404_NOT_FOUND,
+            detail= "Expences not found"
+        )
+    db.delete(expence)
+    db.commit()
+    return {"details": "Deleted successfully"}
+    
+    

@@ -19,3 +19,14 @@ DATABASE_URL = (
     f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}"
     f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
+
+
+if not SECRET_KEY:
+    raise ValueError(
+        "SECRET_KEY is not configured"
+    )
+
+if not DATABASE_URL:
+    raise ValueError(
+        "DATABASE_URL is not configured"
+    )

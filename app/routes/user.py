@@ -8,7 +8,6 @@ from app.models.user import Users
 
 router = APIRouter(prefix="/user", tags=["Users"])
 
-
 @router.get("/me")
 def profile(user=Depends(get_current_user)):
     return {
@@ -19,14 +18,20 @@ def profile(user=Depends(get_current_user)):
         "role": user.role,
     }
 
-
 @router.get("/", response_model=list[UserOut])
-def list_users(db: Session = Depends(get_db), admin=Depends(require_roles("admin"))):
-    return db.query(Users).all()
-
+def list_users(
+    db: Session = Depends(get_db), 
+    current_user=Depends(require_roles("admin"))
+):
+    user = db.query(Users).all()
+    return user
 
 @router.get("/{user_id}", response_model=UserOut)
-def get_user(user_id: int, db: Session = Depends(get_db), admin=Depends(require_roles("admin"))):
+def get_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles("admin")),
+):
     user = db.query(Users).filter(Users.id == user_id).first()
     if not user:
         raise HTTPException(
@@ -34,13 +39,12 @@ def get_user(user_id: int, db: Session = Depends(get_db), admin=Depends(require_
         )
     return user
 
-
 @router.put("/{user_id}")
 def update_user(
     user_id: int,
     payload: UserUpdate,
     db: Session = Depends(get_db),
-    admin=Depends(require_roles("admin")),
+    current_user=Depends(require_roles("admin")),
 ):
     user = db.query(Users).filter(Users.id == user_id).first()
     if not user:
@@ -49,11 +53,11 @@ def update_user(
         )
     for key, value in payload.dict(exclude_unset=True).items():
         setattr(user, key, value)
-      
-      # OR
-#     user.name = payload.name
-#     user.phone = payload.phone
-#     user.is_active = payload.is_active
+
+    # OR
+    #     user.name = payload.name
+    #     user.phone = payload.phone
+    #     user.is_active = payload.is_active
 
     db.commit()
     db.refresh(user)
@@ -61,13 +65,21 @@ def update_user(
 
 @router.delete("/{user_id}")
 def delete_user(
-    user_id:int,
-    db:Session = Depends(get_db),
-    admin=Depends(require_roles("admin"))
+    user_id: int, 
+    db: Session = Depends(get_db), 
+    current_user=Depends(require_roles("admin"))
 ):
     user = db.query(Users).filter(Users.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="User not found"
+        )
+
+    if user.id == current_user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="You cannot delete your own account",
+        )
     
     db.delete(user)
     db.commit()

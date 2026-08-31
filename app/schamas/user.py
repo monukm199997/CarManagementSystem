@@ -14,6 +14,7 @@ class UserOut(BaseModel):
     email:EmailStr
     phone:Optional[str] = None
     role:str
+    is_active:bool = None
 
 class UserUpdate(BaseModel):
     name:str = None

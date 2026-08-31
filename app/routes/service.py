@@ -9,6 +9,7 @@ from app.dependencies.role import require_roles
 from app.dependencies.auth import get_current_user
 from typing import List
 from datetime import date, timedelta
+from app.core.roles import ADMIN, MANAGER, STAFF
 
 
 router = APIRouter(prefix="/services", tags=["Services"])
@@ -16,7 +17,9 @@ router = APIRouter(prefix="/services", tags=["Services"])
 
 @router.post("/", response_model=ServiceOut)
 def create_services(
-    payload: ServiceCreate, db: Session = Depends(get_db), admin=Depends(require_roles("admin","manager","staff"))
+    payload: ServiceCreate, 
+    db: Session = Depends(get_db), 
+    current_user=Depends(require_roles(ADMIN, MANAGER, STAFF))
 ):
 
     car = db.query(Car).filter(Car.id == payload.car_id).first()
@@ -32,10 +35,11 @@ def create_services(
     db.refresh(service)
     return service
 
-
 @router.get("/car/{car_id}", response_model=List[ServiceOut])
 def get_car_services(
-    car_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    car_id: int, 
+    db: Session = Depends(get_db), 
+    current_user=Depends(get_current_user)
 ):
 
     car = db.query(Car).filter(Car.id == car_id).first()
@@ -44,7 +48,7 @@ def get_car_services(
             status_code=status.HTTP_404_NOT_FOUND, detail="Car not found"
         )
 
-    if current_user.role != "admin" and car.owner_id != current_user.id:
+    if current_user.role != ADMIN and car.owner_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
         )
@@ -58,7 +62,7 @@ def update_services(
     service_id: int,
     payload: ServiceUpdate,
     db: Session = Depends(get_db),
-    admin=Depends(require_roles("admin","manager","staff")),
+    current_user=Depends(require_roles(ADMIN, MANAGER, STAFF)),
 ):
     service = db.query(Services).filter(Services.id == service_id).first()
     if not service:
@@ -74,7 +78,9 @@ def update_services(
 
 @router.delete("/{service_id}")
 def delete_service(
-    service_id: int, db: Session = Depends(get_db), admin=Depends(require_roles("admin","manager"))
+    service_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(ADMIN, MANAGER))
 ):
     service = db.query(Services).filter(Services.id == service_id).first()
     if not service:
@@ -84,7 +90,6 @@ def delete_service(
     db.delete(service)
     db.commit()
     return {"details": "Deleted successfully"}
-
 
 @router.get("/upcoming_services", response_model=list[ServiceOut])
 def upcoming_services(
@@ -101,7 +106,7 @@ def upcoming_services(
         Services.next_service_due >= today,
         Services.next_service_due <= future_date
     )
-    if current_user.role not in ["admin", "manager"]:
+    if current_user.role not in [ADMIN, MANAGER]:
         query = query.filter(Car.owner_id == current_user.id)
 
     return query.all()
