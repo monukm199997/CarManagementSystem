@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.db.base import Base
-from app.db.session import engine
+# from app.db.base import Base
+# from app.db.session import engine
 from app.models import user
 from app.routes.auth import router as auth_router
 from app.routes.user import router as user_router
@@ -11,7 +11,7 @@ from app.models import car, expenses, service
 
 
 
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
