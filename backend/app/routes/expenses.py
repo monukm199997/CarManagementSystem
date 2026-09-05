@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from backend.app.models.expenses import Expenses
-from backend.app.models.car import Car
-from backend.app.schamas.expenses import ExpenseCreate, ExpenseOut, ExpenseUpdate
-from backend.app.dependencies.role import require_roles
-from backend.app.dependencies.auth import get_current_user
-from backend.app.db.session import get_db
+from app.models.expenses import Expenses
+from app.models.car import Car
+from app.schamas.expenses import ExpenseCreate, ExpenseOut, ExpenseUpdate
+from app.dependencies.role import require_roles
+from app.dependencies.auth import get_current_user
+from app.db.session import get_db
 from typing import Optional
-from backend.app.core.roles import ADMIN, MANAGER, STAFF
-from backend.app.dependencies.ownership import check_car_access
+from app.core.roles import ADMIN, MANAGER, STAFF
+from app.dependencies.ownership import check_car_access
 
 router = APIRouter(prefix="/expenses", tags=["expenses"])
 

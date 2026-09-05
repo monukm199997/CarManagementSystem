@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status,Query
 from backend.app.schamas.car import CarOut, CarCreate, CarUpdate
 from sqlalchemy.orm import Session
-from backend.app.db.session import get_db
-from backend.app.dependencies.auth import get_current_user
-from backend.app.dependencies.role import require_roles
-from backend.app.models.user import Users
-from backend.app.models.car import Car
+from app.db.session import get_db
+from app.dependencies.auth import get_current_user
+from app.dependencies.role import require_roles
+from app.models.user import Users
+from app.models.car import Car
 from typing import List,Optional
-from backend.app.core.roles import ADMIN, MANAGER, STAFF
-from backend.app.dependencies.ownership import check_car_access
+from app.core.roles import ADMIN, MANAGER, STAFF
+from app.dependencies.ownership import check_car_access
 
 router = APIRouter(prefix="/cars", tags=["Cars"])
 

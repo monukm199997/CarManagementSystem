@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException,status
 from sqlalchemy.orm import Session
 from datetime import timedelta
-from backend.app.db.session import SessionLocal
-from backend.app.schamas.user import UserOut, UserCreate
-from backend.app.schamas.auth import TokenResponse, LoginRequest
-from backend.app.models.user import Users
-from backend.app.core.security import hash_password, verify_password, create_access_token
-from backend.app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from backend.app.db.session import get_db
+from app.db.session import SessionLocal
+from app.schamas.user import UserOut, UserCreate
+from app.schamas.auth import TokenResponse, LoginRequest
+from app.models.user import Users
+from app.core.security import hash_password, verify_password, create_access_token
+from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
+from app.db.session import get_db
 
 
 

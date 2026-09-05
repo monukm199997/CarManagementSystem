@@ -1,13 +1,13 @@
 from fastapi import FastAPI
-from backend.app.db.base import Base
-from backend.app.db.session import engine
-from backend.app.models import user
-from backend.app.routes.auth import router as auth_router
-from backend.app.routes.user import router as user_router
-from backend.app.routes.car import router as car_router
-from backend.app.routes.service import router as services_router
-from backend.app.routes.expenses import router as expense_router
-from backend.app.models import car, expenses, service
+from app.db.base import Base
+from app.db.session import engine
+from app.models import user
+from app.routes.auth import router as auth_router
+from app.routes.user import router as user_router
+from app.routes.car import router as car_router
+from app.routes.service import router as services_router
+from app.routes.expenses import router as expense_router
+from app.models import car, expenses, service
 
 
 

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from backend.app.db.base import Base
+from app.db.base import Base
 
 class Car(Base):
 
