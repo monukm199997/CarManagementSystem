@@ -10,6 +10,7 @@ from app.dependencies.auth import get_current_user
 from typing import List
 from datetime import date, timedelta
 from app.core.roles import ADMIN, MANAGER, STAFF
+from app.dependencies.ownership import check_car_access
 
 
 router = APIRouter(prefix="/services", tags=["Services"])
@@ -27,6 +28,7 @@ def create_services(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Car not found"
         )
+    check_car_access(car, current_user)
 
     service = Services(**payload.dict())
 
@@ -47,12 +49,7 @@ def get_car_services(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Car not found"
         )
-
-    if current_user.role != ADMIN and car.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
-        )
-
+    check_car_access(car, current_user)
     service_list = db.query(Services).filter(Services.car_id == car_id).all()
     return service_list
 
@@ -65,10 +62,16 @@ def update_services(
     current_user=Depends(require_roles(ADMIN, MANAGER, STAFF)),
 ):
     service = db.query(Services).filter(Services.id == service_id).first()
+
     if not service:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Car service not found"
         )
+    
+    car = (db.query(Car).filter(Car.id == service.car_id).first())
+
+    check_car_access(car, current_user)
+    
     for key, value in payload.dict(exclude_unset=True).items():
         setattr(service, key, value)
     db.commit()

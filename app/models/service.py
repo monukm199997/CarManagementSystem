@@ -18,6 +18,5 @@ class Services(Base):
     status = Column(String, default="completed")
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    car = relationship("Car")
+    car = relationship("Car", back_populates="services")
 
-    

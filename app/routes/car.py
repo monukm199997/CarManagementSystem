@@ -8,6 +8,7 @@ from app.models.user import Users
 from app.models.car import Car
 from typing import List,Optional
 from app.core.roles import ADMIN, MANAGER, STAFF
+from app.dependencies.ownership import check_car_access
 
 router = APIRouter(prefix="/cars", tags=["Cars"])
 
@@ -51,8 +52,10 @@ def list_car(
 
     car = db.query(Car)
 
-    if current_user.role not in [ADMIN, MANAGER, STAFF]:
-        car = car.filter(Car.owner_id == current_user.id)
+    if current_user.role == "customer":
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
     
     if brand:
         car = car.filter(Car.brand == brand)
@@ -69,8 +72,7 @@ def get_car(
     if not car:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Car not found")
     
-    if current_user.role not in [ADMIN, MANAGER, STAFF] and car.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this car")
+    check_car_access(car, current_user)
     return car
 
 @router.put("/{car_id}", response_model=CarOut)
@@ -83,6 +85,7 @@ def upadate_car(
     car = db.query(Car).filter(Car.id == car_id).first()
     if not car:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Car not found")
+    
     for key, value in payload.dict(exclude_unset=True).items():
         setattr(car, key, value)
     db.commit()

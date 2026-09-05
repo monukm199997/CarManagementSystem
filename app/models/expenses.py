@@ -14,4 +14,4 @@ class Expenses(Base):
     description = Column(String)
     creates_at = Column(DateTime, default=datetime.utcnow)
 
-    car = relationship("Car")
+    car = relationship("Car", back_populates="expenses")
