@@ -1,0 +1,217 @@
+/* =========================================
+   Cars Page
+========================================= */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.page-header h2 {
+    font-weight: 700;
+}
+
+
+/* =========================================
+   Cars Table
+========================================= */
+
+.table th {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+    white-space: nowrap;
+}
+
+.table td {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.car-registration {
+    font-weight: 600;
+}
+
+.car-brand {
+    font-weight: 500;
+}
+
+
+/* =========================================
+   Status Badge
+========================================= */
+
+.car-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.car-status.active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.car-status.inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* =========================================
+   Actions
+========================================= */
+
+.car-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.car-actions .btn {
+    font-size: 12px;
+}
+
+
+/* =========================================
+   Pagination
+========================================= */
+
+.cars-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 18px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.cars-pagination .pagination {
+    margin: 0;
+}
+
+
+/* =========================================
+   Modal
+========================================= */
+
+.modal-content {
+    border: none;
+    border-radius: 12px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-footer {
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* =========================================
+   Mobile
+========================================= */
+
+@media (max-width: 768px) {
+
+    .page-header {
+        align-items: flex-start;
+    }
+
+    .page-header > div:last-child {
+        width: 100%;
+    }
+
+    .page-header button {
+        width: 100%;
+    }
+
+    .cars-pagination {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+}
+
+
+/* =========================================
+   Car Details Page
+========================================= */
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.detail-item span {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.detail-item strong {
+    font-size: 16px;
+    color: #212529;
+    font-weight: 600;
+}
+
+.history-placeholder {
+    min-height: 130px;
+    border: 1px dashed #d1d5db;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+    padding: 15px;
+    color: #6b7280;
+    font-size: 28px;
+}
+
+.history-placeholder strong {
+    font-size: 14px;
+    color: #374151;
+}
+
+.history-placeholder small {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.car-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.car-actions .btn {
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+
+    .car-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .car-actions .btn {
+        width: 100%;
+    }
+
+}

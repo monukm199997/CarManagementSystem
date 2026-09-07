@@ -119,7 +119,7 @@
 
             <!-- Cars -->
             <li>
-                <a href="../cars/index.html">
+                <a href="../cars/cars.html">
                     <span class="sidebar-icon">🚗</span>
                     Cars
                 </a>
@@ -387,7 +387,7 @@
 
                     <div class="col-md-6 col-lg-4">
 
-                        <a href="../cars/index.html" class="admin-action-card">
+                        <a href="../cars/cars.html" class="admin-action-card">
 
                             <div class="admin-action-icon">
                                 🚗
@@ -575,9 +575,6 @@
             "DOMContentLoaded",
             () => {
 
-                /*
-                 * Admin protection
-                 */
                 if (!requireRole("admin", "super_admin")) {
                     return;
                 }

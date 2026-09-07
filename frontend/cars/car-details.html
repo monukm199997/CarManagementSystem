@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Car Details | Car Management System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/cars.css">
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="dashboard-navbar d-flex align-items-center px-3">
+
+        <button id="sidebarToggle" class="btn btn-outline-light sidebar-toggle me-3" type="button">
+            ☰
+        </button>
+
+        <a href="../dashboard.html" class="navbar-brand-custom">
+            🚗 Car Management System
+        </a>
+
+        <div class="ms-auto navbar-user d-flex align-items-center gap-3">
+
+            <div class="text-end d-none d-sm-block">
+                <div id="userName" class="fw-semibold"></div>
+                <small id="userRole"></small>
+            </div>
+
+            <button id="logoutButton" class="btn btn-outline-light btn-sm">
+                Logout
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= SIDEBAR OVERLAY ================= -->
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside id="dashboardSidebar" class="dashboard-sidebar">
+
+        <div class="sidebar-title">
+            Main Menu
+        </div>
+
+        <ul class="sidebar-menu">
+
+            <li>
+                <a href="../dashboard.html">
+                    <span class="sidebar-icon">📊</span>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="cars.html" class="active">
+                    <span class="sidebar-icon">🚗</span>
+                    Cars
+                </a>
+            </li>
+
+            <li>
+                <a href="../services/services.html">
+                    <span class="sidebar-icon">🔧</span>
+                    Services
+                </a>
+            </li>
+
+            <li>
+                <a href="../expenses/expenses.html">
+                    <span class="sidebar-icon">💰</span>
+                    Expenses
+                </a>
+            </li>
+
+            <li data-roles="manager,admin,super_admin">
+                <a href="../reports/reports.html">
+                    <span class="sidebar-icon">📈</span>
+                    Reports
+                </a>
+            </li>
+
+            <li data-roles="admin,super_admin">
+                <a href="../admin/dashboard.html">
+                    <span class="sidebar-icon">🛠</span>
+                    Admin Panel
+                </a>
+            </li>
+
+        </ul>
+
+        <div class="sidebar-title mt-4">
+            Account
+        </div>
+
+        <ul class="sidebar-menu">
+
+            <li>
+                <a href="#" id="sidebarLogout">
+                    <span class="sidebar-icon">🚪</span>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="dashboard-main">
+
+        <!-- Back -->
+
+        <div class="mb-3">
+
+            <a href="cars.html" class="btn btn-outline-secondary btn-sm">
+                ← Back to Cars
+            </a>
+
+        </div>
+
+
+        <!-- Page Header -->
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+
+            <div>
+
+                <h2 class="mb-1">
+                    Car Details
+                </h2>
+
+                <p class="text-muted mb-0">
+                    View complete information about this vehicle.
+                </p>
+
+            </div>
+
+            <div id="carStatus"></div>
+
+        </div>
+
+
+        <!-- Loading -->
+
+        <div id="loadingSection" class="content-card">
+
+            <div class="content-card-body text-center py-5">
+
+                <div class="spinner-border text-primary mb-3" role="status"></div>
+
+                <p class="text-muted mb-0">
+                    Loading car details...
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Error -->
+
+        <div id="errorSection" class="alert alert-danger d-none"></div>
+
+
+        <!-- Details -->
+
+        <div id="carDetailsSection" class="d-none">
+
+            <!-- Vehicle Overview -->
+
+            <div class="content-card mb-4">
+
+                <div class="content-card-header">
+
+                    <div>
+
+                        <h5 class="mb-1">
+                            Vehicle Overview
+                        </h5>
+
+                        <small class="text-muted">
+                            Basic vehicle information
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="content-card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="detail-item">
+                                <span>Registration Number</span>
+                                <strong id="detailRegistration">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="detail-item">
+                                <span>Brand</span>
+                                <strong id="detailBrand">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="detail-item">
+                                <span>Model</span>
+                                <strong id="detailModel">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="detail-item">
+                                <span>Fuel Type</span>
+                                <strong id="detailFuel">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="detail-item">
+                                <span>Manufacturing Year</span>
+                                <strong id="detailYear">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="detail-item">
+                                <span>Color</span>
+                                <strong id="detailColor">-</strong>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Ownership -->
+
+            <div class="content-card mb-4">
+
+                <div class="content-card-header">
+
+                    <div>
+
+                        <h5 class="mb-1">
+                            Ownership
+                        </h5>
+
+                        <small class="text-muted">
+                            Current owner information
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="content-card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <span>
+                                    Owner ID
+                                </span>
+
+                                <strong id="detailOwnerId">
+                                    -
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="detail-item">
+
+                                <span>
+                                    Added On
+                                </span>
+
+                                <strong id="detailCreatedAt">
+                                    -
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Future Sections -->
+
+            <div class="content-card">
+
+                <div class="content-card-header">
+
+                    <h5 class="mb-0">
+                        Vehicle History
+                    </h5>
+
+                </div>
+
+                <div class="content-card-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+
+                            <div class="history-placeholder">
+
+                                🔧
+
+                                <strong>
+                                    Service History
+                                </strong>
+
+                                <small>
+                                    Coming in Maintenance module
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="history-placeholder">
+
+                                ⛽
+
+                                <strong>
+                                    Fuel History
+                                </strong>
+
+                                <small>
+                                    Coming in Fuel module
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="history-placeholder">
+
+                                💰
+
+                                <strong>
+                                    Expense History
+                                </strong>
+
+                                <small>
+                                    Coming in Expense module
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ================= SCRIPTS ================= -->
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/common.js"></script>
+    <script src="../assets/js/dashboard.js"></script>
+    <script src="../assets/js/car-details.js"></script>
+
+</body>
+
+</html>
