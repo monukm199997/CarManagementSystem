@@ -1,0 +1,31 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.auth-page {
+    background-color: #f5f7fa;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.form-control {
+    min-height: 44px;
+}
+
+.btn {
+    border-radius: 8px;
+}
+
+.dashboard-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-3px);
+}
+
+a {
+    text-decoration: none;
+}

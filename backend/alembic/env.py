@@ -1,10 +1,10 @@
-import sys
-from pathlib import Path
+# import sys
+# from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-BACKEND_DIR = BASE_DIR / "backend"
+# BASE_DIR = Path(__file__).resolve().parent.parent
+# BACKEND_DIR = BASE_DIR / "backend"
 
-sys.path.insert(0, str(BACKEND_DIR))
+# sys.path.insert(0, str(BACKEND_DIR))
 
 from logging.config import fileConfig
 
@@ -29,6 +29,7 @@ if config.config_file_name is not None:
 
 # Use our application's SQLAlchemy metadata
 target_metadata = Base.metadata
+
 # Use DATABASE_URL from .env instead of alembic.ini
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 

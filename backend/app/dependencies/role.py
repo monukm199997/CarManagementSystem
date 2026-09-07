@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from app.dependencies.auth import get_current_user
 from typing import Callable
+from app.core.roles import ADMIN_ROLES
 
 def require_roles(*allowed_roles:str)-> Callable:
     def role_checker(current_user = Depends(get_current_user)):
@@ -11,3 +12,17 @@ def require_roles(*allowed_roles:str)-> Callable:
             )
         return current_user
     return role_checker
+
+
+def require_admin():
+
+    def admin_checker(
+        current_user=Depends(get_current_user)
+    ):
+        if current_user.role not in ADMIN_ROLES:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Administrator access required",
+            )
+        return current_user
+    return admin_checker

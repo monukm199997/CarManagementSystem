@@ -1,0 +1,173 @@
+.admin-action-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    padding: 18px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    color: #111827;
+
+    transition: all 0.2s ease;
+}
+
+.admin-action-card:hover {
+    transform: translateY(-3px);
+
+    border-color: #0d6efd;
+
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.admin-action-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f3f4f6;
+
+    border-radius: 10px;
+
+    font-size: 22px;
+
+    flex-shrink: 0;
+}
+
+.admin-action-card h5 {
+    margin: 0 0 5px;
+
+    font-size: 15px;
+
+    font-weight: 600;
+}
+
+.admin-action-card p {
+    margin: 0;
+
+    font-size: 13px;
+
+    color: #6b7280;
+}
+
+.system-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 12px;
+
+    background: #f8f9fa;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+
+    color: #4b5563;
+}
+
+.system-status strong {
+    margin-left: auto;
+
+    font-size: 13px;
+
+    color: #198754;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #198754;
+
+    display: inline-block;
+}
+
+
+/* ==========================================
+   Admin Users
+========================================== */
+
+.role-select {
+    min-width: 130px;
+}
+
+.table th {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+    white-space: nowrap;
+}
+
+.table td {
+    font-size: 14px;
+}
+
+.table-responsive {
+    border-radius: 0 0 12px 12px;
+}
+
+@media (max-width: 768px) {
+
+    .role-select {
+        min-width: 110px;
+    }
+
+    .table th,
+    .table td {
+        white-space: nowrap;
+    }
+
+}
+
+/* ==========================================
+   USER MANAGEMENT
+========================================== */
+
+.role-select {
+    min-width: 130px;
+}
+
+.table th {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+    white-space: nowrap;
+}
+
+.table td {
+    font-size: 14px;
+}
+
+.table-responsive {
+    border-radius: 0 0 12px 12px;
+}
+
+.pagination {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+
+    .role-select {
+        min-width: 120px;
+    }
+
+    .table th,
+    .table td {
+        white-space: nowrap;
+    }
+
+}

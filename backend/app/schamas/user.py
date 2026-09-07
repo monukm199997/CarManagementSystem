@@ -21,7 +21,8 @@ class UserUpdate(BaseModel):
     phone:str = None
     is_active:bool = None
 
-
     class Config:
         from_attributes = True
-        
+
+class UserRoleUpdate(BaseModel):
+    role: str = Field(..., min_length=1)
