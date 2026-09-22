@@ -401,6 +401,120 @@
 
         </div>
 
+        <!-- Service History -->
+        <div class="card shadow-sm border-0 mt-4">
+
+            <div class="card-header bg-white py-3">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <h5 class="mb-1">
+                            Service History
+                        </h5>
+
+                        <small class="text-muted">
+                            Vehicle maintenance and service records
+                        </small>
+                    </div>
+
+                    <a href="../services/services.html" class="btn btn-sm btn-outline-primary">
+                        View All Services
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="card-body p-0">
+
+                <!-- Loading -->
+                <div id="serviceHistoryLoading" class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+
+                    <span class="ms-2 text-muted">
+                        Loading service history...
+                    </span>
+                </div>
+
+
+                <!-- Empty State -->
+                <div id="serviceHistoryEmpty" class="text-center py-5 d-none">
+
+                    <div class="fs-2 mb-2">
+                        🔧
+                    </div>
+
+                    <h6>
+                        No Service History
+                    </h6>
+
+                    <p class="text-muted small mb-0">
+                        No service records have been added for this vehicle yet.
+                    </p>
+
+                </div>
+
+
+                <!-- Error -->
+                <div id="serviceHistoryError" class="alert alert-danger rounded-0 d-none mb-0"></div>
+
+
+                <!-- Table -->
+                <div id="serviceHistoryTableContainer" class="table-responsive d-none">
+
+                    <table class="table table-hover mb-0">
+
+                        <thead>
+                            <tr>
+
+                                <th class="ps-4">
+                                    #
+                                </th>
+
+                                <th>
+                                    Service Date
+                                </th>
+
+                                <th>
+                                    Service Type
+                                </th>
+
+                                <th>
+                                    Odometer
+                                </th>
+
+                                <th>
+                                    Service Center
+                                </th>
+
+                                <th>
+                                    Cost
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th class="text-end pe-4">
+                                    Action
+                                </th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody id="serviceHistoryTableBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </main>
 
 

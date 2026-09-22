@@ -1,23 +1,685 @@
-<div class="col-md-4" data-roles="admin,manager,staff,customer">
+<!DOCTYPE html>
+<html lang="en">
 
-    <div class="card dashboard-card shadow-sm">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <div class="card-body">
+    <title>Services | Car Management System</title>
 
-            <h5>
-                Services
-            </h5>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-            <h2 id="serviceCount">
-                0
-            </h2>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/services.css">
+</head>
 
-            <a href="services/services.html" class="btn btn-sm btn-primary">
-                View Services
-            </a>
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="dashboard-navbar d-flex align-items-center px-3">
+
+        <button id="sidebarToggle" class="btn btn-outline-light sidebar-toggle me-3" type="button">
+            ☰
+        </button>
+
+        <a href="../dashboard.html" class="navbar-brand-custom">
+            🚗 Car Management System
+        </a>
+
+        <div class="ms-auto navbar-user d-flex align-items-center gap-3">
+
+            <div class="text-end d-none d-sm-block">
+                <div id="userName" class="fw-semibold"></div>
+                <small id="userRole"></small>
+            </div>
+
+            <button id="logoutButton" class="btn btn-outline-light btn-sm">
+                Logout
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= SIDEBAR OVERLAY ================= -->
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside id="dashboardSidebar" class="dashboard-sidebar">
+
+        <div class="sidebar-title">
+            Main Menu
+        </div>
+
+        <ul class="sidebar-menu">
+
+            <li>
+                <a href="../dashboard.html">
+                    <span class="sidebar-icon">📊</span>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="../cars/cars.html">
+                    <span class="sidebar-icon">🚗</span>
+                    Cars
+                </a>
+            </li>
+
+            <li>
+                <a href="services.html" class="active">
+                    <span class="sidebar-icon">🔧</span>
+                    Services
+                </a>
+            </li>
+
+            <li>
+                <a href="../expenses/expenses.html">
+                    <span class="sidebar-icon">💰</span>
+                    Expenses
+                </a>
+            </li>
+
+            <li data-roles="manager,admin,super_admin">
+                <a href="../reports/reports.html">
+                    <span class="sidebar-icon">📈</span>
+                    Reports
+                </a>
+            </li>
+
+            <li data-roles="admin,super_admin">
+                <a href="../admin/dashboard.html">
+                    <span class="sidebar-icon">🛠</span>
+                    Admin Panel
+                </a>
+            </li>
+
+        </ul>
+
+
+        <div class="sidebar-title mt-4">
+            Account
+        </div>
+
+        <ul class="sidebar-menu">
+
+            <li>
+                <a href="#" id="sidebarLogout">
+                    <span class="sidebar-icon">🚪</span>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main class="dashboard-main">
+
+        <!-- Header -->
+
+        <div class="page-header mb-4">
+
+            <div>
+
+                <h2 class="mb-1">
+                    Service Management
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Manage vehicle maintenance and service records.
+                </p>
+
+            </div>
+
+
+            <div class="mt-3 mt-md-0">
+
+                <button id="addServiceButton" class="btn btn-primary">
+                    + Add Service
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- Alerts -->
+
+        <div id="successMessage" class="alert alert-success d-none" role="alert"></div>
+
+        <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+
+
+        <!-- Filters -->
+
+        <div class="content-card mb-4">
+
+            <div class="content-card-header">
+
+                <div>
+
+                    <h5 class="mb-1">
+                        Service Records
+                    </h5>
+
+                    <small class="text-muted">
+                        <span id="serviceCount">0</span>
+                        records found
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card-body">
+
+                <div class="row g-3">
+
+                    <!-- Search -->
+
+                    <div class="col-lg-4 col-md-6">
+
+                        <label for="serviceSearch" class="form-label">
+                            Search
+                        </label>
+
+                        <input type="text" id="serviceSearch" class="form-control"
+                            placeholder="Search service type or center...">
+
+                    </div>
+
+
+                    <!-- Car -->
+
+                    <div class="col-lg-3 col-md-6">
+
+                        <label for="carFilter" class="form-label">
+                            Car
+                        </label>
+
+                        <select id="carFilter" class="form-select">
+
+                            <option value="">
+                                All Cars
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Status -->
+
+                    <div class="col-lg-3 col-md-6">
+
+                        <label for="statusFilter" class="form-label">
+                            Status
+                        </label>
+
+                        <select id="statusFilter" class="form-select">
+
+                            <option value="">
+                                All Status
+                            </option>
+
+                            <option value="scheduled">
+                                Scheduled
+                            </option>
+
+                            <option value="completed">
+                                Completed
+                            </option>
+
+                            <option value="cancelled">
+                                Cancelled
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Clear -->
+
+                    <div class="col-lg-2 col-md-6 d-flex align-items-end">
+
+                        <button id="clearFiltersButton" class="btn btn-outline-secondary w-100">
+                            Clear
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Service Table -->
+
+        <div class="content-card">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+                            <th>#</th>
+                            <th>Car</th>
+                            <th>Service Type</th>
+                            <th>Service Date</th>
+                            <th>Odometer</th>
+                            <th>Service Center</th>
+                            <th>Cost</th>
+                            <th>Next Service</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="servicesTableBody">
+
+                        <tr>
+
+                            <td colspan="10" class="text-center py-4">
+                                Loading services...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- Pagination -->
+
+            <div class="services-pagination">
+
+                <div id="paginationInfo" class="text-muted">
+                    Showing 0 services
+                </div>
+
+                <nav>
+
+                    <ul id="pagination" class="pagination pagination-sm mb-0"></ul>
+
+                </nav>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ================= ADD SERVICE MODAL ================= -->
+
+    <div class="modal fade" id="addServiceModal" tabindex="-1" aria-hidden="true">
+
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <h5 class="modal-title mb-1">
+                            Add Service Record
+                        </h5>
+
+                        <small class="text-muted">
+                            Record vehicle maintenance
+                        </small>
+
+                    </div>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+                </div>
+
+
+                <form id="addServiceForm">
+
+                    <div class="modal-body">
+
+                        <div class="row g-3">
+
+                            <!-- Car -->
+
+                            <div class="col-md-6">
+
+                                <label for="serviceCar" class="form-label">
+                                    Car *
+                                </label>
+
+                                <select id="serviceCar" class="form-select" required>
+
+                                    <option value="">
+                                        Select Car
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- Service Type -->
+
+                            <div class="col-md-6">
+
+                                <label for="serviceType" class="form-label">
+                                    Service Type *
+                                </label>
+
+                                <input type="text" id="serviceType" class="form-control" placeholder="Oil Change"
+                                    required>
+
+                            </div>
+
+
+                            <!-- Date -->
+
+                            <div class="col-md-6">
+
+                                <label for="serviceDate" class="form-label">
+                                    Service Date *
+                                </label>
+
+                                <input type="date" id="serviceDate" class="form-control" required>
+
+                            </div>
+
+
+                            <!-- Odometer -->
+
+                            <div class="col-md-6">
+
+                                <label for="odometerReading" class="form-label">
+                                    Odometer Reading *
+                                </label>
+
+                                <input type="number" id="odometerReading" class="form-control" min="0"
+                                    placeholder="25000" required>
+
+                            </div>
+
+
+                            <!-- Service Center -->
+
+                            <div class="col-md-6">
+
+                                <label for="serviceCenter" class="form-label">
+                                    Service Center *
+                                </label>
+
+                                <input type="text" id="serviceCenter" class="form-control" placeholder="ABC Motors"
+                                    required>
+
+                            </div>
+
+
+                            <!-- Cost -->
+
+                            <div class="col-md-6">
+
+                                <label for="serviceCost" class="form-label">
+                                    Cost *
+                                </label>
+
+                                <input type="number" id="serviceCost" class="form-control" min="0" step="0.01"
+                                    placeholder="2500" required>
+
+                            </div>
+
+
+                            <!-- Next Service -->
+
+                            <div class="col-md-6">
+
+                                <label for="nextServiceDue" class="form-label">
+                                    Next Service Due
+                                </label>
+
+                                <input type="date" id="nextServiceDue" class="form-control">
+
+                            </div>
+
+
+                            <!-- Status -->
+
+                            <div class="col-md-6">
+
+                                <label for="serviceStatus" class="form-label">
+                                    Status
+                                </label>
+
+                                <select id="serviceStatus" class="form-select">
+
+                                    <option value="scheduled">
+                                        Scheduled
+                                    </option>
+
+                                    <option value="completed">
+                                        Completed
+                                    </option>
+
+                                    <option value="cancelled">
+                                        Cancelled
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <button type="submit" id="saveServiceButton" class="btn btn-primary">
+                            Add Service
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
+    <!-- Edit Service Modal -->
+    <div class="modal fade" id="editServiceModal" tabindex="-1" aria-labelledby="editServiceModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <div>
+                        <h5 class="modal-title" id="editServiceModalLabel">
+                            Edit Service
+                        </h5>
+
+                        <small class="text-muted">
+                            Update vehicle service information
+                        </small>
+                    </div>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                </div>
+
+
+                <form id="editServiceForm">
+
+                    <div class="modal-body">
+
+                        <input type="hidden" id="editServiceId">
+
+
+                        <!-- Car -->
+                        <div class="mb-3">
+
+                            <label for="editServiceCar" class="form-label">
+                                Car
+                            </label>
+
+                            <select id="editServiceCar" class="form-select" disabled>
+                                <option value="">
+                                    Select Car
+                                </option>
+                            </select>
+
+                            <div class="form-text">
+                                Car cannot be changed after service creation.
+                            </div>
+
+                        </div>
+
+
+                        <div class="row g-3">
+
+                            <!-- Service Type -->
+                            <div class="col-md-6">
+
+                                <label for="editServiceType" class="form-label">
+                                    Service Type
+                                </label>
+
+                                <input type="text" class="form-control" id="editServiceType"
+                                    placeholder="e.g. Oil Change" required>
+
+                            </div>
+
+
+                            <!-- Service Date -->
+                            <div class="col-md-6">
+
+                                <label for="editServiceDate" class="form-label">
+                                    Service Date
+                                </label>
+
+                                <input type="date" class="form-control" id="editServiceDate" required>
+
+                            </div>
+
+
+                            <!-- Odometer -->
+                            <div class="col-md-6">
+
+                                <label for="editOdometer" class="form-label">
+                                    Odometer Reading
+                                </label>
+
+                                <input type="number" class="form-control" id="editOdometer" min="0" required>
+
+                            </div>
+
+
+                            <!-- Service Center -->
+                            <div class="col-md-6">
+
+                                <label for="editServiceCenter" class="form-label">
+                                    Service Center
+                                </label>
+
+                                <input type="text" class="form-control" id="editServiceCenter"
+                                    placeholder="Service center name" required>
+
+                            </div>
+
+
+                            <!-- Cost -->
+                            <div class="col-md-6">
+
+                                <label for="editServiceCost" class="form-label">
+                                    Cost
+                                </label>
+
+                                <input type="number" class="form-control" id="editServiceCost" min="0" step="0.01"
+                                    required>
+
+                            </div>
+
+
+                            <!-- Next Service -->
+                            <div class="col-md-6">
+
+                                <label for="editNextServiceDue" class="form-label">
+                                    Next Service Due
+                                </label>
+
+                                <input type="date" class="form-control" id="editNextServiceDue">
+
+                            </div>
+
+                        </div>
+
+
+                        <div id="editServiceError" class="alert alert-danger d-none mt-3 mb-0"></div>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <button type="submit" class="btn btn-primary" id="updateServiceButton">
+                            Save Changes
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/common.js"></script>
+    <script src="../assets/js/dashboard.js"></script>
+    <script src="../assets/js/services.js"></script>
+
+</body>
+
+</html>

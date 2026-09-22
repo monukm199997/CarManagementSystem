@@ -97,7 +97,7 @@
 
             <!-- Services -->
             <li data-roles="customer,staff,manager,admin">
-                <a href="services/index.html">
+                <a href="services/services.html">
                     <span class="sidebar-icon">🔧</span>
                     Services
                 </a>
@@ -333,7 +333,7 @@
                     </div>
 
                     <div class="col-md-4">
-                        <a href="services/index.html" class="btn btn-outline-primary w-100">
+                        <a href="services/services.html" class="btn btn-outline-primary w-100">
                             🔧 Manage Services
                         </a>
                     </div>
@@ -373,10 +373,76 @@
 
     </main>
 
+    <!-- Upcoming Services -->
+    <div class="card dashboard-card upcoming-services-card border-0 shadow-sm mt-4">
+
+        <div class="card-header bg-white border-0 pt-4 px-4">
+
+            <div class="upcoming-services-header">
+
+                <div class="upcoming-services-header-content">
+                    <h5 class="mb-1">
+                        Upcoming Services
+                    </h5>
+
+                </div>
+
+                <a href="services/services.html" class="btn btn-sm btn-outline-primary">
+                    View All
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body px-4">
+
+            <!-- Loading -->
+            <div id="upcomingServicesLoading" class="text-center py-4">
+
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+
+                <span class="ms-2 text-muted">
+                    Loading upcoming services...
+                </span>
+
+            </div>
+
+
+            <!-- Empty -->
+            <div id="upcomingServicesEmpty" class="text-center py-4 d-none">
+
+                <div class="fs-2 mb-2">
+                    ✓
+                </div>
+
+                <h6 class="mb-1">
+                    No Upcoming Services
+                </h6>
+
+                <p class="text-muted small mb-0">
+                    No services are due in the next 7 days.
+                </p>
+
+            </div>
+
+
+            <!-- Error -->
+            <div id="upcomingServicesError" class="alert alert-danger d-none"></div>
+
+
+            <!-- Services -->
+            <div id="upcomingServicesList" class="d-none"></div>
+
+        </div>
+
+    </div>
+
 
     <!-- ==========================================
      JAVASCRIPT
-========================================== -->
+    ========================================== -->
 
     <script src="assets/js/api.js"></script>
 

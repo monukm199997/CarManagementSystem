@@ -1,5 +1,5 @@
 /* =========================================
-   Cars Page
+   Services Page
 ========================================= */
 
 .page-header {
@@ -15,7 +15,7 @@
 
 
 /* =========================================
-   Cars Table
+   Table
 ========================================= */
 
 .table th {
@@ -30,20 +30,20 @@
     white-space: nowrap;
 }
 
-.car-registration {
+.service-type {
     font-weight: 600;
 }
 
-.car-brand {
+.service-car {
     font-weight: 500;
 }
 
 
 /* =========================================
-   Status Badge
+   Status
 ========================================= */
 
-.car-status {
+.service-status {
     display: inline-flex;
     align-items: center;
     padding: 5px 10px;
@@ -52,12 +52,17 @@
     font-weight: 600;
 }
 
-.car-status.active {
+.service-status.scheduled {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.service-status.completed {
     background: #d1fae5;
     color: #065f46;
 }
 
-.car-status.inactive {
+.service-status.cancelled {
     background: #fee2e2;
     color: #991b1b;
 }
@@ -67,13 +72,15 @@
    Actions
 ========================================= */
 
-.car-actions {
+.service-actions {
     display: flex;
     gap: 6px;
+    flex-wrap: wrap;
 }
 
-.car-actions .btn {
+.service-actions .btn {
     font-size: 12px;
+    white-space: nowrap;
 }
 
 
@@ -81,16 +88,12 @@
    Pagination
 ========================================= */
 
-.cars-pagination {
+.services-pagination {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 18px;
     border-top: 1px solid #e5e7eb;
-}
-
-.cars-pagination .pagination {
-    margin: 0;
 }
 
 
@@ -122,7 +125,7 @@
         align-items: flex-start;
     }
 
-    .page-header > div:last-child {
+    .page-header>div:last-child {
         width: 100%;
     }
 
@@ -130,156 +133,93 @@
         width: 100%;
     }
 
-    .cars-pagination {
+    .services-pagination {
         flex-direction: column;
         gap: 12px;
         align-items: flex-start;
     }
 
-}
-
-
-/* =========================================
-   Car Details Page
-========================================= */
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 14px 16px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    border: 1px solid #e9ecef;
-}
-
-.detail-item span {
-    font-size: 12px;
-    color: #6b7280;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-
-.detail-item strong {
-    font-size: 16px;
-    color: #212529;
-    font-weight: 600;
-}
-
-.history-placeholder {
-    min-height: 130px;
-    border: 1px dashed #d1d5db;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    text-align: center;
-    padding: 15px;
-    color: #6b7280;
-    font-size: 28px;
-}
-
-.history-placeholder strong {
-    font-size: 14px;
-    color: #374151;
-}
-
-.history-placeholder small {
-    font-size: 12px;
-    color: #9ca3af;
-}
-
-.car-actions {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.car-actions .btn {
-    font-size: 12px;
-    white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-
-    .car-actions {
+    .service-actions {
         flex-direction: column;
-        align-items: stretch;
     }
 
-    .car-actions .btn {
+    .service-actions .btn {
         width: 100%;
     }
 
 }
 
-/* =================================
-   SERVICE HISTORY
-================================= */
+/* ================================
+   SERVICE DETAILS
+================================ */
 
-.service-history-status {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
+.service-detail-card {
+    border-radius: 12px;
+    overflow: hidden;
 }
 
-.service-status-completed {
+.service-detail-card .card-header {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+}
+
+.detail-value {
+    font-size: 16px;
+    font-weight: 500;
+    color: #111827;
+}
+
+.service-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-completed {
     background: #dcfce7;
     color: #166534;
 }
 
-.service-status-cancelled {
+.status-cancelled {
     background: #fee2e2;
     color: #991b1b;
 }
 
-.service-status-pending {
+.status-pending {
     background: #fef3c7;
     color: #92400e;
 }
 
-.service-status-progress {
+.status-progress {
     background: #dbeafe;
     color: #1e40af;
 }
 
-.service-status-default {
+.status-default {
     background: #e5e7eb;
     color: #374151;
 }
 
-#serviceHistoryTableContainer table {
-    font-size: 14px;
-}
-
-#serviceHistoryTableContainer th {
-    font-size: 12px;
-    font-weight: 600;
-    color: #6b7280;
-    white-space: nowrap;
-    text-transform: uppercase;
-}
-
-#serviceHistoryTableContainer td {
-    vertical-align: middle;
-    white-space: nowrap;
-}
-
 @media (max-width: 768px) {
 
-    #serviceHistoryTableContainer {
-        overflow-x: auto;
+    .service-detail-card .card-body {
+        padding: 18px;
     }
 
-    #serviceHistoryTableContainer table {
-        min-width: 900px;
+    .detail-value {
+        font-size: 15px;
     }
 
 }

@@ -16,6 +16,9 @@ class ServiceCreate(ServiceBase):
 
 class ServiceUpdate(BaseModel):
     service_type: Optional[str] = None
+    service_date: date | None = None
+    odometer_reading: int | None
+    service_center: str | None
     cost: Optional[float] = None
     next_service_due: Optional[date] = None
     status: Optional[str] = None
@@ -23,6 +26,7 @@ class ServiceUpdate(BaseModel):
 class ServiceOut(ServiceBase):
     id: int
     car_id: int
+    status: str
     created_at: datetime
 
     class Config:

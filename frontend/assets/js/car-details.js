@@ -4,12 +4,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    await loadCarDetails();
-
-});
-
-
-async function loadCarDetails() {
 
     const params = new URLSearchParams(
         window.location.search
@@ -27,6 +21,22 @@ async function loadCarDetails() {
         return;
     }
 
+
+    // Load car details
+    await loadCarDetails(carId);
+
+
+    // Load service history
+    await loadServiceHistory(carId);
+
+});
+
+
+// ========================================
+// LOAD CAR DETAILS
+// ========================================
+
+async function loadCarDetails(carId) {
 
     try {
 
@@ -53,70 +63,130 @@ async function loadCarDetails() {
 }
 
 
+// ========================================
+// RENDER CAR DETAILS
+// ========================================
+
 function renderCarDetails(car) {
 
-    document.getElementById(
-        "detailRegistration"
-    ).textContent =
-        car.registration_number || "-";
+    const registration =
+        document.getElementById(
+            "detailRegistration"
+        );
+
+    const brand =
+        document.getElementById(
+            "detailBrand"
+        );
+
+    const model =
+        document.getElementById(
+            "detailModel"
+        );
+
+    const fuel =
+        document.getElementById(
+            "detailFuel"
+        );
+
+    const year =
+        document.getElementById(
+            "detailYear"
+        );
+
+    const color =
+        document.getElementById(
+            "detailColor"
+        );
+
+    const ownerId =
+        document.getElementById(
+            "detailOwnerId"
+        );
+
+    const createdAt =
+        document.getElementById(
+            "detailCreatedAt"
+        );
 
 
-    document.getElementById(
-        "detailBrand"
-    ).textContent =
-        car.brand || "-";
+    if (registration) {
+        registration.textContent =
+            car.registration_number || "-";
+    }
 
 
-    document.getElementById(
-        "detailModel"
-    ).textContent =
-        car.model || "-";
+    if (brand) {
+        brand.textContent =
+            car.brand || "-";
+    }
 
 
-    document.getElementById(
-        "detailFuel"
-    ).textContent =
-        car.fuel_type || "-";
+    if (model) {
+        model.textContent =
+            car.model || "-";
+    }
 
 
-    document.getElementById(
-        "detailYear"
-    ).textContent =
-        car.year || "-";
+    if (fuel) {
+        fuel.textContent =
+            car.fuel_type || "-";
+    }
 
 
-    document.getElementById(
-        "detailColor"
-    ).textContent =
-        car.color || "-";
+    if (year) {
+        year.textContent =
+            car.year || "-";
+    }
 
 
-    document.getElementById(
-        "detailOwnerId"
-    ).textContent =
-        car.owner_id || "-";
+    if (color) {
+        color.textContent =
+            car.color || "-";
+    }
 
 
-    document.getElementById(
-        "detailCreatedAt"
-    ).textContent =
-        formatDate(car.created_at);
+    if (ownerId) {
+        ownerId.textContent =
+            car.owner_id || "-";
+    }
+
+
+    if (createdAt) {
+        createdAt.textContent =
+            formatDate(car.created_at);
+    }
 
 
     renderStatus(car.status);
 
 
-    document.getElementById(
-        "loadingSection"
-    ).classList.add("d-none");
+    const loadingSection =
+        document.getElementById(
+            "loadingSection"
+        );
+
+    const carDetailsSection =
+        document.getElementById(
+            "carDetailsSection"
+        );
 
 
-    document.getElementById(
-        "carDetailsSection"
-    ).classList.remove("d-none");
+    if (loadingSection) {
+        loadingSection.classList.add("d-none");
+    }
+
+
+    if (carDetailsSection) {
+        carDetailsSection.classList.remove("d-none");
+    }
 
 }
 
+
+// ========================================
+// CAR STATUS
+// ========================================
 
 function renderStatus(status) {
 
@@ -153,6 +223,10 @@ function renderStatus(status) {
 }
 
 
+// ========================================
+// DATE FORMAT
+// ========================================
+
 function formatDate(dateValue) {
 
     if (!dateValue) {
@@ -182,6 +256,10 @@ function formatDate(dateValue) {
 
 }
 
+
+// ========================================
+// CAR ERROR
+// ========================================
 
 function showCarError(message) {
 
@@ -221,5 +299,471 @@ function showCarError(message) {
         );
 
     }
+
+}
+
+
+// ========================================
+// LOAD SERVICE HISTORY
+// ========================================
+
+async function loadServiceHistory(carId) {
+
+    const loadingElement =
+        document.getElementById(
+            "serviceHistoryLoading"
+        );
+
+    const emptyElement =
+        document.getElementById(
+            "serviceHistoryEmpty"
+        );
+
+    const errorElement =
+        document.getElementById(
+            "serviceHistoryError"
+        );
+
+    const tableContainer =
+        document.getElementById(
+            "serviceHistoryTableContainer"
+        );
+
+    const tableBody =
+        document.getElementById(
+            "serviceHistoryTableBody"
+        );
+
+
+    if (!tableBody) {
+
+        console.error(
+            "Service history table body not found."
+        );
+
+        return;
+    }
+
+
+    if (loadingElement) {
+        loadingElement.classList.remove(
+            "d-none"
+        );
+    }
+
+
+    if (emptyElement) {
+        emptyElement.classList.add(
+            "d-none"
+        );
+    }
+
+
+    if (errorElement) {
+        errorElement.classList.add(
+            "d-none"
+        );
+    }
+
+
+    if (tableContainer) {
+        tableContainer.classList.add(
+            "d-none"
+        );
+    }
+
+
+    tableBody.innerHTML = "";
+
+
+    console.log(
+        "Loading service history for car:",
+        carId
+    );
+
+
+    try {
+
+        const services =
+            await apiRequest(
+                `/services/car/${carId}`
+            );
+
+
+        console.log(
+            "Service history response:",
+            services
+        );
+
+
+        if (loadingElement) {
+            loadingElement.classList.add(
+                "d-none"
+            );
+        }
+
+
+        if (
+            !services ||
+            services.length === 0
+        ) {
+
+            if (emptyElement) {
+                emptyElement.classList.remove(
+                    "d-none"
+                );
+            }
+
+            return;
+        }
+
+
+        renderServiceHistory(
+            services
+        );
+
+
+        if (tableContainer) {
+            tableContainer.classList.remove(
+                "d-none"
+            );
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Failed to load service history:",
+            error
+        );
+
+
+        if (loadingElement) {
+            loadingElement.classList.add(
+                "d-none"
+            );
+        }
+
+
+        if (tableContainer) {
+            tableContainer.classList.add(
+                "d-none"
+            );
+        }
+
+
+        if (errorElement) {
+
+            errorElement.textContent =
+                error.message ||
+                "Failed to load service history.";
+
+            errorElement.classList.remove(
+                "d-none"
+            );
+
+        }
+
+    }
+
+}
+
+
+// ========================================
+// RENDER SERVICE HISTORY
+// ========================================
+
+function renderServiceHistory(services) {
+
+    const tableBody =
+        document.getElementById(
+            "serviceHistoryTableBody"
+        );
+
+
+    if (!tableBody) {
+        return;
+    }
+
+
+    tableBody.innerHTML = "";
+
+
+    services.forEach(
+        (service, index) => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td class="ps-4">
+                    ${index + 1}
+                </td>
+
+
+                <td>
+                    ${formatServiceDate(
+                        service.service_date
+                    )}
+                </td>
+
+
+                <td>
+                    <strong>
+                        ${escapeServiceHtml(
+                            capitalizeServiceWords(
+                                service.service_type
+                            )
+                        )}
+                    </strong>
+                </td>
+
+
+                <td>
+                    ${
+                        service.odometer_reading != null
+                            ? Number(
+                                service.odometer_reading
+                            ).toLocaleString(
+                                "en-IN"
+                            ) + " km"
+                            : "-"
+                    }
+                </td>
+
+
+                <td>
+                    ${escapeServiceHtml(
+                        capitalizeServiceWords(
+                            service.service_center
+                        )
+                    )}
+                </td>
+
+
+                <td>
+                    ${formatServiceCurrency(
+                        service.cost
+                    )}
+                </td>
+
+
+                <td>
+                    <span
+                        class="service-history-status ${getServiceHistoryStatusClass(
+                            service.status
+                        )}"
+                    >
+                        ${formatServiceStatus(
+                            service.status
+                        )}
+                    </span>
+                </td>
+
+
+                <td class="text-end pe-4">
+
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        onclick="viewServiceFromCar(${service.id})"
+                    >
+                        View
+                    </button>
+
+                </td>
+
+            `;
+
+
+            tableBody.appendChild(row);
+
+        }
+    );
+
+}
+
+
+// ========================================
+// VIEW SERVICE
+// ========================================
+
+function viewServiceFromCar(serviceId) {
+
+    window.location.href =
+        `../services/service-details.html?id=${serviceId}`;
+
+}
+
+
+// ========================================
+// SERVICE DATE
+// ========================================
+
+function formatServiceDate(value) {
+
+    if (!value) {
+        return "-";
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
+
+}
+
+
+// ========================================
+// SERVICE CURRENCY
+// ========================================
+
+function formatServiceCurrency(value) {
+
+    if (value == null) {
+        return "-";
+    }
+
+
+    return Number(value).toLocaleString(
+        "en-IN",
+        {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 2
+        }
+    );
+
+}
+
+
+// ========================================
+// SERVICE STATUS
+// ========================================
+
+function formatServiceStatus(status) {
+
+    if (!status) {
+        return "Unknown";
+    }
+
+
+    return status
+        .replace(/_/g, " ")
+        .replace(
+            /\b\w/g,
+            char => char.toUpperCase()
+        );
+
+}
+
+
+// ========================================
+// SERVICE STATUS CLASS
+// ========================================
+
+function getServiceHistoryStatusClass(status) {
+
+    switch (
+        (status || "").toLowerCase()
+    ) {
+
+        case "completed":
+            return "service-status-completed";
+
+
+        case "cancelled":
+        case "canceled":
+            return "service-status-cancelled";
+
+
+        case "scheduled":
+        case "pending":
+            return "service-status-pending";
+
+
+        case "in_progress":
+        case "in progress":
+            return "service-status-progress";
+
+
+        default:
+            return "service-status-default";
+    }
+
+}
+
+
+// ========================================
+// CAPITALIZE WORDS
+// ========================================
+
+function capitalizeServiceWords(value) {
+
+    if (!value) {
+        return "-";
+    }
+
+
+    return String(value)
+        .toLowerCase()
+        .replace(
+            /\b\w/g,
+            char => char.toUpperCase()
+        );
+
+}
+
+
+// ========================================
+// ESCAPE HTML
+// ========================================
+
+function escapeServiceHtml(value) {
+
+    if (value == null) {
+        return "";
+    }
+
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }

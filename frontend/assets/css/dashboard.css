@@ -286,3 +286,170 @@ body {
         display: none;
     }
 }
+
+
+/* ========================================
+   UPCOMING SERVICES
+======================================== */
+
+.upcoming-service-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.upcoming-service-item:last-child {
+    border-bottom: none;
+}
+
+.upcoming-service-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 220px;
+}
+
+.upcoming-service-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #eef4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.upcoming-service-car {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.upcoming-service-type {
+    font-size: 13px;
+    color: #374151;
+    margin-top: 2px;
+}
+
+.upcoming-service-center {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.upcoming-service-date {
+    min-width: 150px;
+}
+
+.upcoming-due-label,
+.upcoming-cost-label {
+    font-size: 11px;
+    color: #6b7280;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.upcoming-due-date {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin-top: 2px;
+}
+
+.upcoming-days {
+    font-size: 12px;
+    color: #2563eb;
+    margin-top: 2px;
+}
+
+.upcoming-service-cost {
+    min-width: 110px;
+}
+
+.upcoming-cost-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin-top: 2px;
+}
+
+.upcoming-service-action {
+    min-width: 60px;
+    text-align: right;
+}
+
+@media (max-width: 768px) {
+
+    .upcoming-service-item {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .upcoming-service-main {
+        width: 100%;
+    }
+
+    .upcoming-service-date,
+    .upcoming-service-cost {
+        min-width: 120px;
+    }
+
+    .upcoming-service-action {
+        margin-left: auto;
+    }
+
+}
+
+/* ========================================
+   UPCOMING SERVICES - LAYOUT FIX
+======================================== */
+
+.upcoming-services-card {
+    width: 100%;
+    overflow: hidden;
+}
+
+.upcoming-services-card .card-header {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.upcoming-services-card .card-body {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.upcoming-services-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.upcoming-services-header-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.upcoming-services-header-content h5 {
+    margin: 0;
+}
+
+.upcoming-services-header-content p {
+    margin: 4px 0 0;
+}
+
+@media (max-width: 576px) {
+
+    .upcoming-services-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+}

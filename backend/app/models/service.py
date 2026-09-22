@@ -8,7 +8,7 @@ class Services(Base):
     __tablename__ = "services"
 
     id = Column(Integer, primary_key=True, index=True)
-    car_id = Column(Integer,ForeignKey("cars.id"), nullable=False)
+    car_id = Column(Integer,ForeignKey("cars.id"), nullable=False, index=True)
     service_type = Column(String, nullable=False)
     service_date = Column(Date, nullable=False)
     odometer_reading = Column(Integer)
