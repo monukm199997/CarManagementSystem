@@ -77,13 +77,10 @@ function capitalizeRole(role) {
         return "";
     }
 
-    return (
-        role.charAt(0).toUpperCase() +
-        role.slice(1)
-    );
-
+    return role
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, char => char.toUpperCase());
 }
-
 
 /*
  * Apply role based UI

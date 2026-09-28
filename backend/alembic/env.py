@@ -20,7 +20,7 @@ from app.models.user import Users
 from app.models.car import Car
 from app.models.service import Services
 from app.models.expenses import Expenses
-
+from app.models.fuel import Fuel
 
 config = context.config
 

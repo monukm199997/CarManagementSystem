@@ -1,0 +1,496 @@
+/* ========================================
+   FUEL MANAGEMENT
+======================================== */
+
+.fuel-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.fuel-page-header h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.fuel-page-header p {
+    margin: 4px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* ========================================
+   FILTERS
+======================================== */
+
+.fuel-filter-card {
+    border-radius: 12px;
+}
+
+.fuel-filter-card .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+
+/* ========================================
+   RECORDS
+======================================== */
+
+.fuel-records-card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.fuel-records-card .card-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.fuel-records-card table {
+    font-size: 14px;
+}
+
+.fuel-records-card th {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+.fuel-records-card td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+
+/* ========================================
+   FUEL TYPE BADGE
+======================================== */
+
+.fuel-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #eef2ff;
+    color: #3730a3;
+}
+
+
+/* ========================================
+   EMPTY STATE
+======================================== */
+
+.fuel-empty-icon {
+    font-size: 38px;
+    margin-bottom: 10px;
+}
+
+
+/* ========================================
+   PAGINATION
+======================================== */
+
+.fuel-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-top: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.fuel-pagination .pagination {
+    margin: 0;
+}
+
+
+/* ========================================
+   MODAL
+======================================== */
+
+#fuelModal .modal-content {
+    border: 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#fuelModal .modal-header {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#fuelModal .modal-footer {
+    border-top: 1px solid #e5e7eb;
+}
+
+#fuelModal .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 768px) {
+
+    .fuel-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .fuel-page-header .btn {
+        width: 100%;
+    }
+
+    .fuel-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+}
+
+
+/* =========================================
+   FUEL DETAILS PAGE
+========================================= */
+
+.fuel-details-header {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 28px;
+}
+
+
+.fuel-details-header h1 {
+    margin: 8px 0 6px;
+
+    font-size: 28px;
+
+    font-weight: 700;
+
+    color: #111827;
+}
+
+
+.fuel-details-header p {
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 14px;
+}
+
+
+.fuel-breadcrumb {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 13px;
+
+    color: #94a3b8;
+}
+
+
+.fuel-breadcrumb a {
+    color: #0d6efd;
+
+    text-decoration: none;
+}
+
+
+.fuel-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+
+.fuel-details-header-actions {
+    display: flex;
+
+    gap: 10px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================
+   LOADING
+========================================= */
+
+.fuel-details-state {
+    min-height: 300px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #64748b;
+
+    gap: 15px;
+}
+
+
+.fuel-details-state p {
+    margin: 0;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   SUMMARY CARDS
+========================================= */
+
+.fuel-detail-summary-card {
+    min-height: 110px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 16px;
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(15, 23, 42, 0.04);
+}
+
+
+.fuel-detail-summary-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #eff6ff;
+
+    font-size: 22px;
+}
+
+
+.fuel-detail-summary-card span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+
+.fuel-detail-summary-card strong {
+    display: block;
+
+    color: #111827;
+
+    font-size: 22px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   DETAILS CARD
+========================================= */
+
+.fuel-details-card {
+    padding: 24px;
+
+    background: #ffffff;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(15, 23, 42, 0.04);
+}
+
+
+/* =========================================
+   CARD HEADER
+========================================= */
+
+.fuel-details-card-header {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 24px;
+
+    padding-bottom: 18px;
+
+    border-bottom:
+        1px solid #eef2f7;
+}
+
+
+.fuel-details-card-header h4 {
+    margin: 0 0 5px;
+
+    font-size: 17px;
+
+    font-weight: 700;
+
+    color: #111827;
+}
+
+
+.fuel-details-card-header p {
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+
+/* =========================================
+   FUEL TYPE
+========================================= */
+
+.fuel-type-badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================
+   DETAIL FIELD
+========================================= */
+
+.fuel-detail-field label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #94a3b8;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.4px;
+}
+
+
+.fuel-detail-value {
+    min-height: 24px;
+
+    color: #1e293b;
+
+    font-size: 14px;
+
+    font-weight: 500;
+}
+
+
+.fuel-notes {
+    padding: 13px 15px;
+
+    min-height: 55px;
+
+    background: #f8fafc;
+
+    border-radius: 8px;
+
+    color: #475569;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 768px) {
+
+    .fuel-details-header {
+        flex-direction: column;
+    }
+
+
+    .fuel-details-header-actions {
+        width: 100%;
+    }
+
+
+    .fuel-details-header-actions button {
+        flex: 1;
+    }
+
+
+    .fuel-details-card {
+        padding: 18px;
+    }
+
+
+    .fuel-details-card-header {
+        flex-direction: column;
+    }
+
+}

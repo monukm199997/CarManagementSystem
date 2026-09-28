@@ -3,16 +3,21 @@
 
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Dashboard - Car Management System</title>
 
     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
     <!-- Main CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Common Layout CSS -->
+    <link rel="stylesheet" href="assets/css/layout.css">
 
     <!-- Dashboard CSS -->
     <link rel="stylesheet" href="assets/css/dashboard.css">
@@ -20,192 +25,34 @@
 
 <body>
 
-    <!-- ==========================================
-     NAVBAR
-========================================== -->
+    <!-- ================= NAVBAR ================= -->
 
-    <nav class="dashboard-navbar d-flex align-items-center px-3">
-
-        <!-- Mobile Sidebar Button -->
-        <button id="sidebarToggle" class="sidebar-toggle me-3" type="button">
-            ☰
-        </button>
-
-        <!-- Brand -->
-        <a href="dashboard.html" class="navbar-brand-custom">
-            🚗 Car Management System
-        </a>
-
-        <!-- Right Side -->
-        <div class="ms-auto d-flex align-items-center gap-3">
-
-            <!-- Notification -->
-            <button class="btn btn-sm text-white" type="button" title="Notifications">
-                🔔
-            </button>
-
-            <!-- User -->
-            <div class="navbar-user text-end">
-
-                <div id="userName" class="navbar-user-name">
-                    User
-                </div>
-
-                <div id="userRole" class="navbar-user-role">
-                    Role
-                </div>
-
-            </div>
-
-            <!-- Logout -->
-            <button id="logoutButton" class="btn btn-outline-light btn-sm" type="button">
-                Logout
-            </button>
-
-        </div>
-
-    </nav>
+    <div id="appNavbar"></div>
 
 
-    <!-- ==========================================
-     SIDEBAR
-========================================== -->
-
-    <aside id="dashboardSidebar" class="dashboard-sidebar">
-
-        <div class="sidebar-title">
-            Main Menu
-        </div>
-
-        <ul class="sidebar-menu">
-
-            <!-- Dashboard -->
-            <li>
-                <a href="dashboard.html" class="active">
-                    <span class="sidebar-icon">🏠</span>
-                    Dashboard
-                </a>
-            </li>
-
-            <!-- Cars -->
-            <li data-roles="customer,staff,manager,admin">
-                <a href="cars/cars.html">
-                    <span class="sidebar-icon">🚗</span>
-                    Cars
-                </a>
-            </li>
-
-            <!-- Services -->
-            <li data-roles="customer,staff,manager,admin">
-                <a href="services/services.html">
-                    <span class="sidebar-icon">🔧</span>
-                    Services
-                </a>
-            </li>
-
-            <!-- Expenses -->
-            <li data-roles="customer,staff,manager,admin">
-                <a href="expenses/index.html">
-                    <span class="sidebar-icon">💰</span>
-                    Expenses
-                </a>
-            </li>
-
-            <!-- Users -->
-            <li data-roles="admin">
-                <a href="admin/users.html">
-                    <span class="sidebar-icon">👥</span>
-                    Users
-                </a>
-            </li>
-
-            <!-- Drivers -->
-            <li data-roles="admin,manager">
-                <a href="admin/drivers.html">
-                    <span class="sidebar-icon">🧑</span>
-                    Drivers
-                </a>
-            </li>
-
-            <!-- Reports -->
-            <li data-roles="admin,manager">
-                <a href="admin/reports.html">
-                    <span class="sidebar-icon">📊</span>
-                    Reports
-                </a>
-            </li>
-
-        </ul>
-
-
-        <!-- ==========================================
-     SYSTEM / ADMIN
-========================================== -->
-
-        <div class="sidebar-title mt-4">
-            System
-        </div>
-
-        <ul class="sidebar-menu">
-
-            <!-- Admin Panel -->
-            <li data-roles="admin,super_admin">
-                <a href="admin/dashboard.html">
-                    <span class="sidebar-icon">🛠</span>
-                    Admin Panel
-                </a>
-            </li>
-
-            <!-- Reports -->
-            <li data-roles="manager,admin">
-                <a href="admin/reports.html">
-                    <span class="sidebar-icon">📊</span>
-                    Reports
-                </a>
-            </li>
-
-            <!-- Settings -->
-            <li data-roles="admin">
-                <a href="admin/settings.html">
-                    <span class="sidebar-icon">⚙️</span>
-                    Settings
-                </a>
-            </li>
-
-            <!-- Logout -->
-            <li>
-                <a href="#" id="sidebarLogout">
-                    <span class="sidebar-icon">🚪</span>
-                    Logout
-                </a>
-            </li>
-
-        </ul>
-
-    </aside>
-
-
-    <!-- ==========================================
-     MOBILE OVERLAY
-========================================== -->
+    <!-- ================= SIDEBAR OVERLAY ================= -->
 
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
 
+    <!-- ================= SIDEBAR ================= -->
+
+    <div id="appSidebar"></div>
+
+
     <!-- ==========================================
-     MAIN CONTENT
-========================================== -->
+         MAIN CONTENT
+    ========================================== -->
 
     <main class="dashboard-main">
 
-        <!-- Welcome -->
+        <!-- ================= WELCOME ================= -->
+
         <section class="welcome-section">
 
             <h2>
                 Welcome back,
-                <span id="welcomeUser">
-                    User
-                </span>
+                <span id="welcomeUser">User</span>
                 👋
             </h2>
 
@@ -216,9 +63,7 @@
         </section>
 
 
-        <!-- ======================================
-         STAT CARDS
-    ======================================= -->
+        <!-- ================= STAT CARDS ================= -->
 
         <div class="row g-4 mb-4">
 
@@ -312,9 +157,7 @@
         </div>
 
 
-        <!-- ======================================
-         QUICK ACTIONS
-    ======================================= -->
+        <!-- ================= QUICK ACTIONS ================= -->
 
         <div class="content-card mb-4">
 
@@ -327,21 +170,38 @@
                 <div class="row g-3">
 
                     <div class="col-md-4">
-                        <a href="cars/cars.html" class="btn btn-primary w-100">
+
+                        <a
+                            href="cars/cars.html"
+                            class="btn btn-primary w-100"
+                        >
                             🚗 Manage Cars
                         </a>
+
                     </div>
 
+
                     <div class="col-md-4">
-                        <a href="services/services.html" class="btn btn-outline-primary w-100">
+
+                        <a
+                            href="services/services.html"
+                            class="btn btn-outline-primary w-100"
+                        >
                             🔧 Manage Services
                         </a>
+
                     </div>
 
+
                     <div class="col-md-4">
-                        <a href="expenses/index.html" class="btn btn-outline-primary w-100">
+
+                        <a
+                            href="expenses/index.html"
+                            class="btn btn-outline-primary w-100"
+                        >
                             💰 Manage Expenses
                         </a>
+
                     </div>
 
                 </div>
@@ -351,11 +211,9 @@
         </div>
 
 
-        <!-- ======================================
-         RECENT ACTIVITY
-    ======================================= -->
+        <!-- ================= RECENT ACTIVITY ================= -->
 
-        <div class="content-card">
+        <div class="content-card mb-4">
 
             <div class="content-card-header">
                 Recent Activity
@@ -363,7 +221,10 @@
 
             <div class="content-card-body">
 
-                <div id="recentActivity" class="text-muted">
+                <div
+                    id="recentActivity"
+                    class="text-muted"
+                >
                     No recent activity available.
                 </div>
 
@@ -371,82 +232,109 @@
 
         </div>
 
-    </main>
 
-    <!-- Upcoming Services -->
-    <div class="card dashboard-card upcoming-services-card border-0 shadow-sm mt-4">
+        <!-- ================= UPCOMING SERVICES ================= -->
 
-        <div class="card-header bg-white border-0 pt-4 px-4">
+        <div class="content-card upcoming-services-card">
 
-            <div class="upcoming-services-header">
+            <!-- Header -->
+
+            <div class="content-card-header upcoming-services-header">
 
                 <div class="upcoming-services-header-content">
-                    <h5 class="mb-1">
+
+                    <h5>
                         Upcoming Services
                     </h5>
 
                 </div>
 
-                <a href="services/services.html" class="btn btn-sm btn-outline-primary">
+                <a
+                    href="services/services.html"
+                    class="btn btn-sm btn-outline-primary"
+                >
                     View All
                 </a>
 
             </div>
 
-        </div>
 
+            <!-- Body -->
 
-        <div class="card-body px-4">
+            <div class="content-card-body">
 
-            <!-- Loading -->
-            <div id="upcomingServicesLoading" class="text-center py-4">
+                <!-- Loading -->
 
-                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                <div
+                    id="upcomingServicesLoading"
+                    class="text-center py-4"
+                >
 
-                <span class="ms-2 text-muted">
-                    Loading upcoming services...
-                </span>
+                    <div
+                        class="spinner-border spinner-border-sm text-primary"
+                        role="status"
+                    ></div>
 
-            </div>
+                    <span class="ms-2 text-muted">
+                        Loading upcoming services...
+                    </span>
 
-
-            <!-- Empty -->
-            <div id="upcomingServicesEmpty" class="text-center py-4 d-none">
-
-                <div class="fs-2 mb-2">
-                    ✓
                 </div>
 
-                <h6 class="mb-1">
-                    No Upcoming Services
-                </h6>
 
-                <p class="text-muted small mb-0">
-                    No services are due in the next 7 days.
-                </p>
+                <!-- Empty -->
+
+                <div
+                    id="upcomingServicesEmpty"
+                    class="text-center py-4 d-none"
+                >
+
+                    <div class="fs-2 mb-2">
+                        ✓
+                    </div>
+
+                    <h6 class="mb-1">
+                        No Upcoming Services
+                    </h6>
+
+                    <p class="text-muted small mb-0">
+                        No services are due in the next 7 days.
+                    </p>
+
+                </div>
+
+
+                <!-- Error -->
+
+                <div
+                    id="upcomingServicesError"
+                    class="alert alert-danger d-none"
+                ></div>
+
+
+                <!-- Services -->
+
+                <div
+                    id="upcomingServicesList"
+                    class="upcoming-services-list d-none"
+                ></div>
 
             </div>
 
-
-            <!-- Error -->
-            <div id="upcomingServicesError" class="alert alert-danger d-none"></div>
-
-
-            <!-- Services -->
-            <div id="upcomingServicesList" class="d-none"></div>
-
         </div>
 
-    </div>
+    </main>
 
 
     <!-- ==========================================
-     JAVASCRIPT
+         JAVASCRIPT
     ========================================== -->
 
     <script src="assets/js/api.js"></script>
 
     <script src="assets/js/auth.js"></script>
+
+    <script src="assets/js/layout.js"></script>
 
     <script src="assets/js/common.js"></script>
 

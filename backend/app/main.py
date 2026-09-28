@@ -8,6 +8,7 @@ from app.routes.user import router as user_router
 from app.routes.car import router as car_router
 from app.routes.service import router as services_router
 from app.routes.expenses import router as expense_router
+from app.routes.fuel import router as fuel_router
 from app.models import car, expenses, service
 
 
@@ -21,6 +22,7 @@ app.include_router(user_router)
 app.include_router(car_router)
 app.include_router(services_router)
 app.include_router(expense_router)
+app.include_router(fuel_router)
 
 
 app.add_middleware(

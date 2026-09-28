@@ -15,6 +15,7 @@
     <!-- Main CSS -->
     <link rel="stylesheet" href="../assets/css/style.css">
 
+    <link rel="stylesheet" href="../assets/css/layout.css">
     <!-- Dashboard CSS -->
     <link rel="stylesheet" href="../assets/css/dashboard.css">
 
@@ -25,173 +26,15 @@
 
 <body>
 
-    <!-- ==========================================
-     NAVBAR
-========================================== -->
+     <div id="appNavbar"></div>
 
-    <nav class="dashboard-navbar d-flex align-items-center px-3">
-
-        <!-- Mobile Toggle -->
-        <button id="sidebarToggle" class="sidebar-toggle me-3" type="button">
-            ☰
-        </button>
-
-        <!-- Brand -->
-        <a href="dashboard.html" class="navbar-brand-custom">
-            🚗 Car Management System
-        </a>
-
-        <!-- Right -->
-        <div class="ms-auto d-flex align-items-center gap-3">
-
-            <!-- Notification -->
-            <button class="btn btn-sm text-white" type="button">
-                🔔
-            </button>
-
-            <!-- User -->
-            <div class="navbar-user text-end">
-
-                <div id="userName" class="navbar-user-name">
-                    Admin
-                </div>
-
-                <div id="userRole" class="navbar-user-role">
-                    Admin
-                </div>
-
-            </div>
-
-            <!-- Logout -->
-            <button id="logoutButton" class="btn btn-outline-light btn-sm" type="button">
-                Logout
-            </button>
-
-        </div>
-
-    </nav>
-
-
-    <!-- ==========================================
-     SIDEBAR
-========================================== -->
-
-    <aside id="dashboardSidebar" class="dashboard-sidebar">
-
-        <div class="sidebar-title">
-            Main Menu
-        </div>
-
-        <ul class="sidebar-menu">
-
-            <!-- Dashboard -->
-            <li>
-                <a href="../dashboard.html">
-                    <span class="sidebar-icon">🏠</span>
-                    Dashboard
-                </a>
-            </li>
-
-        </ul>
-
-
-        <div class="sidebar-title mt-4">
-            Administration
-        </div>
-
-        <ul class="sidebar-menu">
-
-            <!-- Admin Dashboard -->
-            <li>
-                <a href="dashboard.html" class="active">
-                    <span class="sidebar-icon">🛠</span>
-                    Admin Panel
-                </a>
-            </li>
-
-            <!-- Users -->
-            <li>
-                <a href="users.html">
-                    <span class="sidebar-icon">👥</span>
-                    Users
-                </a>
-            </li>
-
-            <!-- Cars -->
-            <li>
-                <a href="../cars/cars.html">
-                    <span class="sidebar-icon">🚗</span>
-                    Cars
-                </a>
-            </li>
-
-            <!-- Services -->
-            <li>
-                <a href="../services/services.html">
-                    <span class="sidebar-icon">🔧</span>
-                    Services
-                </a>
-            </li>
-
-            <!-- Drivers -->
-            <li>
-                <a href="drivers.html">
-                    <span class="sidebar-icon">🧑</span>
-                    Drivers
-                </a>
-            </li>
-
-            <!-- Expenses -->
-            <li>
-                <a href="../expenses/index.html">
-                    <span class="sidebar-icon">💰</span>
-                    Expenses
-                </a>
-            </li>
-
-            <!-- Reports -->
-            <li>
-                <a href="reports.html">
-                    <span class="sidebar-icon">📊</span>
-                    Reports
-                </a>
-            </li>
-
-            <!-- Settings -->
-            <li>
-                <a href="settings.html">
-                    <span class="sidebar-icon">⚙️</span>
-                    Settings
-                </a>
-            </li>
-
-        </ul>
-
-
-        <div class="sidebar-title mt-4">
-            Account
-        </div>
-
-        <ul class="sidebar-menu">
-
-            <li>
-                <a href="#" id="sidebarLogout">
-                    <span class="sidebar-icon">🚪</span>
-                    Logout
-                </a>
-            </li>
-
-        </ul>
-
-    </aside>
-
-
-    <!-- ==========================================
-     MOBILE OVERLAY
-========================================== -->
+    <!-- ================= SIDEBAR OVERLAY ================= -->
 
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
+    <div id="appSidebar"></div>
+
+    <div id="sidebarOverlay"></div>
 
     <!-- ==========================================
      MAIN CONTENT
@@ -564,6 +407,8 @@
     <script src="../assets/js/api.js"></script>
 
     <script src="../assets/js/auth.js"></script>
+
+    <script src="../assets/js/layout.js"></script>  
 
     <script src="../assets/js/common.js"></script>
 

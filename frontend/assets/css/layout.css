@@ -1,0 +1,422 @@
+/* =========================================
+   COMMON APPLICATION LAYOUT
+   Navbar + Sidebar + Main Content
+========================================= */
+
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+.dashboard-navbar {
+    height: 64px;
+    width: 100%;
+
+    background-color: #212529;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 18px;
+
+    box-sizing: border-box;
+
+    z-index: 1000;
+}
+
+
+/* =========================================
+   NAVBAR BRAND
+========================================= */
+
+.navbar-brand-custom {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color: #ffffff;
+
+    font-size: 21px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+.navbar-brand-icon {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 21px;
+
+    line-height: 1;
+}
+
+
+/* =========================================
+   NAVBAR USER AREA
+========================================= */
+
+.navbar-user {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    height: 100%;
+
+    color: #ffffff;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================
+   NOTIFICATION
+========================================= */
+
+.navbar-notification {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+
+    font-size: 17px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================
+   USER INFORMATION
+========================================= */
+
+.navbar-user-info {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+    justify-content: center;
+
+    line-height: 1.2;
+
+    min-width: 90px;
+}
+
+
+.navbar-user-info strong {
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+.navbar-user-info small {
+    color: #d1d5db;
+
+    font-size: 12px;
+
+    margin-top: 2px;
+}
+
+
+/* =========================================
+   LOGOUT BUTTON
+========================================= */
+
+.navbar-user .btn {
+    white-space: nowrap;
+
+    min-width: 62px;
+
+    height: 34px;
+
+    padding: 4px 12px;
+}
+
+
+/* =========================================
+   APP WRAPPERS
+========================================= */
+
+#appNavbar,
+#appSidebar {
+    display: contents;
+}
+
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+.dashboard-sidebar {
+    position: fixed;
+
+    top: 64px;
+    left: 0;
+    bottom: 0;
+
+    width: 240px;
+
+    background-color: #ffffff;
+
+    border-right: 1px solid #e5e7eb;
+
+    padding: 20px 12px;
+
+    overflow-y: auto;
+
+    box-sizing: border-box;
+
+    z-index: 900;
+
+    transition: transform 0.3s ease;
+}
+
+
+/* =========================================
+   SIDEBAR TITLE
+========================================= */
+
+.sidebar-title {
+    font-size: 11px;
+
+    font-weight: 600;
+
+    color: #8a94a6;
+
+    letter-spacing: 0.3px;
+
+    margin: 0 12px 12px;
+}
+
+
+/* =========================================
+   SIDEBAR MENU
+========================================= */
+
+.sidebar-menu {
+    list-style: none;
+
+    padding: 0;
+    margin: 0;
+}
+
+
+/* =========================================
+   SIDEBAR MENU ITEM
+========================================= */
+
+.sidebar-menu li {
+    margin-bottom: 5px;
+}
+
+
+/* =========================================
+   SIDEBAR LINK
+========================================= */
+
+.sidebar-menu a {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    width: 100%;
+
+    min-height: 40px;
+
+    padding: 8px 12px;
+
+    box-sizing: border-box;
+
+    border-radius: 8px;
+
+    color: #334155;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+
+/* =========================================
+   SIDEBAR HOVER
+========================================= */
+
+.sidebar-menu a:hover {
+    background-color: #f1f3f5;
+
+    color: #0d6efd;
+}
+
+
+/* =========================================
+   ACTIVE MENU
+========================================= */
+
+.sidebar-menu li.active a {
+    background-color: #0d6efd;
+
+    color: #ffffff;
+}
+
+
+/* =========================================
+   SIDEBAR ICON
+========================================= */
+
+.sidebar-icon {
+    width: 20px;
+
+    min-width: 20px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 17px;
+}
+
+
+/* =========================================
+   MOBILE SIDEBAR OVERLAY
+========================================= */
+
+.sidebar-overlay {
+    display: none;
+
+    position: fixed;
+
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-color: rgba(0, 0, 0, 0.35);
+
+    z-index: 850;
+}
+
+
+/* =========================================
+   MAIN CONTENT
+========================================= */
+
+.dashboard-main {
+    margin-left: 240px;
+
+    padding: 90px 25px 30px;
+
+    min-height: 100vh;
+
+    box-sizing: border-box;
+
+    background-color: #f5f7fb;
+}
+
+
+/* =========================================
+   MOBILE / TABLET
+========================================= */
+
+@media (max-width: 991px) {
+
+    .dashboard-navbar {
+        padding: 0 14px;
+    }
+
+
+    .navbar-brand-custom {
+        font-size: 18px;
+    }
+
+
+    .navbar-notification {
+        display: none;
+    }
+
+
+    .navbar-user-info {
+        min-width: auto;
+    }
+
+
+    .dashboard-sidebar {
+        transform: translateX(-100%);
+    }
+
+
+    .dashboard-sidebar.show {
+        transform: translateX(0);
+    }
+
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+
+    .dashboard-main {
+        margin-left: 0;
+
+        padding: 90px 18px 25px;
+    }
+
+}
+
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 576px) {
+
+    .navbar-brand-custom {
+        font-size: 16px;
+    }
+
+
+    .navbar-user {
+        gap: 8px;
+    }
+
+
+    .navbar-user-info strong {
+        font-size: 12px;
+    }
+
+
+    .navbar-user-info small {
+        font-size: 10px;
+    }
+
+
+    .navbar-user .btn {
+        min-width: auto;
+
+        padding: 4px 8px;
+    }
+
+}
