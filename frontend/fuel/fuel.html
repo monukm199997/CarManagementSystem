@@ -51,9 +51,17 @@
             </div>
 
 
-            <button id="addFuelButton" class="btn btn-primary">
-                + Add Fuel
-            </button>
+            <div class="d-flex gap-2">
+
+                <a href="fuel-history.html" class="btn btn-outline-primary">
+                    📊 Fuel History
+                </a>
+
+                <button id="addFuelButton" class="btn btn-primary">
+                    + Add Fuel
+                </button>
+
+            </div>
 
         </div>
 
@@ -65,6 +73,330 @@
 
         <div id="errorMessage" class="alert alert-danger d-none"></div>
 
+        <!-- ================================
+     FUEL ANALYTICS
+    ================================ -->
+
+        <div class="row g-3 mt-1 fuel-analytics-section">
+
+            <!-- Total Records -->
+
+            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                <div class="card fuel-analytics-card shadow-sm border-0 h-100">
+
+                    <div class="card-body">
+
+                        <div class="fuel-analytics-icon">
+                            📋
+                        </div>
+
+                        <div class="fuel-analytics-label">
+                            Total Records
+                        </div>
+
+                        <div id="fuelAnalyticsRecords" class="fuel-analytics-value">
+                            0
+                        </div>
+
+                        <small class="text-muted">
+                            Fuel entries
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Total Litres -->
+
+            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                <div class="card fuel-analytics-card shadow-sm border-0 h-100">
+
+                    <div class="card-body">
+
+                        <div class="fuel-analytics-icon">
+                            ⛽
+                        </div>
+
+                        <div class="fuel-analytics-label">
+                            Total Litres
+                        </div>
+
+                        <div id="fuelAnalyticsLitres" class="fuel-analytics-value">
+                            0 L
+                        </div>
+
+                        <small class="text-muted">
+                            Fuel consumed
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Total Cost -->
+
+            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                <div class="card fuel-analytics-card shadow-sm border-0 h-100">
+
+                    <div class="card-body">
+
+                        <div class="fuel-analytics-icon">
+                            💰
+                        </div>
+
+                        <div class="fuel-analytics-label">
+                            Total Cost
+                        </div>
+
+                        <div id="fuelAnalyticsCost" class="fuel-analytics-value">
+                            ₹0
+                        </div>
+
+                        <small class="text-muted">
+                            Total fuel expense
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Average Price -->
+
+            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                <div class="card fuel-analytics-card shadow-sm border-0 h-100">
+
+                    <div class="card-body">
+
+                        <div class="fuel-analytics-icon">
+                            📈
+                        </div>
+
+                        <div class="fuel-analytics-label">
+                            Avg. Price / Litre
+                        </div>
+
+                        <div id="fuelAnalyticsAvgPrice" class="fuel-analytics-value">
+                            ₹0
+                        </div>
+
+                        <small class="text-muted">
+                            Effective average rate
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Average Cost -->
+
+            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                <div class="card fuel-analytics-card shadow-sm border-0 h-100">
+
+                    <div class="card-body">
+
+                        <div class="fuel-analytics-icon">
+                            🧾
+                        </div>
+
+                        <div class="fuel-analytics-label">
+                            Avg. Cost / Refuel
+                        </div>
+
+                        <div id="fuelAnalyticsAvgCost" class="fuel-analytics-value">
+                            ₹0
+                        </div>
+
+                        <small class="text-muted">
+                            Average spending
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Latest Fuel -->
+
+            <div class="col-xl-2 col-lg-4 col-md-6">
+
+                <div class="card fuel-analytics-card shadow-sm border-0 h-100">
+
+                    <div class="card-body">
+
+                        <div class="fuel-analytics-icon">
+                            📅
+                        </div>
+
+                        <div class="fuel-analytics-label">
+                            Latest Fuel
+                        </div>
+
+                        <div id="fuelAnalyticsLatestDate" class="fuel-analytics-value fuel-analytics-date">
+                            -
+                        </div>
+
+                        <small class="text-muted">
+                            Most recent entry
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==========================================
+     FUEL EFFICIENCY / MILEAGE
+    ========================================== -->
+
+        <section class="fuel-efficiency-section mb-4">
+            <div class="row g-3">
+
+                <!-- Total Distance -->
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="card fuel-efficiency-card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="fuel-efficiency-icon">
+                                🚗
+                            </div>
+
+                            <div class="fuel-efficiency-label">
+                                Total Distance
+                            </div>
+
+                            <div id="fuelEfficiencyDistance" class="fuel-efficiency-value">
+                                0 km
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Average Mileage -->
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="card fuel-efficiency-card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="fuel-efficiency-icon">
+                                📊
+                            </div>
+
+                            <div class="fuel-efficiency-label">
+                                Average Mileage
+                            </div>
+
+                            <div id="fuelEfficiencyAverage" class="fuel-efficiency-value">
+                                -
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Best Mileage -->
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="card fuel-efficiency-card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="fuel-efficiency-icon">
+                                🏆
+                            </div>
+
+                            <div class="fuel-efficiency-label">
+                                Best Mileage
+                            </div>
+
+                            <div id="fuelEfficiencyBest" class="fuel-efficiency-value">
+                                -
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fuel Cost / KM -->
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="card fuel-efficiency-card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="fuel-efficiency-icon">
+                                💰
+                            </div>
+
+                            <div class="fuel-efficiency-label">
+                                Fuel Cost / KM
+                            </div>
+
+                            <div id="fuelEfficiencyCostPerKm" class="fuel-efficiency-value">
+                                -
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Latest Mileage -->
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="card fuel-efficiency-card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="fuel-efficiency-icon">
+                                ⛽
+                            </div>
+
+                            <div class="fuel-efficiency-label">
+                                Latest Mileage
+                            </div>
+
+                            <div id="fuelEfficiencyLatest" class="fuel-efficiency-value">
+                                -
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Valid Intervals -->
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="card fuel-efficiency-card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="fuel-efficiency-icon">
+                                🔢
+                            </div>
+
+                            <div class="fuel-efficiency-label">
+                                Mileage Entries
+                            </div>
+
+                            <div id="fuelEfficiencyIntervals" class="fuel-efficiency-value">
+                                0
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="fuel-efficiency-note mt-3">
+                <small>
+                    Mileage is calculated using consecutive odometer readings.
+                    The first fuel record for each car is used as the starting
+                    reference and does not produce a mileage value.
+                </small>
+            </div>
+        </section>
 
         <!-- Filters -->
 

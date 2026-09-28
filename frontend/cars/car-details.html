@@ -25,8 +25,6 @@
 
     <div id="appSidebar"></div>
 
-    <div id="sidebarOverlay"></div>
-
     <!-- ================= MAIN ================= -->
 
     <main class="dashboard-main">
@@ -227,9 +225,9 @@
             </div>
 
 
-            <!-- Future Sections -->
+            <!-- Vehicle History Summary -->
 
-            <div class="content-card">
+            <div class="content-card mb-4">
 
                 <div class="content-card-header">
 
@@ -254,7 +252,7 @@
                                 </strong>
 
                                 <small>
-                                    Coming in Maintenance module
+                                    Maintenance and service records
                                 </small>
 
                             </div>
@@ -273,7 +271,7 @@
                                 </strong>
 
                                 <small>
-                                    Coming in Fuel module
+                                    Refueling and fuel consumption records
                                 </small>
 
                             </div>
@@ -292,7 +290,7 @@
                                 </strong>
 
                                 <small>
-                                    Coming in Expense module
+                                    Expense records will be available here
                                 </small>
 
                             </div>
@@ -305,119 +303,276 @@
 
             </div>
 
-        </div>
 
-        <!-- Service History -->
-        <div class="card shadow-sm border-0 mt-4">
+            <!-- ================= SERVICE HISTORY ================= -->
 
-            <div class="card-header bg-white py-3">
+            <div class="card shadow-sm border-0 mt-4">
 
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="card-header bg-white py-3">
 
-                    <div>
-                        <h5 class="mb-1">
-                            Service History
-                        </h5>
+                    <div class="d-flex justify-content-between align-items-center">
 
-                        <small class="text-muted">
-                            Vehicle maintenance and service records
-                        </small>
+                        <div>
+
+                            <h5 class="mb-1">
+                                Service History
+                            </h5>
+
+                            <small class="text-muted">
+                                Vehicle maintenance and service records
+                            </small>
+
+                        </div>
+
+                        <a href="../services/services.html"
+                           class="btn btn-sm btn-outline-primary">
+                            View All Services
+                        </a>
+
                     </div>
 
-                    <a href="../services/services.html" class="btn btn-sm btn-outline-primary">
-                        View All Services
-                    </a>
+                </div>
+
+
+                <div class="card-body p-0">
+
+                    <!-- Loading -->
+
+                    <div id="serviceHistoryLoading"
+                         class="text-center py-4">
+
+                        <div class="spinner-border spinner-border-sm text-primary"
+                             role="status"></div>
+
+                        <span class="ms-2 text-muted">
+                            Loading service history...
+                        </span>
+
+                    </div>
+
+
+                    <!-- Empty State -->
+
+                    <div id="serviceHistoryEmpty"
+                         class="text-center py-5 d-none">
+
+                        <div class="fs-2 mb-2">
+                            🔧
+                        </div>
+
+                        <h6>
+                            No Service History
+                        </h6>
+
+                        <p class="text-muted small mb-0">
+                            No service records have been added for this vehicle yet.
+                        </p>
+
+                    </div>
+
+
+                    <!-- Error -->
+
+                    <div id="serviceHistoryError"
+                         class="alert alert-danger rounded-0 d-none mb-0">
+                    </div>
+
+
+                    <!-- Table -->
+
+                    <div id="serviceHistoryTableContainer"
+                         class="table-responsive d-none">
+
+                        <table class="table table-hover mb-0">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th class="ps-4">
+                                        #
+                                    </th>
+
+                                    <th>
+                                        Service Date
+                                    </th>
+
+                                    <th>
+                                        Service Type
+                                    </th>
+
+                                    <th>
+                                        Odometer
+                                    </th>
+
+                                    <th>
+                                        Service Center
+                                    </th>
+
+                                    <th>
+                                        Cost
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th class="text-end pe-4">
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="serviceHistoryTableBody">
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
             </div>
 
 
-            <div class="card-body p-0">
+            <!-- ================= FUEL HISTORY ================= -->
 
-                <!-- Loading -->
-                <div id="serviceHistoryLoading" class="text-center py-4">
-                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            <div class="card shadow-sm border-0 mt-4">
 
-                    <span class="ms-2 text-muted">
-                        Loading service history...
-                    </span>
-                </div>
+                <div class="card-header bg-white py-3">
 
+                    <div class="d-flex justify-content-between align-items-center">
 
-                <!-- Empty State -->
-                <div id="serviceHistoryEmpty" class="text-center py-5 d-none">
+                        <div>
 
-                    <div class="fs-2 mb-2">
-                        🔧
+                            <h5 class="mb-1">
+                                Fuel History
+                            </h5>
+
+                            <small class="text-muted">
+                                Vehicle refueling and fuel purchase records
+                            </small>
+
+                        </div>
+
+                        <a href="../fuel/fuel.html"
+                           class="btn btn-sm btn-outline-primary">
+                            View All Fuel Records
+                        </a>
+
                     </div>
 
-                    <h6>
-                        No Service History
-                    </h6>
-
-                    <p class="text-muted small mb-0">
-                        No service records have been added for this vehicle yet.
-                    </p>
-
                 </div>
 
 
-                <!-- Error -->
-                <div id="serviceHistoryError" class="alert alert-danger rounded-0 d-none mb-0"></div>
+                <div class="card-body p-0">
+
+                    <!-- Loading -->
+
+                    <div id="fuelHistoryLoading"
+                         class="text-center py-4">
+
+                        <div class="spinner-border spinner-border-sm text-primary"
+                             role="status"></div>
+
+                        <span class="ms-2 text-muted">
+                            Loading fuel history...
+                        </span>
+
+                    </div>
 
 
-                <!-- Table -->
-                <div id="serviceHistoryTableContainer" class="table-responsive d-none">
+                    <!-- Empty State -->
 
-                    <table class="table table-hover mb-0">
+                    <div id="fuelHistoryEmpty"
+                         class="text-center py-5 d-none">
 
-                        <thead>
-                            <tr>
+                        <div class="fs-2 mb-2">
+                            ⛽
+                        </div>
 
-                                <th class="ps-4">
-                                    #
-                                </th>
+                        <h6>
+                            No Fuel History
+                        </h6>
 
-                                <th>
-                                    Service Date
-                                </th>
+                        <p class="text-muted small mb-0">
+                            No fuel records have been added for this vehicle yet.
+                        </p>
 
-                                <th>
-                                    Service Type
-                                </th>
+                    </div>
 
-                                <th>
-                                    Odometer
-                                </th>
 
-                                <th>
-                                    Service Center
-                                </th>
+                    <!-- Error -->
 
-                                <th>
-                                    Cost
-                                </th>
+                    <div id="fuelHistoryError"
+                         class="alert alert-danger rounded-0 d-none mb-0">
+                    </div>
 
-                                <th>
-                                    Status
-                                </th>
 
-                                <th class="text-end pe-4">
-                                    Action
-                                </th>
+                    <!-- Table -->
 
-                            </tr>
-                        </thead>
+                    <div id="fuelHistoryTableContainer"
+                         class="table-responsive d-none">
 
-                        <tbody id="serviceHistoryTableBody">
-                        </tbody>
+                        <table class="table table-hover mb-0">
 
-                    </table>
+                            <thead>
+
+                                <tr>
+
+                                    <th class="ps-4">
+                                        #
+                                    </th>
+
+                                    <th>
+                                        Fuel Date
+                                    </th>
+
+                                    <th>
+                                        Odometer
+                                    </th>
+
+                                    <th>
+                                        Fuel Type
+                                    </th>
+
+                                    <th>
+                                        Litres
+                                    </th>
+
+                                    <th>
+                                        Price / Litre
+                                    </th>
+
+                                    <th>
+                                        Total Cost
+                                    </th>
+
+                                    <th>
+                                        Fuel Station
+                                    </th>
+
+                                    <th class="text-end pe-4">
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="fuelHistoryTableBody">
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
             </div>
+
 
         </div>
 

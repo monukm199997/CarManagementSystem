@@ -422,6 +422,9 @@ async function loadFuelRecords() {
 
         updateFuelCount();
 
+        updateFuelAnalytics();
+        updateFuelEfficiency();
+
     } catch (error) {
 
         console.error(
@@ -512,6 +515,8 @@ function applyFuelFilters() {
     renderFuelRecords();
 
     updateFuelCount();
+    updateFuelAnalytics();
+    updateFuelEfficiency();
 }
 
 
@@ -558,6 +563,9 @@ function clearFuelFilters() {
     renderFuelRecords();
 
     updateFuelCount();
+
+    updateFuelAnalytics();
+    updateFuelEfficiency();
 }
 
 
@@ -2159,4 +2167,750 @@ function updateFuelCount() {
                 ? "record"
                 : "records"
         } found`;
+}
+
+
+
+// ========================================
+// FUEL ANALYTICS
+// ========================================
+
+function updateFuelAnalytics() {
+
+    const recordsElement =
+        document.getElementById(
+            "fuelAnalyticsRecords"
+        );
+
+    const litresElement =
+        document.getElementById(
+            "fuelAnalyticsLitres"
+        );
+
+    const costElement =
+        document.getElementById(
+            "fuelAnalyticsCost"
+        );
+
+    const avgPriceElement =
+        document.getElementById(
+            "fuelAnalyticsAvgPrice"
+        );
+
+    const avgCostElement =
+        document.getElementById(
+            "fuelAnalyticsAvgCost"
+        );
+
+    const latestDateElement =
+        document.getElementById(
+            "fuelAnalyticsLatestDate"
+        );
+
+
+    /*
+     * Use filtered records.
+     *
+     * This means analytics automatically
+     * change when user applies:
+     *
+     * - Search
+     * - Car filter
+     * - Fuel type filter
+     */
+
+    const records =
+        Array.isArray(filteredFuelRecords)
+            ? filteredFuelRecords
+            : [];
+
+
+    // ========================================
+    // NO RECORDS
+    // ========================================
+
+    if (records.length === 0) {
+
+        if (recordsElement) {
+            recordsElement.textContent = "0";
+        }
+
+        if (litresElement) {
+            litresElement.textContent = "0 L";
+        }
+
+        if (costElement) {
+            costElement.textContent = "₹0";
+        }
+
+        if (avgPriceElement) {
+            avgPriceElement.textContent = "₹0";
+        }
+
+        if (avgCostElement) {
+            avgCostElement.textContent = "₹0";
+        }
+
+        if (latestDateElement) {
+            latestDateElement.textContent = "-";
+        }
+
+        return;
+    }
+
+
+    // ========================================
+    // TOTAL RECORDS
+    // ========================================
+
+    const totalRecords =
+        records.length;
+
+
+    // ========================================
+    // TOTAL LITRES
+    // ========================================
+
+    const totalLitres =
+        records.reduce(
+            (sum, fuel) => {
+
+                return (
+                    sum +
+                    Number(fuel.litres || 0)
+                );
+
+            },
+            0
+        );
+
+
+    // ========================================
+    // TOTAL COST
+    // ========================================
+
+    const totalCost =
+        records.reduce(
+            (sum, fuel) => {
+
+                return (
+                    sum +
+                    Number(fuel.total_cost || 0)
+                );
+
+            },
+            0
+        );
+
+
+    // ========================================
+    // EFFECTIVE AVERAGE PRICE / LITRE
+    // ========================================
+
+    /*
+     * Weighted average:
+     *
+     * Total Cost / Total Litres
+     *
+     * This is more meaningful than simply
+     * averaging every individual price.
+     */
+
+    const averagePrice =
+        totalLitres > 0
+            ? totalCost / totalLitres
+            : 0;
+
+
+    // ========================================
+    // AVERAGE COST / REFUEL
+    // ========================================
+
+    const averageCost =
+        totalRecords > 0
+            ? totalCost / totalRecords
+            : 0;
+
+
+    // ========================================
+    // LATEST FUEL DATE
+    // ========================================
+
+    let latestFuelDate = null;
+
+
+    records.forEach(
+        fuel => {
+
+            if (!fuel.fuel_date) {
+                return;
+            }
+
+
+            const currentDate =
+                new Date(
+                    fuel.fuel_date
+                );
+
+
+            if (
+                Number.isNaN(
+                    currentDate.getTime()
+                )
+            ) {
+                return;
+            }
+
+
+            if (
+                !latestFuelDate ||
+                currentDate > latestFuelDate
+            ) {
+
+                latestFuelDate =
+                    currentDate;
+
+            }
+
+        }
+    );
+
+
+    // ========================================
+    // UPDATE UI
+    // ========================================
+
+    if (recordsElement) {
+
+        recordsElement.textContent =
+            totalRecords.toLocaleString(
+                "en-IN"
+            );
+
+    }
+
+
+    if (litresElement) {
+
+        litresElement.textContent =
+            totalLitres.toLocaleString(
+                "en-IN",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            ) + " L";
+
+    }
+
+
+    if (costElement) {
+
+        costElement.textContent =
+            formatFuelCurrency(
+                totalCost
+            );
+
+    }
+
+
+    if (avgPriceElement) {
+
+        avgPriceElement.textContent =
+            formatFuelCurrency(
+                averagePrice
+            );
+
+    }
+
+
+    if (avgCostElement) {
+
+        avgCostElement.textContent =
+            formatFuelCurrency(
+                averageCost
+            );
+
+    }
+
+
+    if (latestDateElement) {
+
+        latestDateElement.textContent =
+            latestFuelDate
+                ? latestFuelDate.toLocaleDateString(
+                    "en-IN",
+                    {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric"
+                    }
+                )
+                : "-";
+
+    }
+
+}
+
+// ========================================
+// FUEL EFFICIENCY / MILEAGE
+// ========================================
+
+function updateFuelEfficiency() {
+
+    const distanceElement =
+        document.getElementById(
+            "fuelEfficiencyDistance"
+        );
+
+    const averageElement =
+        document.getElementById(
+            "fuelEfficiencyAverage"
+        );
+
+    const bestElement =
+        document.getElementById(
+            "fuelEfficiencyBest"
+        );
+
+    const costPerKmElement =
+        document.getElementById(
+            "fuelEfficiencyCostPerKm"
+        );
+
+    const latestElement =
+        document.getElementById(
+            "fuelEfficiencyLatest"
+        );
+
+    const intervalsElement =
+        document.getElementById(
+            "fuelEfficiencyIntervals"
+        );
+
+
+    // ========================================
+    // GET FILTERED RECORDS
+    // ========================================
+
+    const records =
+        Array.isArray(filteredFuelRecords)
+            ? filteredFuelRecords
+            : [];
+
+
+    // ========================================
+    // DEFAULT VALUES
+    // ========================================
+
+    if (records.length === 0) {
+
+        if (distanceElement) {
+            distanceElement.textContent = "0 km";
+        }
+
+        if (averageElement) {
+            averageElement.textContent = "-";
+        }
+
+        if (bestElement) {
+            bestElement.textContent = "-";
+        }
+
+        if (costPerKmElement) {
+            costPerKmElement.textContent = "-";
+        }
+
+        if (latestElement) {
+            latestElement.textContent = "-";
+        }
+
+        if (intervalsElement) {
+            intervalsElement.textContent = "0";
+        }
+
+        return;
+    }
+
+
+    // ========================================
+    // GROUP RECORDS BY CAR
+    // ========================================
+
+    const recordsByCar = {};
+
+
+    records.forEach(fuel => {
+
+        const carId =
+            String(
+                fuel.car_id
+            );
+
+
+        if (!recordsByCar[carId]) {
+            recordsByCar[carId] = [];
+        }
+
+
+        recordsByCar[carId].push(fuel);
+
+    });
+
+
+    // ========================================
+    // CALCULATION VARIABLES
+    // ========================================
+
+    let totalDistance = 0;
+
+    let totalFuelUsed = 0;
+
+    let totalFuelCost = 0;
+
+    let bestMileage = null;
+
+    let latestMileage = null;
+
+    let latestMileageDate = null;
+
+    let validIntervals = 0;
+
+
+    // ========================================
+    // PROCESS EACH CAR
+    // ========================================
+
+    Object.values(recordsByCar).forEach(
+        carRecords => {
+
+            // --------------------------------
+            // SORT BY ODOMETER
+            // --------------------------------
+
+            const sortedRecords =
+                [...carRecords].sort(
+                    (a, b) => {
+
+                        const odometerA =
+                            Number(
+                                a.odometer_reading || 0
+                            );
+
+                        const odometerB =
+                            Number(
+                                b.odometer_reading || 0
+                            );
+
+
+                        if (
+                            odometerA !==
+                            odometerB
+                        ) {
+
+                            return (
+                                odometerA -
+                                odometerB
+                            );
+                        }
+
+
+                        // If odometer is same,
+                        // use fuel date.
+
+                        const dateA =
+                            new Date(
+                                a.fuel_date || 0
+                            ).getTime();
+
+                        const dateB =
+                            new Date(
+                                b.fuel_date || 0
+                            ).getTime();
+
+
+                        return dateA - dateB;
+
+                    }
+                );
+
+
+            // --------------------------------
+            // NEED AT LEAST 2 RECORDS
+            // --------------------------------
+
+            if (
+                sortedRecords.length < 2
+            ) {
+                return;
+            }
+
+
+            // --------------------------------
+            // CALCULATE EACH INTERVAL
+            // --------------------------------
+
+            for (
+                let i = 1;
+                i < sortedRecords.length;
+                i++
+            ) {
+
+                const previous =
+                    sortedRecords[i - 1];
+
+                const current =
+                    sortedRecords[i];
+
+
+                const previousOdometer =
+                    Number(
+                        previous.odometer_reading || 0
+                    );
+
+
+                const currentOdometer =
+                    Number(
+                        current.odometer_reading || 0
+                    );
+
+
+                const litres =
+                    Number(
+                        current.litres || 0
+                    );
+
+
+                const totalCost =
+                    Number(
+                        current.total_cost || 0
+                    );
+
+
+                // --------------------------------
+                // DISTANCE
+                // --------------------------------
+
+                const distance =
+                    currentOdometer -
+                    previousOdometer;
+
+
+                // --------------------------------
+                // INVALID DATA
+                // --------------------------------
+
+                if (
+                    distance <= 0 ||
+                    litres <= 0
+                ) {
+                    continue;
+                }
+
+
+                // --------------------------------
+                // MILEAGE
+                // --------------------------------
+
+                const mileage =
+                    distance / litres;
+
+
+                // --------------------------------
+                // COST PER KM
+                // --------------------------------
+
+                const costPerKm =
+                    totalCost > 0
+                        ? totalCost / distance
+                        : 0;
+
+
+                // --------------------------------
+                // TOTALS
+                // --------------------------------
+
+                totalDistance +=
+                    distance;
+
+
+                totalFuelUsed +=
+                    litres;
+
+
+                totalFuelCost +=
+                    totalCost;
+
+
+                validIntervals++;
+
+
+                // --------------------------------
+                // BEST MILEAGE
+                // --------------------------------
+
+                if (
+                    bestMileage === null ||
+                    mileage > bestMileage
+                ) {
+
+                    bestMileage =
+                        mileage;
+                }
+
+
+                // --------------------------------
+                // LATEST MILEAGE
+                // --------------------------------
+
+                const currentDate =
+                    new Date(
+                        current.fuel_date || 0
+                    );
+
+
+                const currentTimestamp =
+                    currentDate.getTime();
+
+
+                if (
+                    !Number.isNaN(
+                        currentTimestamp
+                    )
+                ) {
+
+                    if (
+                        latestMileageDate === null ||
+                        currentTimestamp >
+                        latestMileageDate
+                    ) {
+
+                        latestMileage =
+                            mileage;
+
+                        latestMileageDate =
+                            currentTimestamp;
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+
+    // ========================================
+    // AVERAGE MILEAGE
+    // ========================================
+
+    const averageMileage =
+        totalFuelUsed > 0
+            ? totalDistance /
+              totalFuelUsed
+            : null;
+
+
+    // ========================================
+    // OVERALL FUEL COST / KM
+    // ========================================
+
+    const overallCostPerKm =
+        totalDistance > 0
+            ? totalFuelCost /
+              totalDistance
+            : null;
+
+
+    // ========================================
+    // UPDATE TOTAL DISTANCE
+    // ========================================
+
+    if (distanceElement) {
+
+        distanceElement.textContent =
+            totalDistance.toLocaleString(
+                "en-IN",
+                {
+                    maximumFractionDigits: 2
+                }
+            ) + " km";
+
+    }
+
+
+    // ========================================
+    // UPDATE AVERAGE MILEAGE
+    // ========================================
+
+    if (averageElement) {
+
+        averageElement.textContent =
+            averageMileage !== null
+                ? averageMileage.toFixed(2) +
+                  " km/L"
+                : "-";
+
+    }
+
+
+    // ========================================
+    // UPDATE BEST MILEAGE
+    // ========================================
+
+    if (bestElement) {
+
+        bestElement.textContent =
+            bestMileage !== null
+                ? bestMileage.toFixed(2) +
+                  " km/L"
+                : "-";
+
+    }
+
+
+    // ========================================
+    // UPDATE COST / KM
+    // ========================================
+
+    if (costPerKmElement) {
+
+        costPerKmElement.textContent =
+            overallCostPerKm !== null
+                ? formatFuelCurrency(
+                    overallCostPerKm
+                  ) + " / km"
+                : "-";
+
+    }
+
+
+    // ========================================
+    // UPDATE LATEST MILEAGE
+    // ========================================
+
+    if (latestElement) {
+
+        latestElement.textContent =
+            latestMileage !== null
+                ? latestMileage.toFixed(2) +
+                  " km/L"
+                : "-";
+
+    }
+
+
+    // ========================================
+    // UPDATE VALID INTERVALS
+    // ========================================
+
+    if (intervalsElement) {
+
+        intervalsElement.textContent =
+            validIntervals.toLocaleString(
+                "en-IN"
+            );
+
+    }
+
 }

@@ -1,0 +1,553 @@
+    <!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Fuel History</title>
+
+
+    <!-- Bootstrap -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+
+    <!-- Common CSS -->
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/dashboard.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/layout.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/fuel.css"
+    >
+
+
+    <!-- Fuel History CSS -->
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/fuel-history.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- ==============================
+         NAVBAR
+    =============================== -->
+
+    <div id="appNavbar"></div>
+
+
+    <!-- ==============================
+         SIDEBAR
+    =============================== -->
+
+    <div
+        id="sidebarOverlay"
+        class="sidebar-overlay"
+    ></div>
+
+    <div id="appSidebar"></div>
+
+
+    <!-- ==============================
+         MAIN
+    =============================== -->
+
+    <main class="dashboard-main">
+
+
+        <!-- ==============================
+             PAGE HEADER
+        =============================== -->
+
+        <div class="fuel-history-page-header">
+
+            <div>
+
+                <h2>
+                    Fuel History
+                </h2>
+
+                <p>
+                    Detailed fuel consumption,
+                    mileage and cost analysis.
+                </p>
+
+            </div>
+
+
+            <div class="fuel-history-header-actions">
+
+                <a
+                    href="fuel.html"
+                    class="btn btn-outline-secondary"
+                >
+                    ← Fuel Management
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==============================
+             ERROR MESSAGE
+        =============================== -->
+
+        <div
+            id="fuelHistoryError"
+            class="alert alert-danger d-none"
+        ></div>
+
+
+        <!-- ==============================
+             FILTERS
+        =============================== -->
+
+        <section class="card fuel-history-filter-card border-0 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="row g-3 align-items-end">
+
+
+                    <!-- CAR -->
+
+                    <div class="col-lg-4 col-md-6">
+
+                        <label
+                            for="historyCarFilter"
+                            class="form-label"
+                        >
+                            Car
+                        </label>
+
+                        <select
+                            id="historyCarFilter"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                All Cars
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- FROM DATE -->
+
+                    <div class="col-lg-3 col-md-6">
+
+                        <label
+                            for="historyFromDate"
+                            class="form-label"
+                        >
+                            From Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="historyFromDate"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    <!-- TO DATE -->
+
+                    <div class="col-lg-3 col-md-6">
+
+                        <label
+                            for="historyToDate"
+                            class="form-label"
+                        >
+                            To Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="historyToDate"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    <!-- CLEAR -->
+
+                    <div class="col-lg-2 col-md-6">
+
+                        <button
+                            type="button"
+                            id="clearHistoryFilters"
+                            class="btn btn-outline-secondary w-100"
+                        >
+                            Clear Filters
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==============================
+             SUMMARY CARDS
+        =============================== -->
+
+        <section class="fuel-history-summary mt-4">
+
+            <div class="row g-3">
+
+
+                <!-- TOTAL DISTANCE -->
+
+                <div class="col-xl-3 col-lg-6 col-md-6">
+
+                    <div class="card fuel-history-summary-card">
+
+                        <div class="card-body">
+
+                            <div class="history-summary-icon">
+                                🚗
+                            </div>
+
+                            <div class="history-summary-label">
+                                Total Distance
+                            </div>
+
+                            <div
+                                id="historyTotalDistance"
+                                class="history-summary-value"
+                            >
+                                0 km
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- AVERAGE MILEAGE -->
+
+                <div class="col-xl-3 col-lg-6 col-md-6">
+
+                    <div class="card fuel-history-summary-card">
+
+                        <div class="card-body">
+
+                            <div class="history-summary-icon">
+                                📊
+                            </div>
+
+                            <div class="history-summary-label">
+                                Average Mileage
+                            </div>
+
+                            <div
+                                id="historyAverageMileage"
+                                class="history-summary-value"
+                            >
+                                -
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BEST MILEAGE -->
+
+                <div class="col-xl-3 col-lg-6 col-md-6">
+
+                    <div class="card fuel-history-summary-card">
+
+                        <div class="card-body">
+
+                            <div class="history-summary-icon">
+                                🏆
+                            </div>
+
+                            <div class="history-summary-label">
+                                Best Mileage
+                            </div>
+
+                            <div
+                                id="historyBestMileage"
+                                class="history-summary-value"
+                            >
+                                -
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- COST / KM -->
+
+                <div class="col-xl-3 col-lg-6 col-md-6">
+
+                    <div class="card fuel-history-summary-card">
+
+                        <div class="card-body">
+
+                            <div class="history-summary-icon">
+                                💰
+                            </div>
+
+                            <div class="history-summary-label">
+                                Fuel Cost / KM
+                            </div>
+
+                            <div
+                                id="historyCostPerKm"
+                                class="history-summary-value"
+                            >
+                                -
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==============================
+             MILEAGE TREND
+        =============================== -->
+
+        <section class="card fuel-history-chart-card border-0 shadow-sm mt-4">
+
+            <div class="card-body">
+
+                <div class="fuel-history-section-header">
+
+                    <div>
+
+                        <h5>
+                            Mileage Trend
+                        </h5>
+
+                        <p>
+                            Mileage calculated between
+                            consecutive fuel records.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="fuel-history-chart-wrapper">
+
+                    <canvas
+                        id="fuelMileageChart"
+                    ></canvas>
+
+                </div>
+
+
+                <div
+                    id="fuelChartEmpty"
+                    class="fuel-history-chart-empty d-none"
+                >
+                    Not enough fuel records to calculate mileage.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==============================
+             FUEL HISTORY TABLE
+        =============================== -->
+
+        <section class="card fuel-history-table-card border-0 shadow-sm mt-4">
+
+            <div class="card-body p-0">
+
+
+                <div class="fuel-history-table-header">
+
+                    <div>
+
+                        <h5>
+                            Fuel History
+                        </h5>
+
+                        <small
+                            id="historyRecordCount"
+                        >
+                            0 records
+                        </small>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="refreshHistoryButton"
+                        class="btn btn-sm btn-outline-primary"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                </div>
+
+
+                <!-- LOADING -->
+
+                <div
+                    id="historyLoading"
+                    class="fuel-history-loading d-none"
+                >
+                    Loading fuel history...
+                </div>
+
+
+                <!-- EMPTY -->
+
+                <div
+                    id="historyEmpty"
+                    class="fuel-history-empty d-none"
+                >
+                    No fuel history found.
+                </div>
+
+
+                <!-- TABLE -->
+
+                <div class="table-responsive">
+
+                    <table
+                        class="table fuel-history-table mb-0"
+                    >
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>Fuel Date</th>
+
+                                <th>Car</th>
+
+                                <th>Odometer</th>
+
+                                <th>Distance</th>
+
+                                <th>Litres</th>
+
+                                <th>Mileage</th>
+
+                                <th>Fuel Cost</th>
+
+                                <th>Cost / KM</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="fuelHistoryTableBody"
+                        ></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- ==============================
+         SCRIPTS
+    =============================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ></script>
+
+
+    <!-- Chart.js -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js"
+    ></script>
+
+
+    <!-- Common -->
+
+    <script
+        src="../assets/js/api.js"
+    ></script>
+
+    <script
+        src="../assets/js/auth.js"
+    ></script>
+
+    <script
+        src="../assets/js/layout.js"
+    ></script>
+
+    <script
+        src="../assets/js/common.js"
+    ></script>
+
+
+    <!-- Fuel History -->
+
+    <script
+        src="../assets/js/fuel-history.js"
+    ></script>
+
+</body>
+
+</html>

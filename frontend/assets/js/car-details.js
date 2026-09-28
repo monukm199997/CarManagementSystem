@@ -4,13 +4,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-
     const params = new URLSearchParams(
         window.location.search
     );
 
     const carId = params.get("id");
-
 
     if (!carId) {
 
@@ -21,13 +19,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-
     // Load car details
     await loadCarDetails(carId);
 
-
     // Load service history
     await loadServiceHistory(carId);
+
+    // Load fuel history
+    await loadFuelHistory(carId);
 
 });
 
@@ -216,7 +215,7 @@ function renderStatus(status) {
 
     element.innerHTML = `
         <span class="car-status ${statusClass}">
-            ${statusText}
+            ${escapeServiceHtml(statusText)}
         </span>
     `;
 
@@ -729,6 +728,401 @@ function capitalizeServiceWords(value) {
             /\b\w/g,
             char => char.toUpperCase()
         );
+
+}
+
+
+// ========================================
+// LOAD FUEL HISTORY
+// ========================================
+
+async function loadFuelHistory(carId) {
+
+    const loadingElement =
+        document.getElementById(
+            "fuelHistoryLoading"
+        );
+
+    const emptyElement =
+        document.getElementById(
+            "fuelHistoryEmpty"
+        );
+
+    const errorElement =
+        document.getElementById(
+            "fuelHistoryError"
+        );
+
+    const tableContainer =
+        document.getElementById(
+            "fuelHistoryTableContainer"
+        );
+
+    const tableBody =
+        document.getElementById(
+            "fuelHistoryTableBody"
+        );
+
+
+    if (!tableBody) {
+
+        console.error(
+            "Fuel history table body not found."
+        );
+
+        return;
+    }
+
+
+    // Reset state
+
+    if (loadingElement) {
+        loadingElement.classList.remove(
+            "d-none"
+        );
+    }
+
+
+    if (emptyElement) {
+        emptyElement.classList.add(
+            "d-none"
+        );
+    }
+
+
+    if (errorElement) {
+        errorElement.classList.add(
+            "d-none"
+        );
+    }
+
+
+    if (tableContainer) {
+        tableContainer.classList.add(
+            "d-none"
+        );
+    }
+
+
+    tableBody.innerHTML = "";
+
+
+    console.log(
+        "Loading fuel history for car:",
+        carId
+    );
+
+
+    try {
+
+        /*
+         * Fuel API
+         *
+         * The fuel backend provides records
+         * for a particular car through:
+         *
+         * /fuel/car/{carId}
+         */
+
+        const fuelRecords =
+            await apiRequest(
+                `/fuel/car/${carId}`
+            );
+
+
+        console.log(
+            "Fuel history response:",
+            fuelRecords
+        );
+
+
+        if (loadingElement) {
+            loadingElement.classList.add(
+                "d-none"
+            );
+        }
+
+
+        if (
+            !fuelRecords ||
+            fuelRecords.length === 0
+        ) {
+
+            if (emptyElement) {
+                emptyElement.classList.remove(
+                    "d-none"
+                );
+            }
+
+            return;
+        }
+
+
+        // Sort latest fuel record first
+
+        const sortedFuelRecords =
+            [...fuelRecords].sort(
+                (a, b) => {
+
+                    const dateA =
+                        new Date(
+                            a.fuel_date || 0
+                        );
+
+                    const dateB =
+                        new Date(
+                            b.fuel_date || 0
+                        );
+
+                    return dateB - dateA;
+                }
+            );
+
+
+        renderFuelHistory(
+            sortedFuelRecords
+        );
+
+
+        if (tableContainer) {
+            tableContainer.classList.remove(
+                "d-none"
+            );
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Failed to load fuel history:",
+            error
+        );
+
+
+        if (loadingElement) {
+            loadingElement.classList.add(
+                "d-none"
+            );
+        }
+
+
+        if (tableContainer) {
+            tableContainer.classList.add(
+                "d-none"
+            );
+        }
+
+
+        if (errorElement) {
+
+            errorElement.textContent =
+                error.message ||
+                "Failed to load fuel history.";
+
+            errorElement.classList.remove(
+                "d-none"
+            );
+
+        }
+
+    }
+
+}
+
+
+// ========================================
+// RENDER FUEL HISTORY
+// ========================================
+
+function renderFuelHistory(fuelRecords) {
+
+    const tableBody =
+        document.getElementById(
+            "fuelHistoryTableBody"
+        );
+
+
+    if (!tableBody) {
+        return;
+    }
+
+
+    tableBody.innerHTML = "";
+
+
+    fuelRecords.forEach(
+        (fuel, index) => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td class="ps-4">
+                    ${index + 1}
+                </td>
+
+
+                <td>
+                    ${formatFuelDate(
+                        fuel.fuel_date
+                    )}
+                </td>
+
+
+                <td>
+                    ${
+                        fuel.odometer_reading != null
+                            ? Number(
+                                fuel.odometer_reading
+                            ).toLocaleString(
+                                "en-IN"
+                            ) + " km"
+                            : "-"
+                    }
+                </td>
+
+
+                <td>
+                    <span class="badge bg-light text-dark border">
+                        ${escapeServiceHtml(
+                            capitalizeServiceWords(
+                                fuel.fuel_type
+                            )
+                        )}
+                    </span>
+                </td>
+
+
+                <td>
+                    ${
+                        fuel.litres != null
+                            ? Number(
+                                fuel.litres
+                            ).toLocaleString(
+                                "en-IN",
+                                {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }
+                            ) + " L"
+                            : "-"
+                    }
+                </td>
+
+
+                <td>
+                    ${formatFuelCurrency(
+                        fuel.price_per_litre
+                    )}
+                </td>
+
+
+                <td>
+                    <strong>
+                        ${formatFuelCurrency(
+                            fuel.total_cost
+                        )}
+                    </strong>
+                </td>
+
+
+                <td>
+                    ${escapeServiceHtml(
+                        fuel.fuel_station || "-"
+                    )}
+                </td>
+
+
+                <td class="text-end pe-4">
+
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        onclick="viewFuelFromCar(${fuel.id})"
+                    >
+                        View
+                    </button>
+
+                </td>
+
+            `;
+
+
+            tableBody.appendChild(row);
+
+        }
+    );
+
+}
+
+
+// ========================================
+// VIEW FUEL RECORD
+// ========================================
+
+function viewFuelFromCar(fuelId) {
+
+    window.location.href =
+        `../fuel/fuel-details.html?id=${fuelId}`;
+
+}
+
+
+// ========================================
+// FUEL DATE
+// ========================================
+
+function formatFuelDate(value) {
+
+    if (!value) {
+        return "-";
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
+
+}
+
+
+// ========================================
+// FUEL CURRENCY
+// ========================================
+
+function formatFuelCurrency(value) {
+
+    if (value == null) {
+        return "-";
+    }
+
+
+    return Number(value).toLocaleString(
+        "en-IN",
+        {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 2
+        }
+    );
 
 }
 
