@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Document Analytics</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <link rel="stylesheet" href="../assets/css/layout.css">
+
+    <link rel="stylesheet" href="../assets/css/document-analytics.css">
+
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div id="appNavbar"></div>
+
+    <!-- Sidebar -->
+    <div id="appSidebar"></div>
+
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+
+    <main class="dashboard-main">
+
+        <!-- Page Header -->
+        <div class="analytics-page-header">
+
+            <div>
+
+                <button type="button" class="back-button" onclick="goBackToDocuments()">
+                    ← Back to Documents
+                </button>
+
+                <h1>
+                    Document Analytics
+                </h1>
+
+                <p>
+                    Overview of vehicle documents,
+                    expiry status and document types.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Loading -->
+        <div id="analyticsLoading" class="analytics-message">
+            Loading analytics...
+        </div>
+
+
+        <!-- Analytics Content -->
+        <div id="analyticsContent" style="display: none;">
+
+
+            <!-- Summary Cards -->
+            <section class="analytics-summary-grid">
+
+                <div class="analytics-card total-card">
+
+                    <div class="analytics-card-label">
+                        Total Documents
+                    </div>
+
+                    <strong id="totalDocuments">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="analytics-card active-card">
+
+                    <div class="analytics-card-label">
+                        Active
+                    </div>
+
+                    <strong id="activeDocuments">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="analytics-card warning-card">
+
+                    <div class="analytics-card-label">
+                        Expiring Soon
+                    </div>
+
+                    <strong id="expiringDocuments">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="analytics-card expired-card">
+
+                    <div class="analytics-card-label">
+                        Expired
+                    </div>
+
+                    <strong id="expiredDocuments">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="analytics-card inactive-card">
+
+                    <div class="analytics-card-label">
+                        Inactive
+                    </div>
+
+                    <strong id="inactiveDocuments">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="analytics-card no-expiry-card">
+
+                    <div class="analytics-card-label">
+                        No Expiry
+                    </div>
+
+                    <strong id="noExpiryDocuments">
+                        0
+                    </strong>
+
+                </div>
+
+            </section>
+
+
+            <!-- Charts -->
+            <section class="analytics-grid">
+
+
+                <!-- Expiry Overview -->
+                <div class="analytics-panel">
+
+                    <div class="analytics-panel-header">
+
+                        <h2>
+                            Expiry Overview
+                        </h2>
+
+                        <p>
+                            Current document expiry status
+                        </p>
+
+                    </div>
+
+                    <div class="chart-container">
+
+                        <canvas id="expiryChart"></canvas>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Document Type -->
+                <div class="analytics-panel">
+
+                    <div class="analytics-panel-header">
+
+                        <h2>
+                            Documents by Type
+                        </h2>
+
+                        <p>
+                            Distribution of document types
+                        </p>
+
+                    </div>
+
+                    <div class="chart-container">
+
+                        <canvas id="documentTypeChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Document Type Table -->
+            <section class="analytics-panel">
+
+                <div class="analytics-panel-header">
+
+                    <h2>
+                        Document Type Summary
+                    </h2>
+
+                    <p>
+                        Number of documents by type
+                    </p>
+
+                </div>
+
+
+                <div class="analytics-table-wrapper">
+
+                    <table class="analytics-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Document Type
+                                </th>
+
+                                <th>
+                                    Documents
+                                </th>
+
+                                <th>
+                                    Percentage
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="documentTypeTableBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- Error -->
+        <div id="analyticsError" class="analytics-message analytics-error" style="display: none;">
+        </div>
+
+    </main>
+
+
+    <script src="../assets/js/api.js"></script>
+
+    <script src="../assets/js/auth.js"></script>
+
+    <script src="../assets/js/layout.js"></script>
+
+    <script src="../assets/js/common.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="../assets/js/document-analytics.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,232 @@
+/* =========================================
+   DOCUMENT ANALYTICS
+========================================= */
+
+.analytics-page-header {
+    margin-bottom: 20px;
+}
+
+.analytics-page-header h1 {
+    margin: 10px 0 6px;
+    font-size: 30px;
+    color: #111827;
+}
+
+.analytics-page-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.back-button {
+    border: none;
+    background: transparent;
+    padding: 0;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================
+   SUMMARY CARDS
+========================================= */
+
+.analytics-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.analytics-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.analytics-card-label {
+    color: #6b7280;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.analytics-card strong {
+    display: block;
+    font-size: 26px;
+    color: #111827;
+}
+
+.total-card {
+    border-left: 4px solid #2563eb;
+}
+
+.active-card {
+    border-left: 4px solid #22c55e;
+}
+
+.warning-card {
+    border-left: 4px solid #f59e0b;
+}
+
+.expired-card {
+    border-left: 4px solid #ef4444;
+}
+
+.inactive-card {
+    border-left: 4px solid #6b7280;
+}
+
+.no-expiry-card {
+    border-left: 4px solid #9ca3af;
+}
+
+
+/* =========================================
+   ANALYTICS GRID
+========================================= */
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+
+/* =========================================
+   PANELS
+========================================= */
+
+.analytics-panel {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.analytics-panel-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.analytics-panel-header h2 {
+    margin: 0 0 5px;
+    font-size: 19px;
+    color: #111827;
+}
+
+.analytics-panel-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+
+/* =========================================
+   CHART
+========================================= */
+
+.chart-container {
+    position: relative;
+    height: 320px;
+    padding: 20px;
+}
+
+
+/* =========================================
+   TABLE
+========================================= */
+
+.analytics-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.analytics-table th {
+    background: #f9fafb;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    padding: 13px 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.analytics-table td {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #374151;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.analytics-table tbody tr:hover {
+    background: #fafafa;
+}
+
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+.analytics-message {
+    padding: 40px 20px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.analytics-error {
+    color: #dc2626;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1200px) {
+
+    .analytics-summary-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 800px) {
+
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .analytics-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+
+    .analytics-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .analytics-page-header h1 {
+        font-size: 24px;
+    }
+
+    .chart-container {
+        height: 280px;
+    }
+}

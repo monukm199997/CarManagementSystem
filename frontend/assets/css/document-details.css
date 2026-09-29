@@ -1,0 +1,263 @@
+.document-details-page {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+
+/* ========================================
+   HEADER
+======================================== */
+
+.details-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.details-page-header h1 {
+    margin: 10px 0 6px;
+}
+
+.details-page-header p {
+    margin: 0;
+    color: #6b7280;
+}
+
+.back-link-container {
+    margin-bottom: 5px;
+}
+
+.back-link {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+
+/* ========================================
+   CARDS
+======================================== */
+
+.details-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.loading-card {
+    text-align: center;
+    padding: 50px;
+    color: #6b7280;
+}
+
+.error-card {
+    color: #b91c1c;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+}
+
+
+/* ========================================
+   CARD HEADER
+======================================== */
+
+.card-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.card-title h2 {
+    margin: 0 0 5px;
+    font-size: 20px;
+}
+
+.card-title p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* ========================================
+   DETAILS GRID
+======================================== */
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.detail-label {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.detail-item strong {
+    font-size: 15px;
+    word-break: break-word;
+}
+
+
+/* ========================================
+   STATUS
+======================================== */
+
+.document-status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.document-status.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.document-status.expired {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.document-status.inactive {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+
+/* ========================================
+   NOTES
+======================================== */
+
+.notes-content {
+    min-height: 70px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    color: #374151;
+    white-space: pre-wrap;
+}
+
+
+/* ========================================
+   FILE PREVIEW
+======================================== */
+
+.document-preview {
+    width: 100%;
+    min-height: 300px;
+    background: #f9fafb;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.document-preview img {
+    display: block;
+    max-width: 100%;
+    max-height: 700px;
+    object-fit: contain;
+}
+
+.document-preview iframe {
+    width: 100%;
+    height: 700px;
+    border: none;
+}
+
+.no-document-file {
+    padding: 60px 20px;
+    color: #6b7280;
+    text-align: center;
+}
+
+
+/* ========================================
+   BUTTONS
+======================================== */
+
+.btn-primary,
+.btn-secondary {
+    display: inline-block;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.btn-secondary {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 1000px) {
+
+    .details-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .document-details-page {
+        padding: 16px;
+    }
+
+    .details-page-header {
+        flex-direction: column;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-title {
+        flex-direction: column;
+    }
+
+    .document-preview iframe {
+        height: 500px;
+    }
+
+}

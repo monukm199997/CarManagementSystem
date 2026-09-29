@@ -145,16 +145,16 @@ function renderNavbar(user) {
 
                     <strong>
                         ${escapeLayoutHtml(
-                            user.name || "User"
-                        )}
+        user.name || "User"
+    )}
                     </strong>
 
                     <small>
                         ${escapeLayoutHtml(
-                            formatLayoutRole(
-                                user.role
-                            )
-                        )}
+        formatLayoutRole(
+            user.role
+        )
+    )}
                     </small>
 
                 </div>
@@ -217,6 +217,20 @@ const MENU_ITEMS = [
         label: "Services",
         icon: "🔧",
         url: "/frontend/services/services.html",
+        roles: [
+            "customer",
+            "staff",
+            "manager",
+            "admin",
+            "super_admin"
+        ]
+    },
+
+    {
+        key: "documents",
+        label: "Documents",
+        icon: "📄",
+        url: "/frontend/documents/documents.html",
         roles: [
             "customer",
             "staff",

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Car Document History</title>
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/layout.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/document-details.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/car-document-history.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div id="appNavbar"></div>
+
+    <!-- Sidebar -->
+    <div id="appSidebar"></div>
+
+    <!-- Mobile Overlay -->
+    <div
+        id="sidebarOverlay"
+        class="sidebar-overlay"
+    ></div>
+
+
+    <main class="dashboard-main">
+
+        <!-- Page Header -->
+        <div class="history-page-header">
+
+            <div>
+
+                <button
+                    type="button"
+                    class="back-button"
+                    onclick="goBackToDocuments()"
+                >
+                    ← Back to Documents
+                </button>
+
+                <h1>
+                    Vehicle Document History
+                </h1>
+
+                <p>
+                    View all documents and expiry information
+                    for this vehicle.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Vehicle Information -->
+        <section
+            class="vehicle-history-card"
+            id="vehicleHistoryCard"
+        >
+
+            <div class="vehicle-history-info">
+
+                <div class="vehicle-history-icon">
+                    🚗
+                </div>
+
+                <div>
+
+                    <span class="vehicle-history-label">
+                        Vehicle
+                    </span>
+
+                    <h2 id="vehicleRegistration">
+                        Loading...
+                    </h2>
+
+                    <p id="vehicleDetails">
+                        Loading vehicle information...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Summary -->
+        <section class="history-summary-grid">
+
+            <div class="history-summary-card">
+
+                <span class="summary-label">
+                    Total Documents
+                </span>
+
+                <strong id="historyTotal">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="history-summary-card">
+
+                <span class="summary-label">
+                    Active
+                </span>
+
+                <strong
+                    id="historyActive"
+                    class="summary-active"
+                >
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="history-summary-card">
+
+                <span class="summary-label">
+                    Expiring Soon
+                </span>
+
+                <strong
+                    id="historyExpiring"
+                    class="summary-warning"
+                >
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="history-summary-card">
+
+                <span class="summary-label">
+                    Expired
+                </span>
+
+                <strong
+                    id="historyExpired"
+                    class="summary-danger"
+                >
+                    0
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- Document History -->
+        <section class="document-history-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Document History
+                    </h2>
+
+                    <p>
+                        All documents associated with this vehicle.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="historyLoading"
+                class="history-message"
+            >
+                Loading documents...
+            </div>
+
+
+            <div
+                id="historyEmpty"
+                class="history-message"
+                style="display: none;"
+            >
+                No documents found for this vehicle.
+            </div>
+
+
+            <div
+                id="historyTableContainer"
+                class="history-table-wrapper"
+                style="display: none;"
+            >
+
+                <table class="document-history-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>#</th>
+
+                            <th>
+                                Document Type
+                            </th>
+
+                            <th>
+                                Document Number
+                            </th>
+
+                            <th>
+                                Issue Date
+                            </th>
+
+                            <th>
+                                Expiry Date
+                            </th>
+
+                            <th>
+                                Expiry Status
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody
+                        id="documentHistoryBody"
+                    >
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="../assets/js/api.js"></script>
+
+    <script src="../assets/js/auth.js"></script>
+
+    <script src="../assets/js/layout.js"></script>
+
+    <script src="../assets/js/common.js"></script>
+
+    <script src="../assets/js/car-document-history.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,317 @@
+/* =========================================
+   VEHICLE DOCUMENT HISTORY
+========================================= */
+
+.history-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.history-page-header h1 {
+    margin: 10px 0 6px;
+    font-size: 30px;
+    color: #111827;
+}
+
+.history-page-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.back-button {
+    border: none;
+    background: transparent;
+    padding: 0;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================
+   VEHICLE CARD
+========================================= */
+
+.vehicle-history-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.vehicle-history-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.vehicle-history-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 27px;
+}
+
+.vehicle-history-label {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.vehicle-history-info h2 {
+    margin: 0;
+    font-size: 21px;
+    color: #111827;
+}
+
+.vehicle-history-info p {
+    margin: 5px 0 0;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+
+/* =========================================
+   SUMMARY
+========================================= */
+
+.history-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.history-summary-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.summary-label {
+    display: block;
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 7px;
+}
+
+.history-summary-card strong {
+    font-size: 26px;
+    color: #111827;
+}
+
+.summary-active {
+    color: #16a34a !important;
+}
+
+.summary-warning {
+    color: #d97706 !important;
+}
+
+.summary-danger {
+    color: #dc2626 !important;
+}
+
+
+/* =========================================
+   DOCUMENT HISTORY SECTION
+========================================= */
+
+.document-history-section {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.section-header h2 {
+    margin: 0 0 5px;
+    font-size: 20px;
+    color: #111827;
+}
+
+.section-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+
+/* =========================================
+   TABLE
+========================================= */
+
+.history-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.document-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+.document-history-table th {
+    background: #f9fafb;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    padding: 13px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.document-history-table td {
+    padding: 14px;
+    font-size: 13px;
+    color: #374151;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.document-history-table tbody tr:hover {
+    background: #fafafa;
+}
+
+
+/* =========================================
+   EXPIRY BADGES
+========================================= */
+
+.history-expiry-badge,
+.history-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.history-active,
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.history-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.history-expired {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.history-no-expiry {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.history-inactive,
+.status-inactive {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+
+/* =========================================
+   ACTIONS
+========================================= */
+
+.history-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.history-actions button {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.history-view-btn {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.history-view-btn:hover {
+    background: #bae6fd;
+}
+
+.history-edit-btn {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.history-edit-btn:hover {
+    background: #ddd6fe;
+}
+
+
+/* =========================================
+   MESSAGES
+========================================= */
+
+.history-message {
+    padding: 35px 20px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
+
+    .history-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+
+    .history-page-header h1 {
+        font-size: 24px;
+    }
+
+    .history-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vehicle-history-info {
+        align-items: flex-start;
+    }
+}

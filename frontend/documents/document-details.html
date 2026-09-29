@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Document Details</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <link rel="stylesheet" href="../assets/css/layout.css">
+
+    <link rel="stylesheet" href="../assets/css/document-details.css">
+
+</head>
+
+
+<body>
+
+    <!-- Navbar -->
+    <div id="appNavbar"></div>
+
+
+    <!-- Sidebar -->
+    <div id="appSidebar"></div>
+
+
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+
+    <main class="dashboard-main">
+
+        <div class="document-details-page">
+
+
+            <!-- =========================
+                 PAGE HEADER
+            ========================== -->
+
+            <div class="details-page-header">
+
+                <div>
+
+                    <div class="back-link-container">
+
+                        <a href="/frontend/documents/documents.html" class="back-link">
+                            ← Back to Documents
+                        </a>
+
+                    </div>
+
+                    <h1>
+                        Document Details
+                    </h1>
+
+                    <p>
+                        View complete vehicle document information.
+                    </p>
+
+                </div>
+
+
+                <div class="header-actions">
+
+                    <button type="button" class="btn-secondary" onclick="editCurrentDocument()">
+                        Edit Document
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =========================
+                 LOADING
+            ========================== -->
+
+            <div id="documentLoading" class="details-card loading-card">
+
+                Loading document details...
+
+            </div>
+
+
+
+            <!-- =========================
+                 ERROR
+            ========================== -->
+
+            <div id="documentError" class="details-card error-card" style="display:none;">
+
+            </div>
+
+
+
+            <!-- =========================
+                 DOCUMENT CONTENT
+            ========================== -->
+
+            <div id="documentContent" style="display:none;">
+
+
+                <!-- =========================
+                     BASIC INFORMATION
+                ========================== -->
+
+                <div class="details-card">
+
+                    <div class="card-title">
+
+                        <div>
+
+                            <h2>
+                                Document Information
+                            </h2>
+
+                            <p>
+                                Basic document information
+                            </p>
+
+                        </div>
+
+                        <div id="documentStatus"></div>
+
+                    </div>
+
+
+                    <div class="details-grid">
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Document Type
+                            </span>
+
+                            <strong id="detailDocumentType">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Document Number
+                            </span>
+
+                            <strong id="detailDocumentNumber">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Issue Date
+                            </span>
+
+                            <strong id="detailIssueDate">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Expiry Date
+                            </span>
+
+                            <strong id="detailExpiryDate">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Created At
+                            </span>
+
+                            <strong id="detailCreatedAt">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =========================
+                     VEHICLE INFORMATION
+                ========================== -->
+
+                <div class="details-card">
+
+                    <div class="card-title">
+
+                        <div>
+
+                            <h2>
+                                Vehicle Information
+                            </h2>
+
+                            <p>
+                                Vehicle associated with this document
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="details-grid">
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Registration Number
+                            </span>
+
+                            <strong id="detailRegistration">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Brand
+                            </span>
+
+                            <strong id="detailBrand">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Model
+                            </span>
+
+                            <strong id="detailModel">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Fuel Type
+                            </span>
+
+                            <strong id="detailFuelType">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Year
+                            </span>
+
+                            <strong id="detailYear">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Color
+                            </span>
+
+                            <strong id="detailColor">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =========================
+                     NOTES
+                ========================== -->
+
+                <div class="details-card">
+
+                    <div class="card-title">
+
+                        <div>
+
+                            <h2>
+                                Notes
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div id="detailNotes" class="notes-content">
+                        No notes added.
+                    </div>
+
+                </div>
+
+
+
+                <!-- =========================
+                     FILE
+                ========================== -->
+
+                <div class="details-card">
+
+                    <div class="card-title">
+
+                        <div>
+
+                            <h2>
+                                Document File
+                            </h2>
+
+                            <p>
+                                Uploaded document preview
+                            </p>
+
+                        </div>
+
+                        <a id="openDocumentFile" href="#" target="_blank" class="btn-primary" style="display:none;">
+                            Open File
+                        </a>
+
+                    </div>
+
+
+                    <div id="documentPreview" class="document-preview">
+
+                        <div class="no-document-file">
+
+                            No file uploaded for this document.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script src="../assets/js/api.js"></script>
+
+    <script src="../assets/js/auth.js"></script>
+
+    <script src="../assets/js/layout.js"></script>
+
+    <script src="../assets/js/common.js"></script>
+
+    <script src="../assets/js/document-details.js"></script>
+
+</body>
+
+</html>

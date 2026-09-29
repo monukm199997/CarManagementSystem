@@ -21,6 +21,7 @@ from app.models.car import Car
 from app.models.service import Services
 from app.models.expenses import Expenses
 from app.models.fuel import Fuel
+from app.models import vehicle_document
 
 config = context.config
 

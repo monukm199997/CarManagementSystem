@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Vehicle Documents</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/documents.css">
+</head>
+
+<body>
+
+    <!-- Common Navbar -->
+    <div id="appNavbar"></div>
+
+    <!-- Common Sidebar -->
+    <div id="appSidebar"></div>
+
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <main class="dashboard-main">
+
+        <div class="documents-page">
+
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <h1>Vehicle Documents</h1>
+                    <p>Manage vehicle documents and expiry information.</p>
+                </div>
+
+                <div class="documents-page-actions">
+
+                    <button type="button" class="btn-secondary" onclick="openDocumentAnalytics()">
+                        📊 Analytics
+                    </button>
+
+                    <button type="button" class="btn-primary" id="addDocumentButton">
+                        + Add Document
+                    </button>
+
+                </div>
+            </div>
+            <!-- Expiry Summary -->
+            <div class="expiry-summary-grid">
+
+                <div class="expiry-card expiry-card-total">
+                    <div class="expiry-card-icon">📄</div>
+                    <div>
+                        <span>Total Documents</span>
+                        <strong id="totalDocumentsCount">0</strong>
+                    </div>
+                </div>
+
+                <div class="expiry-card expiry-card-active">
+                    <div class="expiry-card-icon">🟢</div>
+                    <div>
+                        <span>Active</span>
+                        <strong id="activeDocumentsCount">0</strong>
+                    </div>
+                </div>
+
+                <div class="expiry-card expiry-card-warning">
+                    <div class="expiry-card-icon">🟠</div>
+                    <div>
+                        <span>Expiring Soon</span>
+                        <strong id="expiringDocumentsCount">0</strong>
+                    </div>
+                </div>
+
+                <div class="expiry-card expiry-card-danger">
+                    <div class="expiry-card-icon">🔴</div>
+                    <div>
+                        <span>Expired</span>
+                        <strong id="expiredDocumentsCount">0</strong>
+                    </div>
+                </div>
+
+                <div class="expiry-card expiry-card-neutral">
+                    <div class="expiry-card-icon">⚪</div>
+                    <div>
+                        <span>No Expiry</span>
+                        <strong id="noExpiryDocumentsCount">0</strong>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Filters -->
+            <div class="document-filters">
+
+                <div class="filter-group">
+                    <label for="carFilter">
+                        Vehicle
+                    </label>
+
+                    <select id="carFilter">
+                        <option value="">
+                            All Vehicles
+                        </option>
+                    </select>
+                </div>
+
+
+                <div class="filter-group">
+                    <label for="documentTypeFilter">
+                        Document Type
+                    </label>
+
+                    <select id="documentTypeFilter">
+                        <option value="">
+                            All Types
+                        </option>
+                    </select>
+                </div>
+
+
+                <div class="filter-group">
+                    <label for="expiryStatusFilter">
+                        Expiry Status
+                    </label>
+
+                    <select id="expiryStatusFilter">
+                        <option value="">
+                            All Expiry Status
+                        </option>
+
+                        <option value="active">
+                            Active
+                        </option>
+
+                        <option value="expiring_soon">
+                            Expiring Soon
+                        </option>
+
+                        <option value="expired">
+                            Expired
+                        </option>
+
+                        <option value="no_expiry">
+                            No Expiry
+                        </option>
+                    </select>
+                </div>
+
+
+                <div class="filter-group search-group">
+
+                    <label for="documentSearch">
+                        Search
+                    </label>
+
+                    <div class="search-wrapper">
+
+                        <input type="text" id="documentSearch" placeholder="Search document..." />
+
+                        <button type="button" class="btn-secondary filter-button" id="documentSearchButton">
+                            Search
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <!-- Documents Table -->
+            <div class="table-card">
+
+                <div class="table-header">
+                    <h2>Documents</h2>
+
+                    <span id="documentCount">
+                        0 documents
+                    </span>
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="documents-table">
+
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Vehicle</th>
+                                <th>Document Type</th>
+                                <th>Document Number</th>
+                                <th>Issue Date</th>
+                                <th>Expiry Date</th>
+                                <th>Expiry Status</th>
+                                <th>Status</th>
+                                <th>File</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="documentsTableBody">
+
+                            <tr>
+                                <td colspan="9" class="loading-cell">
+                                    Loading documents...
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- Add/Edit Document Modal -->
+
+    <div id="documentModal" class="modal-overlay" style="display:none;">
+
+        <div class="document-modal">
+
+            <div class="modal-header">
+
+                <div>
+                    <h2 id="modalTitle">
+                        Add Vehicle Document
+                    </h2>
+
+                    <p>
+                        Add document information for a vehicle.
+                    </p>
+                </div>
+
+                <button class="modal-close" onclick="closeDocumentModal()">
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="documentForm">
+
+                <input type="hidden" id="documentId">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="documentCar">
+                            Vehicle *
+                        </label>
+
+                        <select id="documentCar" required>
+                            <option value="">
+                                Select Vehicle
+                            </option>
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="documentType">
+                            Document Type *
+                        </label>
+
+                        <select id="documentType" required>
+                            <option value="">
+                                Select Type
+                            </option>
+
+                            <option value="RC">
+                                RC
+                            </option>
+
+                            <option value="Insurance">
+                                Insurance
+                            </option>
+
+                            <option value="PUC">
+                                PUC
+                            </option>
+
+                            <option value="Permit">
+                                Permit
+                            </option>
+
+                            <option value="Fitness">
+                                Fitness
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="documentNumber">
+                            Document Number
+                        </label>
+
+                        <input type="text" id="documentNumber" placeholder="Enter document number">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="issueDate">
+                            Issue Date
+                        </label>
+
+                        <input type="date" id="issueDate">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="expiryDate">
+                            Expiry Date
+                        </label>
+
+                        <input type="date" id="expiryDate">
+
+                    </div>
+
+
+                    <div class="form-group full-width">
+
+                        <label for="documentNotes">
+                            Notes
+                        </label>
+
+                        <textarea id="documentNotes" rows="3" placeholder="Optional notes..."></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div id="documentMessage" class="form-message"></div>
+
+
+                <div class="modal-actions">
+
+                    <button type="button" class="btn-secondary" onclick="closeDocumentModal()">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="btn-primary">
+                        Save Document
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/layout.js"></script>
+    <script src="../assets/js/common.js"></script>
+
+    <script src="../assets/js/documents.js"></script>
+
+</body>
+
+</html>
