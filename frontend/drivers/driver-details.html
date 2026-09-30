@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Driver Details - Car Management System</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/driver-details.css">
+</head>
+
+<body>
+
+    <!-- Common Navbar -->
+    <div id="appNavbar"></div>
+
+    <!-- Common Sidebar -->
+    <div id="appSidebar"></div>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+
+    <main class="dashboard-main driver-details-page">
+
+        <!-- Page Header -->
+        <div class="driver-details-header">
+
+            <div class="header-left">
+
+                <button type="button" class="back-btn" onclick="goBackToDrivers()">
+                    ← Back to Drivers
+                </button>
+
+                <div class="page-title-section">
+
+                    <h1>
+                        Driver Details
+                    </h1>
+
+                    <p id="driverSubtitle">
+                        Loading driver information...
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="header-actions">
+
+                <button type="button" class="secondary-btn" onclick="viewDriverHistory()">
+                    History
+                </button>
+
+                <button type="button" class="primary-btn" onclick="editDriver()">
+                    Edit Driver
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             LOADING
+        ========================== -->
+
+        <div id="driverLoading" class="driver-loading">
+            <div class="loading-spinner"></div>
+
+            <p>
+                Loading driver details...
+            </p>
+        </div>
+
+
+        <!-- =========================
+             ERROR
+        ========================== -->
+
+        <div id="driverError" class="driver-error" style="display: none;">
+
+            <div class="error-icon">
+                ⚠
+            </div>
+
+            <h3>
+                Unable to Load Driver
+            </h3>
+
+            <p id="driverErrorMessage">
+                Something went wrong.
+            </p>
+
+            <button type="button" class="primary-btn" onclick="loadDriverDetails()">
+                Try Again
+            </button>
+
+        </div>
+
+
+        <!-- =========================
+             DETAILS CONTENT
+        ========================== -->
+
+        <div id="driverDetailsContent" class="driver-details-content" style="display: none;">
+
+
+            <!-- =========================
+                 PROFILE CARD
+            ========================== -->
+
+            <section class="driver-profile-card">
+
+                <div class="driver-profile-left">
+
+                    <div id="driverAvatar" class="driver-avatar">
+                        D
+                    </div>
+
+                    <div class="driver-profile-info">
+
+                        <div class="driver-name-row">
+
+                            <h2 id="driverName">
+                                -
+                            </h2>
+
+                            <span id="driverStatus" class="status-badge">
+                                -
+                            </span>
+
+                        </div>
+
+                        <p id="driverPhone" class="driver-phone">
+                            -
+                        </p>
+
+                        <p id="driverLicense" class="driver-license">
+                            License: -
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="driver-profile-meta">
+
+                    <div class="profile-meta-item">
+
+                        <span class="meta-label">
+                            Driver ID
+                        </span>
+
+                        <strong id="driverId">
+                            -
+                        </strong>
+
+                    </div>
+
+                    <div class="profile-meta-item">
+
+                        <span class="meta-label">
+                            Joining Date
+                        </span>
+
+                        <strong id="joiningDate">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 SUMMARY CARDS
+            ========================== -->
+
+            <section class="driver-summary-grid">
+
+                <!-- License -->
+                <div class="summary-card">
+
+                    <div class="summary-card-icon">
+                        🪪
+                    </div>
+
+                    <div class="summary-card-content">
+
+                        <span class="summary-label">
+                            License Status
+                        </span>
+
+                        <strong id="licenseStatus" class="summary-value">
+                            -
+                        </strong>
+
+                        <small id="licenseExpiry">
+                            -
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Assigned Car -->
+                <div class="summary-card">
+
+                    <div class="summary-card-icon">
+                        🚗
+                    </div>
+
+                    <div class="summary-card-content">
+
+                        <span class="summary-label">
+                            Assigned Car
+                        </span>
+
+                        <strong id="assignedCar" class="summary-value">
+                            No Car
+                        </strong>
+
+                        <small id="assignedCarInfo">
+                            -
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Email -->
+                <div class="summary-card">
+
+                    <div class="summary-card-icon">
+                        ✉
+                    </div>
+
+                    <div class="summary-card-content">
+
+                        <span class="summary-label">
+                            Email
+                        </span>
+
+                        <strong id="driverEmail" class="summary-value summary-text">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Emergency Contact -->
+                <div class="summary-card">
+
+                    <div class="summary-card-icon">
+                        📞
+                    </div>
+
+                    <div class="summary-card-content">
+
+                        <span class="summary-label">
+                            Emergency Contact
+                        </span>
+
+                        <strong id="emergencyContact" class="summary-value">
+                            -
+                        </strong>
+
+                        <small id="emergencyPhone">
+                            -
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 PERSONAL INFORMATION
+            ========================== -->
+
+            <section class="details-card">
+
+                <div class="details-card-header">
+
+                    <div>
+
+                        <h3>
+                            Personal Information
+                        </h3>
+
+                        <p>
+                            Driver's basic contact information
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Full Name
+                        </span>
+
+                        <strong id="detailName" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Phone
+                        </span>
+
+                        <strong id="detailPhone" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Email
+                        </span>
+
+                        <strong id="detailEmail" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item detail-item-full">
+
+                        <span class="detail-label">
+                            Address
+                        </span>
+
+                        <strong id="detailAddress" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 LICENSE INFORMATION
+            ========================== -->
+
+            <section class="details-card">
+
+                <div class="details-card-header">
+
+                    <div>
+
+                        <h3>
+                            Driving License
+                        </h3>
+
+                        <p>
+                            Driver license information
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            License Number
+                        </span>
+
+                        <strong id="detailLicenseNumber" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            License Status
+                        </span>
+
+                        <strong id="detailLicenseStatus" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Issue Date
+                        </span>
+
+                        <strong id="detailLicenseIssue" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Expiry Date
+                        </span>
+
+                        <strong id="detailLicenseExpiry" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 EMERGENCY CONTACT
+            ========================== -->
+
+            <section class="details-card">
+
+                <div class="details-card-header">
+
+                    <div>
+
+                        <h3>
+                            Emergency Contact
+                        </h3>
+
+                        <p>
+                            Emergency contact information
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Contact Name
+                        </span>
+
+                        <strong id="detailEmergencyName" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Contact Phone
+                        </span>
+
+                        <strong id="detailEmergencyPhone" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 ASSIGNED CAR
+            ========================== -->
+
+            <section class="details-card">
+
+                <div class="details-card-header">
+
+                    <div>
+
+                        <h3>
+                            Current Car Assignment
+                        </h3>
+
+                        <p>
+                            Car currently assigned to this driver
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div id="currentCarAssignment" class="current-car-assignment">
+
+                    <div class="no-assigned-car">
+
+                        <div class="no-car-icon">
+                            🚗
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                No Car Assigned
+                            </strong>
+
+                            <p>
+                                This driver currently has no assigned car.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 NOTES
+            ========================== -->
+
+            <section class="details-card">
+
+                <div class="details-card-header">
+
+                    <div>
+
+                        <h3>
+                            Notes
+                        </h3>
+
+                        <p>
+                            Additional information about the driver
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div id="driverNotes" class="driver-notes">
+                    No notes available.
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 SYSTEM INFORMATION
+            ========================== -->
+
+            <section class="details-card">
+
+                <div class="details-card-header">
+
+                    <div>
+
+                        <h3>
+                            System Information
+                        </h3>
+
+                        <p>
+                            Record information
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Driver ID
+                        </span>
+
+                        <strong id="systemDriverId" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Created At
+                        </span>
+
+                        <strong id="createdAt" class="detail-value">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         COMMON JS
+    ========================== -->
+
+    <script src="/frontend/assets/js/api.js"></script>
+
+    <script src="/frontend/assets/js/auth.js"></script>
+
+    <script src="/frontend/assets/js/layout.js"></script>
+
+    <script src="/frontend/assets/js/common.js"></script>
+
+    <!-- Driver Details JS -->
+    <script src="/frontend/assets/js/driver-details.js"></script>
+
+</body>
+
+</html>

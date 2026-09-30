@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Driver History</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <link rel="stylesheet" href="../assets/css/layout.css">
+
+    <link rel="stylesheet" href="../assets/css/driver-history.css">
+
+</head>
+
+
+<body>
+
+    <!-- Navbar -->
+    <div id="appNavbar"></div>
+
+
+    <!-- Sidebar -->
+    <div id="appSidebar"></div>
+
+
+    <!-- Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+
+    <main class="dashboard-main">
+
+        <!-- Header -->
+
+        <div class="history-page-header">
+
+            <div>
+
+                <button class="back-btn" onclick="goBackToDrivers()">
+                    ← Back to Drivers
+                </button>
+
+                <h1 id="driverHistoryTitle">
+                    Driver History
+                </h1>
+
+                <p id="driverHistorySubtitle">
+                    Loading driver information...
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Driver Summary -->
+
+        <section class="driver-history-summary">
+
+            <div class="history-summary-card">
+
+                <div class="history-summary-label">
+                    Driver
+                </div>
+
+                <div class="history-summary-value" id="historyDriverName">
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="history-summary-card">
+
+                <div class="history-summary-label">
+                    Current Status
+                </div>
+
+                <div id="historyDriverStatus">
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="history-summary-card">
+
+                <div class="history-summary-label">
+                    Total Assignments
+                </div>
+
+                <div class="history-summary-value" id="totalAssignments">
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="history-summary-card">
+
+                <div class="history-summary-label">
+                    Current Car
+                </div>
+
+                <div class="history-summary-value" id="currentCar">
+                    No Car
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- History -->
+
+        <section class="driver-history-card">
+
+            <div class="history-card-header">
+
+                <div>
+
+                    <h2>
+                        Car Assignment History
+                    </h2>
+
+                    <p>
+                        Complete history of cars assigned to this driver.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="history-table-wrapper">
+
+                <table class="driver-history-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>#</th>
+
+                            <th>Car</th>
+
+                            <th>Assigned From</th>
+
+                            <th>Assigned To</th>
+
+                            <th>Duration</th>
+
+                            <th>Status</th>
+
+                            <th>Notes</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="driverHistoryTableBody">
+
+                        <tr>
+
+                            <td colspan="7" class="loading-cell">
+                                Loading history...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="../assets/js/api.js"></script>
+
+    <script src="../assets/js/auth.js"></script>
+
+    <script src="../assets/js/layout.js"></script>
+
+    <script src="../assets/js/common.js"></script>
+
+    <script src="../assets/js/driver-history.js"></script>
+
+</body>
+
+</html>

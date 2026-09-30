@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Drivers</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/drivers.css">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div id="appNavbar"></div>
+
+    <!-- Sidebar -->
+    <div id="appSidebar"></div>
+
+    <!-- Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+
+    <main class="dashboard-main">
+
+        <!-- Page Header -->
+        <div class="page-header">
+
+            <div>
+                <h1>Drivers</h1>
+                <p>Manage vehicle drivers and their licenses.</p>
+            </div>
+
+            <button class="primary-btn" onclick="openAddDriverModal()">
+                + Add Driver
+            </button>
+
+        </div>
+
+
+        <!-- Summary Cards -->
+        <section class="driver-summary">
+
+            <div class="driver-summary-card">
+                <div class="summary-label">
+                    Total Drivers
+                </div>
+
+                <div class="summary-value" id="totalDrivers">
+                    0
+                </div>
+            </div>
+
+
+            <div class="driver-summary-card">
+                <div class="summary-label">
+                    Active Drivers
+                </div>
+
+                <div class="summary-value" id="activeDrivers">
+                    0
+                </div>
+            </div>
+
+
+            <div class="driver-summary-card">
+                <div class="summary-label">
+                    Inactive Drivers
+                </div>
+
+                <div class="summary-value" id="inactiveDrivers">
+                    0
+                </div>
+            </div>
+
+
+            <div class="driver-summary-card">
+                <div class="summary-label">
+                    Expiring Licenses
+                </div>
+
+                <div class="summary-value" id="expiringLicenses">
+                    0
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- Filters -->
+        <section class="driver-filter-card">
+
+            <div class="driver-filter">
+
+                <div class="filter-group">
+
+                    <label for="driverSearch">
+                        Search Driver
+                    </label>
+
+                    <input type="text" id="driverSearch" placeholder="Name, phone or license...">
+
+                </div>
+
+
+                <div class="filter-group">
+
+                    <label for="driverStatus">
+                        Status
+                    </label>
+
+                    <select id="driverStatus">
+
+                        <option value="">
+                            All
+                        </option>
+
+                        <option value="active">
+                            Active
+                        </option>
+
+                        <option value="inactive">
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="filter-actions">
+
+                    <button class="secondary-btn" onclick="resetDriverFilters()">
+                        Reset
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Drivers Table -->
+        <section class="driver-table-card">
+
+            <div class="table-header">
+
+                <h2>Driver List</h2>
+
+                <span id="driverCount">
+                    0 drivers
+                </span>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="drivers-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>#</th>
+
+                            <th>Name</th>
+
+                            <th>Phone</th>
+
+                            <th>License Number</th>
+
+                            <th>Assigned Car</th>
+
+                            <th>License Expiry</th>
+
+                            <th>Status</th>
+
+                            <th>Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="driversTableBody">
+
+                        <tr>
+
+                            <td colspan="8" class="loading-cell">
+                                Loading drivers...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Add/Edit Driver Modal -->
+
+    <div id="driverModal" class="driver-modal">
+
+        <div class="driver-modal-content">
+
+            <div class="driver-modal-header">
+
+                <div>
+
+                    <h2 id="driverModalTitle">
+                        Add Driver
+                    </h2>
+
+                    <p>
+                        Enter driver information
+                    </p>
+
+                </div>
+
+                <button class="modal-close" onclick="closeDriverModal()">
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="driverForm">
+
+                <input type="hidden" id="driverId">
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label>
+                            Name *
+                        </label>
+
+                        <input type="text" id="driverName" required maxlength="150">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Email
+                        </label>
+
+                        <input type="email" id="driverEmail">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Phone *
+                        </label>
+
+                        <input type="text" id="driverPhone" required maxlength="15">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            License Number *
+                        </label>
+
+                        <input type="text" id="driverLicense" required maxlength="100">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            License Issue Date
+                        </label>
+
+                        <input type="date" id="driverLicenseIssue">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            License Expiry Date
+                        </label>
+
+                        <input type="date" id="driverLicenseExpiry">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Joining Date
+                        </label>
+
+                        <input type="date" id="driverJoiningDate">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Emergency Contact Name
+                        </label>
+
+                        <input type="text" id="driverEmergencyName">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Emergency Contact Phone
+                        </label>
+
+                        <input type="text" id="driverEmergencyPhone" maxlength="15">
+
+                    </div>
+
+
+                    <div class="form-group full-width">
+
+                        <label>
+                            Address
+                        </label>
+
+                        <textarea id="driverAddress" rows="3"></textarea>
+
+                    </div>
+
+
+                    <div class="form-group full-width">
+
+                        <label>
+                            Notes
+                        </label>
+
+                        <textarea id="driverNotes" rows="3"></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div id="driverFormError" class="form-error"></div>
+
+
+                <div class="driver-modal-footer">
+
+                    <button type="button" class="secondary-btn" onclick="closeDriverModal()">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="primary-btn">
+                        Save Driver
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- Car Assignment Modal -->
+
+    <div id="carAssignmentModal"  class="driver-modal car-assignment-modal">
+
+        <div class="driver-modal-content">
+
+            <div class="driver-modal-header">
+
+                <div>
+
+                    <h2>
+                        Assign Car
+                    </h2>
+
+                    <p id="assignmentDriverName">
+                        Driver
+                    </p>
+
+                </div>
+
+                <button class="modal-close" onclick="closeCarAssignmentModal()">
+                    ×
+                </button>
+
+            </div>
+
+
+            <div id="currentCarAssignment" class="current-car-assignment">
+            </div>
+
+
+            <form id="carAssignmentForm">
+
+                <input type="hidden" id="assignmentDriverId">
+
+
+                <div class="form-grid">
+
+                    <div class="form-group full-width">
+
+                        <label>
+                            Select Car *
+                        </label>
+
+                        <select id="assignmentCarId" required>
+
+                            <option value="">
+                                Select Car
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Assigned From *
+                        </label>
+
+                        <input type="date" id="assignmentFrom" required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Assigned To
+                        </label>
+
+                        <input type="date" id="assignmentTo">
+
+                    </div>
+
+
+                    <div class="form-group full-width">
+
+                        <label>
+                            Notes
+                        </label>
+
+                        <textarea id="assignmentNotes" rows="3"></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div id="assignmentError" class="form-error"></div>
+
+
+                <div class="driver-modal-footer">
+
+                    <button type="button" class="secondary-btn" onclick="closeCarAssignmentModal()">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="primary-btn">
+                        Assign Car
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/layout.js"></script>
+    <script src="../assets/js/common.js"></script>
+
+    <script src="../assets/js/drivers.js"></script>
+
+</body>
+
+</html>

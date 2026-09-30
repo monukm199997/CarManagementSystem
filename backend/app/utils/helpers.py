@@ -22,3 +22,19 @@ def get_document_expiry_status(
         return "expiring_soon"
 
     return "active"
+
+
+def get_license_status(expiry_date):
+
+    if not expiry_date:
+        return "no_expiry"
+
+    today = date.today()
+
+    if expiry_date < today:
+        return "expired"
+
+    if expiry_date <= today + timedelta(days=30):
+        return "expiring_soon"
+
+    return "valid"

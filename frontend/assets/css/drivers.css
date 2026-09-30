@@ -1,0 +1,864 @@
+/* =====================================================
+   DRIVER PAGE
+===================================================== */
+
+.dashboard-main {
+    padding: 80px 24px 24px;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    margin: 0 0 6px;
+    font-size: 28px;
+}
+
+.page-header p {
+    margin: 0;
+    color: #6b7280;
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.primary-btn,
+.secondary-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.primary-btn {
+    background: #2563eb;
+    color: white;
+}
+
+.primary-btn:hover {
+    background: #1d4ed8;
+}
+
+.secondary-btn {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.secondary-btn:hover {
+    background: #e5e7eb;
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+.driver-summary {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+}
+
+.driver-summary-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.summary-label {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.summary-value {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+.driver-filter-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.driver-filter {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.filter-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.filter-group input,
+.filter-group select {
+    width: 260px;
+    height: 40px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    padding: 0 12px;
+    font-size: 14px;
+    outline: none;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    border-color: #2563eb;
+}
+
+.filter-actions {
+    margin-left: auto;
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.driver-table-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.table-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.table-header span {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.drivers-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.drivers-table th,
+.drivers-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+    white-space: nowrap;
+}
+
+.drivers-table th {
+    background: #f9fafb;
+    font-size: 13px;
+    color: #4b5563;
+}
+
+.drivers-table td {
+    font-size: 14px;
+    color: #374151;
+}
+
+.drivers-table tbody tr:hover {
+    background: #fafafa;
+}
+
+
+/* =====================================================
+   DRIVER NAME
+===================================================== */
+
+.driver-name {
+    font-weight: 600;
+    color: #111827;
+}
+
+.driver-email {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 3px;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.status-badge,
+.license-badge {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 5px 9px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.license-badge {
+    margin-left: 6px;
+}
+
+.license-badge.valid {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.license-badge.expiring {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.license-badge.expired {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* =====================================================
+   ACTION BUTTONS
+===================================================== */
+
+.action-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.action-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.action-btn.view {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.action-btn.edit {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.action-btn.danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.action-btn.success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+
+/* =====================================================
+   EMPTY / LOADING
+===================================================== */
+
+.empty-cell,
+.loading-cell {
+    text-align: center !important;
+    padding: 40px !important;
+    color: #6b7280;
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.driver-modal {
+    position: fixed;
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    z-index: 9999;
+
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.driver-modal.show {
+    display: flex;
+}
+
+.driver-modal-content {
+    width: min(900px, calc(100vw - 48px));
+    max-width: 900px;
+    max-height: 90vh;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    box-sizing: border-box;
+
+    background: white;
+    border-radius: 14px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.driver-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    padding: 20px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.driver-modal-header h2 {
+    margin: 0 0 5px;
+}
+
+.driver-modal-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.modal-close {
+    border: none;
+    background: transparent;
+    font-size: 28px;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+.driver-modal-header,
+#carAssignmentForm {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+#carAssignmentForm .form-group input,
+#carAssignmentForm .form-group select,
+#carAssignmentForm .form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* =====================================================
+   FORM
+===================================================== */
+
+#driverForm {
+    padding: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+
+    padding: 10px 12px;
+
+    font-size: 14px;
+
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #2563eb;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+
+/* =====================================================
+   FORM ERROR
+===================================================== */
+
+.form-error {
+    min-height: 20px;
+
+    color: #dc2626;
+
+    font-size: 13px;
+
+    margin-top: 12px;
+}
+
+
+/* =====================================================
+   MODAL FOOTER
+===================================================== */
+
+.driver-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    padding-top: 20px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+
+    .driver-summary {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .driver-filter {
+        flex-wrap: wrap;
+    }
+
+    .filter-actions {
+        margin-left: 0;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .dashboard-main {
+        padding: 75px 16px 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .driver-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full-width {
+        grid-column: auto;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .driver-modal {
+        padding: 12px;
+    }
+
+    .driver-modal-content {
+        width: 100%;
+        max-width: 100%;
+        max-height: 94vh;
+    }
+
+    .driver-modal-header {
+        padding: 16px;
+    }
+
+    #driverForm,
+    #carAssignmentForm {
+        padding: 16px;
+    }
+
+    .current-car-assignment {
+        padding: 12px 16px 0;
+    }
+
+}
+
+/* =====================================================
+   CAR ASSIGNMENT
+===================================================== */
+
+.action-btn.car {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+
+.current-car-assignment {
+    padding: 16px 24px 0;
+    box-sizing: border-box;
+}
+
+
+.current-car-card {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+
+.current-car-title {
+    font-size: 12px;
+    color: #166534;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+
+.current-car-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 5px;
+}
+
+
+.current-car-info {
+    color: #4b5563;
+    margin-top: 3px;
+}
+
+
+.current-car-date {
+    color: #6b7280;
+    font-size: 13px;
+    margin: 8px 0 12px;
+}
+
+
+.no-current-car {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 20px;
+    color: #6b7280;
+}
+
+
+.form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    padding: 10px 12px;
+    font-size: 14px;
+    outline: none;
+    background: white;
+}
+
+
+.form-group select:focus {
+    border-color: #2563eb;
+}
+
+
+.form-group select:disabled {
+    background: #f3f4f6;
+    cursor: not-allowed;
+}
+
+/* =====================================================
+   DISABLED BUTTON
+===================================================== */
+
+.driver-modal-footer .primary-btn:disabled,
+.driver-modal-footer .primary-btn.disabled {
+    background: #d1d5db;
+    color: #6b7280;
+    cursor: not-allowed;
+    opacity: 0.75;
+    box-shadow: none;
+}
+
+.driver-modal-footer .primary-btn:disabled:hover,
+.driver-modal-footer .primary-btn.disabled:hover {
+    background: #d1d5db;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
+   CAR ASSIGNMENT MODAL - FINAL
+===================================================== */
+
+.car-assignment-modal {
+    padding: 20px !important;
+}
+
+.car-assignment-modal .driver-modal-content {
+    width: 1000px !important;
+    max-width: calc(100vw - 40px) !important;
+    max-height: 90vh;
+
+    box-sizing: border-box;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    background: #ffffff;
+    border-radius: 14px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.20);
+}
+
+
+/* Header */
+
+.car-assignment-modal .driver-modal-header {
+    padding: 22px 24px;
+}
+
+
+/* Current car section */
+
+.car-assignment-modal .current-car-assignment {
+    padding: 18px 24px 0;
+}
+
+.car-assignment-modal .current-car-card {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 16px;
+
+    margin: 0;
+
+    background: #f0fdf4;
+
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+}
+
+
+/* Form */
+
+.car-assignment-modal #carAssignmentForm {
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.car-assignment-modal .form-grid {
+    width: 100%;
+}
+
+.car-assignment-modal .form-group {
+    min-width: 0;
+}
+
+.car-assignment-modal .form-group input,
+.car-assignment-modal .form-group select,
+.car-assignment-modal .form-group textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* Footer */
+
+.car-assignment-modal .driver-modal-footer {
+    padding-top: 22px;
+}
+
+
+/* Disabled button */
+
+.car-assignment-modal .primary-btn:disabled {
+    background: #d1d5db !important;
+    color: #6b7280 !important;
+    cursor: not-allowed !important;
+    opacity: 1 !important;
+}
+
+.car-assignment-modal .primary-btn:disabled:hover {
+    background: #d1d5db !important;
+    color: #6b7280 !important;
+}
+
+
+/* Mobile */
+
+@media (max-width: 700px) {
+
+    .car-assignment-modal {
+        padding: 10px !important;
+    }
+
+    .car-assignment-modal .driver-modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .car-assignment-modal #carAssignmentForm {
+        padding: 16px;
+    }
+
+    .car-assignment-modal .current-car-assignment {
+        padding: 14px 16px 0;
+    }
+
+}
+
+/* =====================================================
+   ASSIGNMENT STATUS WARNING
+===================================================== */
+
+.assignment-status-warning {
+    margin-top: 12px;
+    padding: 12px 14px;
+
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    color: #9a3412;
+    font-size: 13px;
+}
+
+.assignment-status-warning strong {
+    font-size: 13px;
+}
+
+.assignment-status-warning span {
+    color: #c2410c;
+}
+
+/* =====================================================
+   ASSIGNED CAR
+===================================================== */
+
+.assigned-car-name {
+    font-weight: 600;
+    color: #111827;
+}
+
+.assigned-car-info {
+    margin-top: 3px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.no-car-assigned {
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    background: #f3f4f6;
+
+    color: #6b7280;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+.action-btn.history {
+    background: #ecfeff;
+    color: #0e7490;
+}

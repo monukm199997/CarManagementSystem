@@ -1,0 +1,356 @@
+/* =====================================================
+   DRIVER HISTORY
+===================================================== */
+
+.dashboard-main {
+    padding: 80px 24px 24px;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.history-page-header {
+    margin-bottom: 24px;
+}
+
+
+.history-page-header h1 {
+    margin: 12px 0 6px;
+
+    font-size: 28px;
+
+    color: #111827;
+}
+
+
+.history-page-header p {
+    margin: 0;
+
+    color: #6b7280;
+}
+
+
+.back-btn {
+    border: none;
+
+    background: transparent;
+
+    color: #2563eb;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    padding: 0;
+}
+
+
+.back-btn:hover {
+    text-decoration: underline;
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+.driver-history-summary {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+}
+
+
+.history-summary-card {
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    padding: 20px;
+}
+
+
+.history-summary-label {
+
+    color: #6b7280;
+
+    font-size: 13px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.history-summary-value {
+
+    color: #111827;
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.history-status,
+.assignment-status {
+
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+.history-status.active,
+.assignment-status.active {
+
+    background: #dcfce7;
+
+    color: #166534;
+}
+
+
+.history-status.inactive,
+.assignment-status.inactive {
+
+    background: #f3f4f6;
+
+    color: #6b7280;
+}
+
+
+.history-status.suspended {
+
+    background: #fef3c7;
+
+    color: #92400e;
+}
+
+
+/* =====================================================
+   HISTORY CARD
+===================================================== */
+
+.driver-history-card {
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+}
+
+
+.history-card-header {
+
+    padding: 20px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+.history-card-header h2 {
+
+    margin: 0 0 5px;
+
+    font-size: 18px;
+
+    color: #111827;
+}
+
+
+.history-card-header p {
+
+    margin: 0;
+
+    font-size: 13px;
+
+    color: #6b7280;
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.history-table-wrapper {
+
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+
+.driver-history-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+
+.driver-history-table th,
+.driver-history-table td {
+
+    padding: 14px 16px;
+
+    text-align: left;
+
+    border-bottom: 1px solid #f0f0f0;
+
+    white-space: nowrap;
+}
+
+
+.driver-history-table th {
+
+    background: #f9fafb;
+
+    color: #4b5563;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+.driver-history-table td {
+
+    color: #374151;
+
+    font-size: 14px;
+}
+
+
+.driver-history-table tbody tr:hover {
+
+    background: #fafafa;
+}
+
+
+/* =====================================================
+   CAR
+===================================================== */
+
+.history-car-name {
+
+    font-weight: 600;
+
+    color: #111827;
+}
+
+
+.history-car-info {
+
+    margin-top: 3px;
+
+    font-size: 12px;
+
+    color: #6b7280;
+}
+
+
+.current-label {
+
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    background: #dcfce7;
+
+    color: #166534;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   STATES
+===================================================== */
+
+.loading-cell,
+.empty-cell,
+.error-cell {
+
+    text-align: center !important;
+
+    padding: 40px !important;
+
+    color: #6b7280;
+}
+
+
+.error-cell {
+
+    color: #dc2626;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+
+    .driver-history-summary {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .dashboard-main {
+
+        padding: 75px 16px 16px;
+
+    }
+
+
+    .driver-history-summary {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .history-page-header h1 {
+
+        font-size: 23px;
+
+    }
+
+}

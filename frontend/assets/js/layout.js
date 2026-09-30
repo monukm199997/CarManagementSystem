@@ -270,6 +270,19 @@ const MENU_ITEMS = [
         ]
     },
 
+    {
+        key: "drivers",
+        label: "Drivers",
+        icon: "👨‍✈️",
+        url: "/frontend/drivers/drivers.html",
+        roles: [
+            "staff",
+            "manager",
+            "admin",
+            "super_admin"
+        ]
+    },
+
 
     {
         key: "reports",

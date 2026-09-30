@@ -11,6 +11,8 @@ from app.routes.service import router as services_router
 from app.routes.expenses import router as expense_router
 from app.routes.fuel import router as fuel_router
 from app.routes.vehicle_documents import router as vehicle_documents 
+from app.routes.drivers import router as drivers
+from app.routes.driver_vehicle_assignments import router as driver_vehicle_assignments
 from app.models import car, expenses, service
 
 
@@ -32,6 +34,8 @@ app.include_router(services_router)
 app.include_router(expense_router)
 app.include_router(fuel_router)
 app.include_router(vehicle_documents)
+app.include_router(drivers)
+app.include_router(driver_vehicle_assignments)
 
 
 app.add_middleware(

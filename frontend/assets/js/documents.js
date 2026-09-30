@@ -9,6 +9,8 @@ document.addEventListener(
 
         setupDocumentFilters();
 
+        setupDocumentEvents();
+
         await handleEditQuery();
 
     }
@@ -823,6 +825,23 @@ function escapeHtml(value) {
         .replace(/'/g, "&#039;");
 
 }
+
+function setupDocumentEvents() {
+
+    const addDocumentButton =
+        document.getElementById("addDocumentButton");
+
+    if (addDocumentButton) {
+
+        addDocumentButton.addEventListener(
+            "click",
+            openDocumentModal
+        );
+
+    }
+
+}
+
 
 function setupDocumentFilters() {
 
