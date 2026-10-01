@@ -24,6 +24,7 @@ from app.models.fuel import Fuel
 from app.models import vehicle_document
 from app.models import driver
 from app.models.driver_vehicle_assignment import DriverVehicleAssignment
+from app.models.trip import Trip
 
 config = context.config
 

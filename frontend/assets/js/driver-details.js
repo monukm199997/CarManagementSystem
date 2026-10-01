@@ -287,6 +287,24 @@ function renderDriverDetails(driver) {
         "createdAt"
     ).textContent =
         formatDateTime(driver.created_at);
+
+
+    /* -----------------------------------------
+       Trip History Button
+    ----------------------------------------- */
+
+    const tripHistoryButton =
+        document.getElementById(
+            "driverTripHistoryButton"
+        );
+
+    if (tripHistoryButton) {
+
+        tripHistoryButton.href =
+            `/frontend/trips/trip-history.html?driver_id=${driver.id}`;
+
+    }
+
 }
 
 

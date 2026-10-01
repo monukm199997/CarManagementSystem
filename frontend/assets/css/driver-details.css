@@ -622,3 +622,126 @@
     }
 
 }
+
+/* =========================================
+   DRIVER HEADER ACTIONS
+========================================= */
+
+.driver-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+
+    margin-left: auto;
+}
+
+
+/* =========================================
+   COMMON ACTION BUTTON
+========================================= */
+
+.driver-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 36px;
+    padding: 0 14px;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    box-sizing: border-box;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+
+/* =========================================
+   SECONDARY
+========================================= */
+
+.driver-action-btn.secondary {
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+
+    color: #374151;
+}
+
+.driver-action-btn.secondary:hover {
+    background: #f3f4f6;
+
+    border-color: #9ca3af;
+
+    color: #111827;
+}
+
+
+/* =========================================
+   PRIMARY
+========================================= */
+
+.driver-action-btn.primary {
+    background: #2563eb;
+
+    border: 1px solid #2563eb;
+
+    color: #ffffff;
+}
+
+.driver-action-btn.primary:hover {
+    background: #1d4ed8;
+
+    border-color: #1d4ed8;
+
+    color: #ffffff;
+}
+
+
+/* =========================================
+   DRIVER HEADER
+========================================= */
+
+.driver-details-header {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 700px) {
+
+    .driver-details-header {
+        flex-direction: column;
+    }
+
+    .driver-header-actions {
+        width: 100%;
+
+        justify-content: flex-start;
+
+        flex-wrap: wrap;
+    }
+
+}

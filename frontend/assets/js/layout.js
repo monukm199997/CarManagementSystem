@@ -282,7 +282,30 @@ const MENU_ITEMS = [
             "super_admin"
         ]
     },
-
+    {
+        key: "trips",
+        label: "Trips",
+        icon: "🛣️",
+        url: "/frontend/trips/trips.html",
+        roles: [
+            "staff",
+            "manager",
+            "admin",
+            "super_admin"
+        ]
+    },
+    {
+        key: "trip-analytics",
+        label: "Trip Analytics",
+        icon: "📊",
+        url: "/frontend/trips/trip-analytics.html",
+        roles: [
+            "staff",
+            "manager",
+            "admin",
+            "super_admin"
+        ]
+    },
 
     {
         key: "reports",

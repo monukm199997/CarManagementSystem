@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Trip Analytics | Car Management System</title>
+
+
+    <!-- Bootstrap -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Common CSS -->
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+
+
+    <!-- Trip Analytics CSS -->
+
+    <link rel="stylesheet" href="../assets/css/trip-analytics.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- ================= NAVBAR ================= -->
+
+    <div id="appNavbar"></div>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <div id="appSidebar"></div>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="dashboard-main">
+
+
+        <!-- ================= HEADER ================= -->
+
+        <div class="trip-analytics-header">
+
+            <div>
+
+                <h2>
+                    Trip Analytics
+                </h2>
+
+                <p>
+                    Analyze trip performance, distance and vehicle utilization.
+                </p>
+
+            </div>
+
+
+            <div class="trip-analytics-actions">
+
+                <a href="trip-history.html" class="btn btn-outline-secondary">
+                    Trip History
+                </a>
+
+                <a href="trips.html" class="btn btn-primary">
+                    Trips
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= FILTER ================= -->
+
+        <section class="analytics-filter-card">
+
+            <div class="analytics-filter-group">
+
+                <label for="analyticsFromDate">
+                    From Date
+                </label>
+
+                <input type="date" id="analyticsFromDate" class="form-control">
+
+            </div>
+
+
+            <div class="analytics-filter-group">
+
+                <label for="analyticsToDate">
+                    To Date
+                </label>
+
+                <input type="date" id="analyticsToDate" class="form-control">
+
+            </div>
+
+
+            <div class="analytics-filter-actions">
+
+                <button type="button" class="btn btn-primary" onclick="applyAnalyticsFilters()">
+                    Apply
+                </button>
+
+                <button type="button" class="btn btn-outline-secondary" onclick="resetAnalyticsFilters()">
+                    Reset
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= LOADING ================= -->
+
+        <div id="analyticsLoading" class="analytics-loading">
+
+            <div class="spinner-border text-primary" role="status"></div>
+
+            <p>
+                Loading trip analytics...
+            </p>
+
+        </div>
+
+
+        <!-- ================= ERROR ================= -->
+
+        <div id="analyticsError" class="alert alert-danger d-none"></div>
+
+
+        <!-- ================= ANALYTICS ================= -->
+
+        <div id="analyticsContent" class="d-none">
+
+
+            <!-- =====================================
+                 SUMMARY CARDS
+            ====================================== -->
+
+            <section class="analytics-summary-grid">
+
+
+                <div class="analytics-summary-card">
+
+                    <div class="analytics-card-icon total-trips-icon">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M5 17h14M7 17V7h10v10M9 7V5h6v2M4 17h2M18 17h2" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="8" cy="17" r="2" stroke="currentColor" stroke-width="1.8" />
+                            <circle cx="16" cy="17" r="2" stroke="currentColor" stroke-width="1.8" />
+                        </svg>
+                    </div>
+
+                    <div class="analytics-card-content">
+
+                        <span class="analytics-card-label">
+                            Total Trips
+                        </span>
+
+                        <strong id="analyticsTotalTrips">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="analytics-summary-card">
+
+                    <div class="analytics-card-icon completed-icon">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+
+                    <div class="analytics-card-content">
+
+                        <span class="analytics-card-label">
+                            Completed
+                        </span>
+
+                        <strong id="analyticsCompletedTrips">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="analytics-summary-card">
+
+                    <div class="analytics-card-icon ongoing-icon">
+                        <svg viewBox="0 0 24 24" fill="none">
+
+                            <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 5v4h4" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round" />
+
+                            <path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round" />
+
+                        </svg>
+                    </div>
+
+                    <div class="analytics-card-content">
+
+                        <span class="analytics-card-label">
+                            Ongoing
+                        </span>
+
+                        <strong id="analyticsOngoingTrips">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="analytics-summary-card">
+
+                    <div class="analytics-card-icon cancelled-icon">
+
+                        <svg viewBox="0 0 24 24" fill="none">
+
+                            <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+
+                        </svg>
+
+                    </div>
+
+                    <div class="analytics-card-content">
+
+                        <span class="analytics-card-label">
+                            Cancelled
+                        </span>
+
+                        <strong id="analyticsCancelledTrips">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="analytics-summary-card">
+
+                    <div class="analytics-card-icon planned-icon">
+
+                        <svg viewBox="0 0 24 24" fill="none">
+
+                            <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.8" />
+
+                            <path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" />
+
+                            <path d="M8 14h2M12 14h2M8 17h2" stroke="currentColor" stroke-width="1.6"
+                                stroke-linecap="round" />
+
+                        </svg>
+
+                    </div>
+
+                    <div class="analytics-card-content">
+
+                        <span class="analytics-card-label">
+                            Planned
+                        </span>
+
+                        <strong id="analyticsPlannedTrips">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="analytics-summary-card">
+
+                    <div class="analytics-card-icon distance-icon">
+
+                        <svg viewBox="0 0 24 24" fill="none">
+
+                            <path d="M4 12h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+
+                            <path d="M8 8l-4 4 4 4M16 8l4 4-4 4" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round" />
+
+                        </svg>
+
+                    </div>
+
+                    <div class="analytics-card-content">
+
+                        <span class="analytics-card-label">
+                            Total Distance
+                        </span>
+
+                        <strong id="analyticsTotalDistance">
+                            0 km
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="analytics-summary-card">
+
+                    <div class="analytics-card-icon average-icon">
+
+                        <svg viewBox="0 0 24 24" fill="none">
+
+                            <path d="M5 19V5M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+
+                            <path d="M8 15l3-4 3 2 4-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                stroke-linejoin="round" />
+
+                        </svg>
+
+                    </div>
+
+                    <div class="analytics-card-content">
+
+                        <span class="analytics-card-label">
+                            Average Distance
+                        </span>
+
+                        <strong id="analyticsAverageDistance">
+                            0 km
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="analytics-summary-card">
+
+                    <div class="analytics-card-icon completion-icon">
+
+                        <svg viewBox="0 0 24 24" fill="none">
+
+                            <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8" />
+
+                            <path d="M12 8v4l2.5 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+
+                        </svg>
+
+                    </div>
+
+                    <div class="analytics-card-content">
+
+                        <span class="analytics-card-label">
+                            Completion Rate
+                        </span>
+
+                        <strong id="analyticsCompletionRate">
+                            0%
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+            <!-- =====================================
+                 STATUS + MONTHLY
+            ====================================== -->
+
+            <section class="analytics-two-column">
+
+
+                <!-- Status -->
+
+                <div class="analytics-card">
+
+                    <div class="analytics-card-header">
+
+                        <div>
+
+                            <h5>
+                                Trip Status
+                            </h5>
+
+                            <span>
+                                Current status distribution
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="analytics-chart-container">
+
+                        <canvas id="tripStatusChart"></canvas>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Monthly -->
+
+                <div class="analytics-card">
+
+                    <div class="analytics-card-header">
+
+                        <div>
+
+                            <h5>
+                                Monthly Trips
+                            </h5>
+
+                            <span>
+                                Trips by month
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="analytics-chart-container">
+
+                        <canvas id="monthlyTripsChart"></canvas>
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+            <!-- =====================================
+                 DRIVER PERFORMANCE
+            ====================================== -->
+
+            <section class="analytics-card">
+
+                <div class="analytics-card-header">
+
+                    <div>
+
+                        <h5>
+                            Driver Performance
+                        </h5>
+
+                        <span>
+                            Trips and distance by driver
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="analytics-chart-container driver-chart">
+
+                    <canvas id="driverTripsChart"></canvas>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="table analytics-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Driver
+                                </th>
+
+                                <th>
+                                    Total Trips
+                                </th>
+
+                                <th>
+                                    Completed
+                                </th>
+
+                                <th>
+                                    Ongoing
+                                </th>
+
+                                <th>
+                                    Cancelled
+                                </th>
+
+                                <th>
+                                    Distance
+                                </th>
+
+                                <th>
+                                    Completion Rate
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="driverAnalyticsBody"></tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =====================================
+                 CAR UTILIZATION
+            ====================================== -->
+
+            <section class="analytics-card">
+
+                <div class="analytics-card-header">
+
+                    <div>
+
+                        <h5>
+                            Car Utilization
+                        </h5>
+
+                        <span>
+                            Trips and distance by car
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="analytics-chart-container driver-chart">
+
+                    <canvas id="carDistanceChart"></canvas>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="table analytics-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Car
+                                </th>
+
+                                <th>
+                                    Total Trips
+                                </th>
+
+                                <th>
+                                    Completed
+                                </th>
+
+                                <th>
+                                    Ongoing
+                                </th>
+
+                                <th>
+                                    Cancelled
+                                </th>
+
+                                <th>
+                                    Distance
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="carAnalyticsBody"></tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =====================================
+                 ROUTE ANALYTICS
+            ====================================== -->
+
+            <section class="analytics-card">
+
+                <div class="analytics-card-header">
+
+                    <div>
+
+                        <h5>
+                            Route Summary
+                        </h5>
+
+                        <span>
+                            Most used routes
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div id="routeAnalytics" class="route-analytics"></div>
+
+            </section>
+
+
+        </div>
+
+    </main>
+
+
+    <!-- ================= SCRIPTS ================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <script src="../assets/js/api.js"></script>
+
+    <script src="../assets/js/auth.js"></script>
+
+    <script src="../assets/js/layout.js"></script>
+
+    <script src="../assets/js/common.js"></script>
+
+    <script src="../assets/js/dashboard.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="../assets/js/trip-analytics.js"></script>
+
+
+</body>
+
+</html>

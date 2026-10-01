@@ -1,0 +1,359 @@
+/* =========================================
+   TRIP HISTORY
+========================================= */
+
+.trip-history-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    margin-bottom: 24px;
+}
+
+.trip-history-header h2 {
+    margin-bottom: 5px;
+}
+
+.trip-history-header p {
+    margin-bottom: 0;
+
+    color: #6b7280;
+}
+
+
+/* =========================================
+   SUMMARY
+========================================= */
+
+.trip-history-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+}
+
+.history-summary-card {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    padding: 18px;
+}
+
+.history-summary-label {
+    color: #6b7280;
+
+    font-size: 13px;
+
+    margin-bottom: 7px;
+}
+
+.history-summary-value {
+    color: #111827;
+
+    font-size: 25px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   FILTER CARD
+========================================= */
+
+.trip-history-filter-card {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    padding: 18px;
+
+    margin-bottom: 24px;
+}
+
+.history-filter-row {
+    display: grid;
+
+    grid-template-columns:
+        2fr
+        1fr
+        1fr
+        1fr;
+
+    gap: 15px;
+
+    align-items: end;
+}
+
+.history-date-row {
+    grid-template-columns:
+        1fr
+        1fr
+        auto;
+
+    margin-top: 15px;
+}
+
+.history-filter-group {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.history-filter-group label {
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: #374151;
+}
+
+.history-filter-buttons {
+    display: flex;
+
+    align-items: end;
+}
+
+
+/* =========================================
+   TABLE
+========================================= */
+
+.trip-history-table-card {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+}
+
+.trip-history-table-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 18px 20px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.trip-history-table-header h5 {
+    margin: 0 0 4px;
+}
+
+.trip-history-table-header span {
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+.trip-history-table {
+    margin-bottom: 0;
+
+    min-width: 1100px;
+}
+
+.trip-history-table th {
+    background: #f9fafb;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: #374151;
+
+    white-space: nowrap;
+}
+
+.trip-history-table td {
+    font-size: 13px;
+
+    vertical-align: middle;
+}
+
+.trip-history-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+
+/* =========================================
+   ROUTE
+========================================= */
+
+.history-route {
+    white-space: nowrap;
+}
+
+.history-route-start {
+    font-weight: 600;
+}
+
+.history-route-arrow {
+    color: #9ca3af;
+
+    margin: 0 5px;
+}
+
+.history-route-end {
+    font-weight: 600;
+}
+
+
+/* =========================================
+   DISTANCE
+========================================= */
+
+.history-distance {
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================
+   STATUS
+========================================= */
+
+.history-status {
+    display: inline-flex;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-transform: capitalize;
+
+    white-space: nowrap;
+}
+
+.history-status.planned {
+    background: #dbeafe;
+
+    color: #1d4ed8;
+}
+
+.history-status.ongoing {
+    background: #fef3c7;
+
+    color: #92400e;
+}
+
+.history-status.completed {
+    background: #dcfce7;
+
+    color: #166534;
+}
+
+.history-status.cancelled {
+    background: #fee2e2;
+
+    color: #991b1b;
+}
+
+
+/* =========================================
+   ACTION
+========================================= */
+
+.history-view-btn {
+    font-size: 12px;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================
+   LOADING
+========================================= */
+
+.history-loading {
+    min-height: 180px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color: #6b7280;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1100px) {
+
+    .trip-history-summary {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+    .history-filter-row {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .history-date-row {
+        grid-template-columns:
+            1fr 1fr auto;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .trip-history-header {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .trip-history-summary {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .history-filter-row,
+    .history-date-row {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 450px) {
+
+    .trip-history-summary {
+        grid-template-columns: 1fr;
+    }
+
+}

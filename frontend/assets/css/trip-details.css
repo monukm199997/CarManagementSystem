@@ -1,0 +1,414 @@
+/* =========================================
+   TRIP DETAILS
+========================================= */
+
+.trip-back-wrapper {
+    margin-bottom: 18px;
+}
+
+
+.trip-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.trip-details-header h2 {
+    margin-bottom: 5px;
+}
+
+.trip-details-header p {
+    margin-bottom: 0;
+    color: #6b7280;
+}
+
+
+/* =========================================
+   DETAIL LABEL / VALUE
+========================================= */
+
+.detail-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.detail-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.detail-subvalue {
+    margin-top: 3px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.notes-value {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 60px;
+    color: #374151;
+    white-space: pre-wrap;
+}
+
+
+/* =========================================
+   INFO BOX
+========================================= */
+
+.info-box {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.info-box-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 22px;
+}
+
+
+/* =========================================
+   ODOMETER
+========================================= */
+
+.odometer-card {
+    padding: 18px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f9fafb;
+}
+
+.odometer-card span {
+    display: block;
+    color: #6b7280;
+    font-size: 13px;
+    margin-bottom: 7px;
+}
+
+.odometer-card strong {
+    display: block;
+    font-size: 22px;
+    color: #111827;
+}
+
+
+/* =========================================
+   STATUS
+========================================= */
+
+.trip-details-status {
+    display: inline-flex;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.trip-details-status.planned {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.trip-details-status.ongoing {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.trip-details-status.completed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.trip-details-status.cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* =========================================
+   ACTIONS
+========================================= */
+
+.trip-details-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 700px) {
+
+    .trip-details-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .trip-details-actions {
+        justify-content: flex-start;
+    }
+
+}
+
+
+/* =========================================
+   TRIP STATUS MODAL
+========================================= */
+
+.trip-status-modal {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 10000;
+}
+
+.trip-status-modal.hidden {
+    display: none;
+}
+
+
+.trip-status-modal-content {
+    width: 100%;
+    max-width: 520px;
+
+    background: #ffffff;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.2);
+
+    overflow: hidden;
+}
+
+
+/* =========================================
+   MODAL HEADER
+========================================= */
+
+.trip-status-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    padding: 20px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.trip-status-modal-header h4 {
+    margin: 0 0 5px;
+    font-size: 18px;
+}
+
+.trip-status-modal-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+
+.trip-status-modal-close {
+    border: none;
+    background: transparent;
+
+    font-size: 28px;
+
+    line-height: 1;
+
+    color: #6b7280;
+
+    cursor: pointer;
+}
+
+.trip-status-modal-close:hover {
+    color: #111827;
+}
+
+
+/* =========================================
+   MODAL BODY
+========================================= */
+
+.trip-status-modal-body {
+    padding: 20px;
+}
+
+
+/* =========================================
+   STATUS PREVIEW
+========================================= */
+
+.status-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 14px;
+
+    background: #f9fafb;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    margin-bottom: 20px;
+}
+
+.status-preview-label {
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #374151;
+}
+
+
+/* =========================================
+   FORM
+========================================= */
+
+.trip-status-modal .form-group {
+    margin-bottom: 16px;
+}
+
+.trip-status-modal .form-group label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #374151;
+}
+
+.trip-status-modal .form-group input {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 10px 12px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   CANCEL WARNING
+========================================= */
+
+.cancel-warning {
+    padding: 14px;
+
+    background: #fef2f2;
+
+    border: 1px solid #fecaca;
+
+    border-radius: 9px;
+
+    color: #991b1b;
+}
+
+.cancel-warning strong {
+    display: block;
+
+    margin-bottom: 5px;
+}
+
+.cancel-warning p {
+    margin: 0;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   ERROR
+========================================= */
+
+.status-modal-error {
+    margin-top: 15px;
+
+    padding: 10px 12px;
+
+    background: #fee2e2;
+
+    color: #991b1b;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+}
+
+.status-modal-error.hidden {
+    display: none;
+}
+
+
+/* =========================================
+   MODAL FOOTER
+========================================= */
+
+.trip-status-modal-footer {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding: 16px 20px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* =========================================
+   HIDDEN
+========================================= */
+
+.hidden {
+    display: none !important;
+}

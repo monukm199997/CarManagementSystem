@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Trip Details | Car Management System</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+
+    <!-- Trip Details CSS -->
+    <link rel="stylesheet" href="../assets/css/trip-details.css">
+
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <div id="appNavbar"></div>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <div id="appSidebar"></div>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="dashboard-main">
+
+        <!-- Back -->
+
+        <div class="trip-back-wrapper">
+
+            <a href="trips.html" class="btn btn-outline-secondary btn-sm">
+                ← Back to Trips
+            </a>
+
+        </div>
+
+
+        <!-- Page Header -->
+
+        <div class="trip-details-header">
+
+            <div>
+
+                <h2>
+                    Trip Details
+                </h2>
+
+                <p>
+                    View complete information about this trip.
+                </p>
+
+            </div>
+
+            <div id="tripStatusBadge"></div>
+
+        </div>
+
+
+        <!-- Loading -->
+
+        <div id="loadingSection" class="content-card">
+
+            <div class="content-card-body text-center py-5">
+
+                <div class="spinner-border text-primary mb-3" role="status"></div>
+
+                <p class="text-muted mb-0">
+                    Loading trip details...
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Error -->
+
+        <div id="errorSection" class="alert alert-danger d-none"></div>
+
+
+        <!-- Details -->
+
+        <div id="tripDetailsSection" class="d-none">
+
+            <!-- ========================= -->
+            <!-- Trip Overview -->
+            <!-- ========================= -->
+
+            <div class="content-card mb-4">
+
+                <div class="content-card-header">
+
+                    <div>
+
+                        <h5 class="mb-1">
+                            Trip Overview
+                        </h5>
+
+                        <small class="text-muted">
+                            Basic trip information
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="content-card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <div class="detail-label">
+                                Trip ID
+                            </div>
+
+                            <div id="tripIdValue" class="detail-value">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-label">
+                                Status
+                            </div>
+
+                            <div id="tripStatusValue" class="detail-value">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-label">
+                                Start Location
+                            </div>
+
+                            <div id="startLocationValue" class="detail-value">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-label">
+                                Destination
+                            </div>
+
+                            <div id="destinationValue" class="detail-value">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-label">
+                                Start Date & Time
+                            </div>
+
+                            <div id="startDatetimeValue" class="detail-value">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-label">
+                                End Date & Time
+                            </div>
+
+                            <div id="endDatetimeValue" class="detail-value">
+                                -
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================= -->
+            <!-- Driver & Car -->
+            <!-- ========================= -->
+
+            <div class="content-card mb-4">
+
+                <div class="content-card-header">
+
+                    <div>
+
+                        <h5 class="mb-1">
+                            Driver & Car
+                        </h5>
+
+                        <small class="text-muted">
+                            Trip assignment information
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="content-card-body">
+
+                    <div class="row g-4">
+
+                        <!-- Driver -->
+
+                        <div class="col-md-6">
+
+                            <div class="info-box">
+
+                                <div class="info-box-icon">
+                                    👨‍✈️
+                                </div>
+
+                                <div>
+
+                                    <div class="detail-label">
+                                        Driver
+                                    </div>
+
+                                    <div id="driverNameValue" class="detail-value">
+                                        -
+                                    </div>
+
+                                    <div id="driverPhoneValue" class="detail-subvalue">
+                                        -
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Car -->
+
+                        <div class="col-md-6">
+
+                            <div class="info-box">
+
+                                <div class="info-box-icon">
+                                    🚗
+                                </div>
+
+                                <div>
+
+                                    <div class="detail-label">
+                                        Car
+                                    </div>
+
+                                    <div id="carNameValue" class="detail-value">
+                                        -
+                                    </div>
+
+                                    <div id="carInfoValue" class="detail-subvalue">
+                                        -
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================= -->
+            <!-- Odometer -->
+            <!-- ========================= -->
+
+            <div class="content-card mb-4">
+
+                <div class="content-card-header">
+
+                    <div>
+
+                        <h5 class="mb-1">
+                            Odometer
+                        </h5>
+
+                        <small class="text-muted">
+                            Trip distance information
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="content-card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-4">
+
+                            <div class="odometer-card">
+
+                                <span>
+                                    Start Odometer
+                                </span>
+
+                                <strong id="startOdometerValue">
+                                    -
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="odometer-card">
+
+                                <span>
+                                    End Odometer
+                                </span>
+
+                                <strong id="endOdometerValue">
+                                    -
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="odometer-card">
+
+                                <span>
+                                    Distance
+                                </span>
+
+                                <strong id="distanceValue">
+                                    -
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================= -->
+            <!-- Purpose & Notes -->
+            <!-- ========================= -->
+
+            <div class="content-card mb-4">
+
+                <div class="content-card-header">
+
+                    <div>
+
+                        <h5 class="mb-1">
+                            Purpose & Notes
+                        </h5>
+
+                    </div>
+
+                </div>
+
+
+                <div class="content-card-body">
+
+                    <div class="mb-4">
+
+                        <div class="detail-label">
+                            Purpose
+                        </div>
+
+                        <div id="purposeValue" class="detail-value">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="detail-label">
+                            Notes
+                        </div>
+
+                        <div id="notesValue" class="notes-value">
+                            -
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================= -->
+            <!-- System Information -->
+            <!-- ========================= -->
+
+            <div class="content-card mb-4">
+
+                <div class="content-card-header">
+
+                    <div>
+
+                        <h5 class="mb-1">
+                            System Information
+                        </h5>
+
+                    </div>
+
+                </div>
+
+
+                <div class="content-card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <div class="detail-label">
+                                Created At
+                            </div>
+
+                            <div id="createdAtValue" class="detail-value">
+                                -
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================= -->
+            <!-- Actions -->
+            <!-- ========================= -->
+
+            <div id="tripActions" class="trip-details-actions"></div>
+
+        </div>
+
+    </main>
+    <!-- ========================================= -->
+    <!-- TRIP STATUS MODAL -->
+    <!-- ========================================= -->
+
+    <div id="tripStatusModal" class="trip-status-modal hidden">
+
+        <div class="trip-status-modal-content">
+
+            <!-- Header -->
+
+            <div class="trip-status-modal-header">
+
+                <div>
+
+                    <h4 id="statusModalTitle">
+                        Update Trip Status
+                    </h4>
+
+                    <p id="statusModalDescription">
+                        Update the current status of this trip.
+                    </p>
+
+                </div>
+
+                <button type="button" class="trip-status-modal-close" onclick="closeStatusModal()">
+                    ×
+                </button>
+
+            </div>
+
+
+            <!-- Body -->
+
+            <div class="trip-status-modal-body">
+
+                <!-- New Status -->
+
+                <div class="status-preview">
+
+                    <span class="status-preview-label">
+                        New Status
+                    </span>
+
+                    <span id="newStatusPreview" class="trip-details-status">
+                        -
+                    </span>
+
+                </div>
+
+
+                <!-- Completion Fields -->
+
+                <div id="completionFields" class="hidden">
+
+                    <div class="form-group">
+
+                        <label for="completionDatetime">
+                            End Date & Time *
+                        </label>
+
+                        <input type="datetime-local" id="completionDatetime">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="completionOdometer">
+                            End Odometer *
+                        </label>
+
+                        <input type="number" id="completionOdometer" min="0" step="0.1"
+                            placeholder="Enter final odometer">
+
+                    </div>
+
+                </div>
+
+
+                <!-- Cancel Warning -->
+
+                <div id="cancelWarning" class="cancel-warning hidden">
+
+                    <strong>
+                        Cancel Trip
+                    </strong>
+
+                    <p>
+                        Are you sure you want to cancel this trip?
+                        This action cannot be reversed.
+                    </p>
+
+                </div>
+
+
+                <!-- Error -->
+
+                <div id="statusModalError" class="status-modal-error hidden"></div>
+
+            </div>
+
+
+            <!-- Footer -->
+
+            <div class="trip-status-modal-footer">
+
+                <button type="button" class="btn btn-outline-secondary" onclick="closeStatusModal()">
+                    Cancel
+                </button>
+
+                <button type="button" id="statusModalConfirmButton" class="btn btn-primary"
+                    onclick="confirmStatusChange()">
+                    Confirm
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= SCRIPTS ================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/layout.js"></script>
+    <script src="../assets/js/common.js"></script>
+    <script src="../assets/js/dashboard.js"></script>
+
+    <script src="../assets/js/trip-details.js"></script>
+
+</body>
+
+</html>
