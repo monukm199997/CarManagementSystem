@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Expense Details | Car Management System</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/expense-details.css">
+
+    <style>
+        /* =====================================================
+           DRIVER / TRIP INFORMATION
+        ===================================================== */
+
+        .expense-linked-box {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .expense-linked-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .expense-linked-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: #eef4ff;
+        }
+
+        .expense-linked-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .expense-linked-header p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .expense-no-link {
+            padding: 18px;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .expense-trip-route {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .expense-linked-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e8f7f1;
+            color: #159a70;
+        }
+
+        .expense-linked-status.inactive,
+        .expense-linked-status.cancelled {
+            background: #fcebed;
+            color: #c94b5b;
+        }
+
+        @media (max-width: 700px) {
+
+            .expense-details-header-actions {
+                flex-wrap: wrap;
+            }
+
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+    <!-- Common Navbar -->
+    <div id="appNavbar"></div>
+
+    <!-- Common Sidebar -->
+    <div id="appSidebar"></div>
+
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+
+    <main class="dashboard-main">
+
+
+        <!-- =====================================================
+             HEADER
+        ====================================================== -->
+
+        <section class="expense-details-header">
+
+            <div class="expense-details-title-wrapper">
+
+                <div class="expense-details-page-icon">
+                    ₹
+                </div>
+
+                <div>
+
+                    <h1>
+                        Expense Details
+                    </h1>
+
+                    <p>
+                        View complete expense information
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="expense-details-header-actions">
+
+                <button type="button" class="expense-secondary-action" onclick="goBackToExpenses()">
+                    ← Back to Expenses
+                </button>
+
+
+                <button type="button" id="carExpenseHistoryButton" class="expense-history-action"
+                    onclick="viewCarExpenseHistory()">
+                    Car History
+                </button>
+
+
+                <button type="button" id="editExpenseButton" class="expense-edit-action" onclick="editCurrentExpense()">
+                    Edit Expense
+                </button>
+
+
+                <button type="button" id="expenseStatusActionButton" class="expense-deactivate-action"
+                    onclick="toggleExpenseStatus()">
+                    Deactivate
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             LOADING
+        ====================================================== -->
+
+        <section id="expenseDetailsLoading" class="expense-details-card expense-loading-state">
+
+            <div class="expense-loader"></div>
+
+            <p>
+                Loading expense details...
+            </p>
+
+        </section>
+
+
+        <!-- =====================================================
+             ERROR
+        ====================================================== -->
+
+        <section id="expenseDetailsError" class="expense-details-card expense-error-state" style="display: none;">
+
+            <div class="expense-error-icon">
+                !
+            </div>
+
+            <h2>
+                Unable to load expense
+            </h2>
+
+            <p id="expenseErrorMessage">
+                Something went wrong.
+            </p>
+
+            <button type="button" class="expense-primary-action" onclick="loadExpenseDetails()">
+                Try Again
+            </button>
+
+        </section>
+
+
+        <!-- =====================================================
+             MAIN CONTENT
+        ====================================================== -->
+
+        <div id="expenseDetailsContent" style="display: none;">
+
+
+            <!-- =================================================
+                 AMOUNT SUMMARY
+            ================================================== -->
+
+            <section class="expense-details-summary">
+
+                <div class="expense-amount-card">
+
+                    <div class="expense-summary-small-icon">
+                        ₹
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Expense Amount
+                        </span>
+
+                        <strong id="expenseAmount">
+                            ₹0.00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="expense-status-card">
+
+                    <span>
+                        Status
+                    </span>
+
+                    <div id="expenseStatus" class="expense-status-badge">
+                        Active
+                    </div>
+
+                </div>
+
+
+                <div class="expense-category-card">
+
+                    <span>
+                        Category
+                    </span>
+
+                    <strong id="expenseCategory">
+                        -
+                    </strong>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 EXPENSE INFORMATION
+            ================================================== -->
+
+            <section class="expense-details-card">
+
+                <div class="expense-section-header">
+
+                    <div class="expense-section-icon">
+                        📋
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Expense Information
+                        </h2>
+
+                        <p>
+                            Basic expense transaction details
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="expense-info-grid">
+
+
+                    <div class="expense-info-item">
+
+                        <span>
+                            Expense Date
+                        </span>
+
+                        <strong id="expenseDate">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="expense-info-item">
+
+                        <span>
+                            Description
+                        </span>
+
+                        <strong id="expenseDescription">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="expense-info-item">
+
+                        <span>
+                            Expense ID
+                        </span>
+
+                        <strong id="expenseId">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="expense-info-item">
+
+                        <span>
+                            Created At
+                        </span>
+
+                        <strong id="expenseCreatedAt">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 VEHICLE INFORMATION
+            ================================================== -->
+
+            <section class="expense-details-card">
+
+                <div class="expense-section-header">
+
+                    <div class="expense-section-icon">
+                        🚗
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Vehicle Information
+                        </h2>
+
+                        <p>
+                            Vehicle associated with this expense
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="expense-vehicle-box">
+
+                    <div class="expense-vehicle-icon">
+                        🚘
+                    </div>
+
+                    <div>
+
+                        <h3 id="vehicleName">
+                            -
+                        </h3>
+
+                        <p id="vehicleRegistration">
+                            -
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="expense-info-grid">
+
+
+                    <div class="expense-info-item">
+
+                        <span>
+                            Car ID
+                        </span>
+
+                        <strong id="vehicleId">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="expense-info-item">
+
+                        <span>
+                            Brand
+                        </span>
+
+                        <strong id="vehicleBrand">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="expense-info-item">
+
+                        <span>
+                            Model
+                        </span>
+
+                        <strong id="vehicleModel">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 DRIVER INFORMATION
+            ================================================== -->
+
+            <section class="expense-details-card">
+
+                <div class="expense-section-header">
+
+                    <div class="expense-section-icon">
+                        👤
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Driver Information
+                        </h2>
+
+                        <p>
+                            Driver linked with this expense
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div id="expenseDriverContent">
+
+                    <!-- JavaScript will render driver -->
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 TRIP INFORMATION
+            ================================================== -->
+
+            <section class="expense-details-card">
+
+                <div class="expense-section-header">
+
+                    <div class="expense-section-icon">
+                        🛣️
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Trip Information
+                        </h2>
+
+                        <p>
+                            Trip linked with this expense
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div id="expenseTripContent">
+
+                    <!-- JavaScript will render trip -->
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 PAYMENT INFORMATION
+            ================================================== -->
+
+            <section class="expense-details-card">
+
+                <div class="expense-section-header">
+
+                    <div class="expense-section-icon">
+                        💳
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Payment Information
+                        </h2>
+
+                        <p>
+                            Payment and receipt details
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="expense-info-grid">
+
+
+                    <div class="expense-info-item">
+
+                        <span>
+                            Vendor
+                        </span>
+
+                        <strong id="expenseVendor">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="expense-info-item">
+
+                        <span>
+                            Payment Method
+                        </span>
+
+                        <strong id="expensePaymentMethod">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="expense-info-item">
+
+                        <span>
+                            Receipt Number
+                        </span>
+
+                        <strong id="expenseReceiptNumber">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 NOTES
+            ================================================== -->
+
+            <section id="expenseNotesSection" class="expense-details-card">
+
+                <div class="expense-section-header">
+
+                    <div class="expense-section-icon">
+                        📝
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Notes
+                        </h2>
+
+                        <p>
+                            Additional information
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div id="expenseNotes" class="expense-notes-box">
+                    -
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 BOTTOM ACTIONS
+            ================================================== -->
+
+            <section class="expense-bottom-actions">
+
+                <button type="button" class="expense-secondary-action" onclick="goBackToExpenses()">
+                    ← Back to Expenses
+                </button>
+
+
+                <button type="button" id="bottomHistoryButton" class="expense-history-action"
+                    onclick="viewCarExpenseHistory()">
+                    Car History
+                </button>
+
+
+                <button type="button" id="bottomEditExpenseButton" class="expense-edit-action"
+                    onclick="editCurrentExpense()">
+                    Edit Expense
+                </button>
+
+
+                <button type="button" id="bottomStatusActionButton" class="expense-deactivate-action"
+                    onclick="toggleExpenseStatus()">
+                    Deactivate
+                </button>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/layout.js"></script>
+    <script src="../assets/js/common.js"></script>
+
+    <script src="../assets/js/expense-details.js"></script>
+
+</body>
+
+</html>

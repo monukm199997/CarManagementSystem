@@ -4,6 +4,9 @@ from sqlalchemy.orm import Session
 from app.models.driver import Driver
 from app.models.car import Car
 from app.models.driver_vehicle_assignment import DriverVehicleAssignment
+from app.models.expense import Expense
+from app.models.trip import Trip
+from sqlalchemy import func, or_
 
 
 def get_document_expiry_status(expiry_date, status="active"):
@@ -78,6 +81,13 @@ def get_car_or_404(db: Session, car_id: int):
 
     return car
 
+def get_expense_or_404(db: Session, expense_id: int):
+    expense = db.query(Expense).filter(Expense.id == expense_id).first()
+
+    if not expense:
+        raise HTTPException(status_code=404, detail="Expense not found")
+
+    return expense
 
 # =========================================================
 # HELPER - DRIVER VALIDATION
@@ -178,3 +188,101 @@ def validate_odometer(start_odometer: float | None, end_odometer: float | None):
 
 
 TRIP_STATUSES = {"planned", "ongoing", "completed", "cancelled"}
+
+
+def validate_expense_links(
+    db: Session,
+    car_id: int,
+    expense_date: date,
+    driver_id: int | None = None,
+    trip_id: int | None = None,
+):
+
+    if driver_id is not None:
+
+        driver = (
+            db.query(Driver)
+            .filter(Driver.id == driver_id)
+            .first()
+        )
+
+        if not driver:
+            raise HTTPException(
+                status_code=404,
+                detail="Driver not found."
+            )
+
+        if driver.status != "active":
+            raise HTTPException(
+                status_code=400,
+                detail="Selected driver is not active."
+            )
+
+        if (
+            driver.license_expiry_date
+            and driver.license_expiry_date < expense_date
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Selected driver's license was expired on the expense date."
+            )
+
+        assignment = (
+            db.query(DriverVehicleAssignment)
+            .filter(
+                DriverVehicleAssignment.driver_id == driver_id,
+                DriverVehicleAssignment.car_id == car_id,
+                DriverVehicleAssignment.status == "active",
+                DriverVehicleAssignment.assigned_from <= expense_date,
+                or_(
+                    DriverVehicleAssignment.assigned_to.is_(None),
+                    DriverVehicleAssignment.assigned_to >= expense_date
+                )
+            )
+            .first()
+        )
+
+        if not assignment:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Selected driver was not assigned to the selected "
+                    "car on the expense date."
+                )
+            )
+
+    # --------------------------------------------------
+    # TRIP VALIDATION
+    # --------------------------------------------------
+
+    if trip_id is not None:
+
+        trip = (
+            db.query(Trip)
+            .filter(Trip.id == trip_id)
+            .first()
+        )
+
+        if not trip:
+            raise HTTPException(
+                status_code=404,
+                detail="Trip not found."
+            )
+
+        if trip.car_id != car_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Selected trip does not belong to the selected car."
+            )
+
+        if (
+            driver_id is not None
+            and trip.driver_id != driver_id
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Selected trip does not belong to the selected driver."
+            )
+
+
+        

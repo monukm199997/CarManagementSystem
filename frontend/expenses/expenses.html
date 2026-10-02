@@ -1,23 +1,770 @@
-<div class="col-md-4" data-roles="admin,manager,staff,customer">
+<!DOCTYPE html>
+<html lang="en">
 
-    <div class="card dashboard-card shadow-sm">
+<head>
 
-        <div class="card-body">
+    <meta charset="UTF-8">
 
-            <h5>
-                Expenses
-            </h5>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            <h2 id="expenseCount">
-                0
-            </h2>
+    <title>Expenses | Car Management System</title>
 
-            <a href="expenses/expenses.html" class="btn btn-sm btn-primary">
-                View Expenses
-            </a>
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <link rel="stylesheet" href="../assets/css/layout.css">
+
+    <link rel="stylesheet" href="../assets/css/expenses.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- Common Navbar -->
+
+    <div id="appNavbar"></div>
+
+
+    <!-- Common Sidebar -->
+
+    <div id="appSidebar"></div>
+
+
+    <!-- Mobile Overlay -->
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+
+    <main class="dashboard-main">
+
+
+        <!-- =========================================
+             Page Header
+        ========================================== -->
+
+        <section class="expense-page-header">
+
+
+            <div>
+
+                <div class="expense-page-title-row">
+
+                    <div class="expense-page-icon">
+                        💰
+                    </div>
+
+
+                    <div>
+
+                        <h1>
+                            Expenses
+                        </h1>
+
+                        <p>
+                            Manage and track vehicle expenses
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Header Actions -->
+
+            <div class="expense-header-actions">
+
+
+                <!-- Analytics -->
+
+                <button type="button" class="expense-analytics-btn" onclick="openExpenseAnalytics()">
+
+                    Analytics
+
+                </button>
+
+
+                <!-- Monthly Summary -->
+
+                <button type="button" class="expense-monthly-btn" onclick="openMonthlyExpenseSummary()">
+
+                    Monthly Summary
+
+                </button>
+
+
+                <!-- Add Expense -->
+
+                <button type="button" class="expense-primary-btn" onclick="openExpenseModal()">
+
+                    <span>
+                        ＋
+                    </span>
+
+                    Add Expense
+
+                </button>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================================
+             Summary Cards
+        ========================================== -->
+
+        <section class="expense-summary-grid">
+
+
+            <!-- Total Amount -->
+
+            <div class="expense-summary-card">
+
+                <div class="expense-summary-icon total-icon">
+                    ₹
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Total Amount
+                    </span>
+
+                    <strong id="totalExpenseAmount">
+                        ₹0.00
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Total Expenses -->
+
+            <div class="expense-summary-card">
+
+                <div class="expense-summary-icon count-icon">
+                    #
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Total Expenses
+                    </span>
+
+                    <strong id="totalExpenseCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Active -->
+
+            <div class="expense-summary-card">
+
+                <div class="expense-summary-icon active-icon">
+                    ✓
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Active
+                    </span>
+
+                    <strong id="activeExpenseCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Inactive -->
+
+            <div class="expense-summary-card">
+
+                <div class="expense-summary-icon inactive-icon">
+                    ×
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Inactive
+                    </span>
+
+                    <strong id="inactiveExpenseCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================================
+             Filters
+        ========================================== -->
+
+        <section class="expense-filter-card">
+
+
+            <div class="expense-filter-header">
+
+
+                <div>
+
+                    <h2>
+                        Expense Filters
+                    </h2>
+
+                    <p>
+                        Filter expenses by vehicle,
+                        category and date
+                    </p>
+
+                </div>
+
+
+                <button type="button" class="expense-reset-btn" onclick="resetExpenseFilters()">
+
+                    Reset
+
+                </button>
+
+
+            </div>
+
+
+
+            <div class="expense-filter-grid">
+
+
+                <!-- Car -->
+
+                <div class="expense-filter-group">
+
+                    <label for="expenseCarFilter">
+                        Car
+                    </label>
+
+                    <select id="expenseCarFilter">
+
+                        <option value="">
+                            All Cars
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- Category -->
+
+                <div class="expense-filter-group">
+
+                    <label for="expenseCategoryFilter">
+                        Category
+                    </label>
+
+                    <select id="expenseCategoryFilter">
+
+                        <option value="">
+                            All Categories
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- From Date -->
+
+                <div class="expense-filter-group">
+
+                    <label for="expenseFromDate">
+                        From Date
+                    </label>
+
+                    <input type="date" id="expenseFromDate">
+
+                </div>
+
+
+
+                <!-- To Date -->
+
+                <div class="expense-filter-group">
+
+                    <label for="expenseToDate">
+                        To Date
+                    </label>
+
+                    <input type="date" id="expenseToDate">
+
+                </div>
+
+
+
+                <!-- Search -->
+
+                <div class="expense-filter-group expense-search-group">
+
+                    <label for="expenseSearch">
+                        Search
+                    </label>
+
+                    <input type="text" id="expenseSearch" placeholder="Search vendor, description...">
+
+                </div>
+
+
+
+                <!-- Include inactive -->
+
+                <div class="expense-filter-group expense-checkbox-group">
+
+                    <label class="expense-checkbox-label">
+
+                        <input type="checkbox" id="includeInactiveExpenses">
+
+                        <span>
+                            Include inactive
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================================
+             Table Card
+        ========================================== -->
+
+        <section class="expense-table-card">
+
+
+            <div class="expense-table-header">
+
+
+                <div>
+
+                    <h2>
+                        Expense Records
+                    </h2>
+
+                    <p id="expenseTableSubtitle">
+                        Loading expenses...
+                    </p>
+
+                </div>
+
+
+                <button type="button" class="expense-refresh-btn" onclick="loadExpenses()">
+
+                    ↻ Refresh
+
+                </button>
+
+
+            </div>
+
+
+
+            <div class="expense-table-wrapper">
+
+
+                <table class="expense-table">
+
+
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Vehicle</th>
+                            <th>Category</th>
+                            <th>Driver</th>
+                            <th>Trip</th>
+                            <th>Description</th>
+                            <th>Vendor</th>
+                            <th>Payment Method</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="expenseTableBody">
+
+
+                        <tr>
+
+                            <td colspan="12" class="expense-loading-cell">
+
+                                Loading expenses...
+
+                            </td>
+
+                        </tr>
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =========================================
+         Add / Edit Expense Modal
+    ========================================== -->
+
+    <div id="expenseModal" class="expense-modal">
+
+
+        <div class="expense-modal-content">
+
+
+            <div class="expense-modal-header">
+
+
+                <div>
+
+                    <h2 id="expenseModalTitle">
+                        Add Expense
+                    </h2>
+
+                    <p>
+                        Enter expense information
+                    </p>
+
+                </div>
+
+
+                <button type="button" class="expense-modal-close" onclick="closeExpenseModal()">
+
+                    ×
+
+                </button>
+
+
+            </div>
+
+
+
+            <form id="expenseForm">
+
+
+                <input type="hidden" id="expenseId">
+
+
+
+                <div class="expense-form-grid">
+
+
+                    <!-- Car -->
+
+                    <div class="expense-form-group">
+
+                        <label for="expenseCar">
+
+                            Car
+                            <span>*</span>
+
+                        </label>
+
+                        <select id="expenseCar" required>
+
+                            <option value="">
+                                Select Car
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expenseDriver">
+                            Driver
+                        </label>
+
+                        <select id="expenseDriver" name="driver_id">
+                            <option value="">
+                                Select Driver
+                            </option>
+                        </select>
+
+                        <small class="form-help">
+                            Optional
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expenseTrip">
+                            Trip
+                        </label>
+
+                        <select id="expenseTrip" name="trip_id">
+                            <option value="">
+                                Select Trip
+                            </option>
+                        </select>
+
+                        <small class="form-help">
+                            Optional
+                        </small>
+                    </div>
+
+                    <!-- Date -->
+
+                    <div class="expense-form-group">
+
+                        <label for="expenseDate">
+
+                            Expense Date
+                            <span>*</span>
+
+                        </label>
+
+                        <input type="date" id="expenseDate" required>
+
+                    </div>
+
+
+
+                    <!-- Category -->
+
+                    <div class="expense-form-group">
+
+                        <label for="expenseCategory">
+
+                            Category
+                            <span>*</span>
+
+                        </label>
+
+                        <select id="expenseCategory" required>
+
+                            <option value="">
+                                Select Category
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- Amount -->
+
+                    <div class="expense-form-group">
+
+                        <label for="expenseAmount">
+
+                            Amount
+                            <span>*</span>
+
+                        </label>
+
+                        <input type="number" id="expenseAmount" min="0.01" step="0.01" placeholder="Enter amount"
+                            required>
+
+                    </div>
+
+
+
+                    <!-- Description -->
+
+                    <div class="expense-form-group expense-full-width">
+
+                        <label for="expenseDescription">
+                            Description
+                        </label>
+
+                        <input type="text" id="expenseDescription" maxlength="255"
+                            placeholder="Enter expense description">
+
+                    </div>
+
+
+
+                    <!-- Vendor -->
+
+                    <div class="expense-form-group">
+
+                        <label for="expenseVendor">
+                            Vendor
+                        </label>
+
+                        <input type="text" id="expenseVendor" maxlength="150" placeholder="Vendor name">
+
+                    </div>
+
+
+
+                    <!-- Payment Method -->
+
+                    <div class="expense-form-group">
+
+                        <label for="expensePaymentMethod">
+
+                            Payment Method
+
+                        </label>
+
+                        <select id="expensePaymentMethod">
+
+                            <option value="">
+                                Select Payment Method
+                            </option>
+
+                            <option value="cash">
+                                Cash
+                            </option>
+
+                            <option value="card">
+                                Card
+                            </option>
+
+                            <option value="upi">
+                                UPI
+                            </option>
+
+                            <option value="bank_transfer">
+                                Bank Transfer
+                            </option>
+
+                            <option value="other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- Receipt -->
+
+                    <div class="expense-form-group">
+
+                        <label for="expenseReceiptNumber">
+
+                            Receipt Number
+
+                        </label>
+
+                        <input type="text" id="expenseReceiptNumber" maxlength="100" placeholder="Receipt number">
+
+                    </div>
+
+
+
+                    <!-- Notes -->
+
+                    <div class="expense-form-group expense-full-width">
+
+                        <label for="expenseNotes">
+                            Notes
+                        </label>
+
+                        <textarea id="expenseNotes" rows="3" placeholder="Additional notes"></textarea>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="expense-modal-footer">
+
+
+                    <button type="button" class="expense-secondary-btn" onclick="closeExpenseModal()">
+
+                        Cancel
+
+                    </button>
+
+
+                    <button type="submit" class="expense-primary-btn">
+
+                        Save Expense
+
+                    </button>
+
+
+                </div>
+
+
+            </form>
+
 
         </div>
 
+
     </div>
 
-</div>
+
+
+    <!-- =========================================
+         JavaScript
+    ========================================== -->
+
+    <script src="../assets/js/api.js"></script>
+
+    <script src="../assets/js/auth.js"></script>
+
+    <script src="../assets/js/layout.js"></script>
+
+    <script src="../assets/js/common.js"></script>
+
+    <!-- Expense -->
+
+    <script src="../assets/js/expenses.js"></script>
+
+
+</body>
+
+</html>

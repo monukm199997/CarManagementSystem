@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Expense Analytics</title>
+
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/expense-analytics.css">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div id="appNavbar"></div>
+
+    <!-- Sidebar -->
+    <div id="appSidebar"></div>
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <main class="dashboard-main">
+
+        <!-- Page Header -->
+        <section class="analytics-page-header">
+
+            <div>
+                <div class="analytics-breadcrumb">
+                    Expenses / Analytics
+                </div>
+
+                <h1>
+                    Expense Analytics
+                </h1>
+
+                <p>
+                    Analyze vehicle expenses,
+                    categories, payment methods
+                    and monthly spending.
+                </p>
+            </div>
+
+            <div class="analytics-header-actions">
+
+                <button type="button" class="analytics-secondary-btn" onclick="goBackToExpenses()">
+                    ← Expenses
+                </button>
+
+                <button type="button" class="analytics-primary-btn" onclick="resetAnalyticsFilters()">
+                    Reset Filters
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- Filters -->
+        <section class="analytics-filter-card">
+
+            <div class="analytics-filter-header">
+
+                <div>
+                    <h3>Analytics Filters</h3>
+
+                    <p>
+                        Select a date range, vehicle
+                        or category.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="analytics-filter-grid">
+
+                <div class="analytics-filter-group">
+
+                    <label for="analyticsFromDate">
+                        From Date
+                    </label>
+
+                    <input type="date" id="analyticsFromDate">
+
+                </div>
+
+
+                <div class="analytics-filter-group">
+
+                    <label for="analyticsToDate">
+                        To Date
+                    </label>
+
+                    <input type="date" id="analyticsToDate">
+
+                </div>
+
+
+                <div class="analytics-filter-group">
+
+                    <label for="analyticsCarFilter">
+                        Car
+                    </label>
+
+                    <select id="analyticsCarFilter">
+                        <option value="">
+                            All Cars
+                        </option>
+                    </select>
+
+                </div>
+
+
+                <div class="analytics-filter-group">
+
+                    <label for="analyticsCategoryFilter">
+                        Category
+                    </label>
+
+                    <select id="analyticsCategoryFilter">
+                        <option value="">
+                            All Categories
+                        </option>
+                    </select>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Loading -->
+        <section id="analyticsLoading" class="analytics-state">
+            <div class="analytics-loader"></div>
+
+            <p>
+                Loading expense analytics...
+            </p>
+        </section>
+
+
+        <!-- Error -->
+        <section id="analyticsError" class="analytics-state analytics-error-state">
+            <div class="analytics-state-icon">
+                !
+            </div>
+
+            <h3>
+                Unable to load analytics
+            </h3>
+
+            <p id="analyticsErrorMessage">
+                Something went wrong.
+            </p>
+
+            <button type="button" onclick="loadExpenseAnalytics()" class="analytics-retry-btn">
+                Retry
+            </button>
+        </section>
+
+
+        <!-- Main Analytics Content -->
+        <section id="analyticsContent" class="analytics-content">
+
+            <!-- Summary Cards -->
+            <div class="analytics-summary-grid">
+
+                <!-- Total Amount -->
+                <div class="analytics-summary-card">
+
+                    <div class="analytics-summary-icon amount-icon">
+                        ₹
+                    </div>
+
+                    <div class="analytics-summary-info">
+
+                        <span>
+                            Total Expense
+                        </span>
+
+                        <strong id="totalExpenseAmount">
+                            ₹0.00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Total Expenses -->
+                <div class="analytics-summary-card">
+
+                    <div class="analytics-summary-icon count-icon">
+                        #
+                    </div>
+
+                    <div class="analytics-summary-info">
+
+                        <span>
+                            Total Transactions
+                        </span>
+
+                        <strong id="totalExpenseCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Average -->
+                <div class="analytics-summary-card">
+
+                    <div class="analytics-summary-icon average-icon">
+                        ↗
+                    </div>
+
+                    <div class="analytics-summary-info">
+
+                        <span>
+                            Average Expense
+                        </span>
+
+                        <strong id="averageExpenseAmount">
+                            ₹0.00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Charts Row 1 -->
+            <div class="analytics-chart-grid">
+
+                <!-- Category -->
+                <div class="analytics-card">
+
+                    <div class="analytics-card-header">
+
+                        <div>
+                            <h3>
+                                Expense by Category
+                            </h3>
+
+                            <p>
+                                Spending distribution
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="categoryExpenseChart"></canvas>
+                    </div>
+
+                </div>
+
+
+                <!-- Payment -->
+                <div class="analytics-card">
+
+                    <div class="analytics-card-header">
+
+                        <div>
+                            <h3>
+                                Payment Method
+                            </h3>
+
+                            <p>
+                                Expense by payment method
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="paymentExpenseChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Monthly Chart -->
+            <div class="analytics-card monthly-chart-card">
+
+                <div class="analytics-card-header">
+
+                    <div>
+                        <h3>
+                            Monthly Expense Trend
+                        </h3>
+
+                        <p>
+                            Track expense spending over time
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="monthly-chart-container">
+                    <canvas id="monthlyExpenseChart"></canvas>
+                </div>
+
+            </div>
+
+
+            <!-- Car Chart -->
+            <div class="analytics-card">
+
+                <div class="analytics-card-header">
+
+                    <div>
+                        <h3>
+                            Expense by Car
+                        </h3>
+
+                        <p>
+                            Compare expenses across vehicles
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="monthly-chart-container">
+                    <canvas id="carExpenseChart"></canvas>
+                </div>
+
+            </div>
+
+
+            <!-- Category Table -->
+            <div class="analytics-card">
+
+                <div class="analytics-card-header">
+
+                    <div>
+                        <h3>
+                            Category Summary
+                        </h3>
+
+                        <p>
+                            Detailed expense breakdown
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="analytics-table-wrapper">
+
+                    <table class="analytics-table">
+
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Category</th>
+                                <th>Transactions</th>
+                                <th>Total Amount</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="categorySummaryTable">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Common JS -->
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/layout.js"></script>
+    <script src="../assets/js/common.js"></script>
+
+    <!-- Page JS -->
+    <script src="../assets/js/expense-analytics.js"></script>
+
+</body>
+
+</html>

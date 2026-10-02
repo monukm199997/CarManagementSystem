@@ -42,6 +42,7 @@ class Driver(Base):
     )
 
     trips = relationship("Trip", back_populates="driver")
+    expenses = relationship("Expense", back_populates="driver")
 
     __table_args__ = (
         Index("ix_drivers_status_expiry", "status", "license_expiry_date"),

@@ -19,12 +19,13 @@ from app.db.base import Base
 from app.models.user import Users
 from app.models.car import Car
 from app.models.service import Services
-from app.models.expenses import Expenses
+from app.models.expense import Expense
 from app.models.fuel import Fuel
 from app.models import vehicle_document
 from app.models import driver
 from app.models.driver_vehicle_assignment import DriverVehicleAssignment
 from app.models.trip import Trip
+
 
 config = context.config
 

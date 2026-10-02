@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Car Expense History | Car Management System
+    </title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <link rel="stylesheet" href="../assets/css/layout.css">
+
+    <link rel="stylesheet" href="../assets/css/expense-history.css">
+
+    <style>
+        .history-linked-cell {
+            min-width: 150px;
+        }
+
+        .history-driver-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .history-driver-phone {
+            display: block;
+            margin-top: 3px;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .history-trip-route {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .history-trip-id {
+            display: block;
+            margin-top: 3px;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .history-no-link {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        @media (max-width: 1100px) {
+
+            .expense-history-table-wrapper {
+                overflow-x: auto;
+            }
+
+            .expense-history-table {
+                min-width: 1250px;
+            }
+
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- Common Navbar -->
+    <div id="appNavbar"></div>
+
+
+    <!-- Common Sidebar -->
+    <div id="appSidebar"></div>
+
+
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+
+    <main class="dashboard-main">
+
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <section class="expense-history-header">
+
+            <div class="expense-history-title-wrapper">
+
+                <div class="expense-history-icon">
+                    📋
+                </div>
+
+
+                <div>
+
+                    <h1>
+                        Car Expense History
+                    </h1>
+
+                    <p id="expenseHistorySubtitle">
+                        Loading expense history...
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <button type="button" class="expense-history-back-action" onclick="goBackToExpenses()">
+                ← Expenses
+            </button>
+
+        </section>
+
+
+        <!-- =================================================
+             SUMMARY
+        ================================================== -->
+
+        <section class="expense-history-summary">
+
+
+            <div class="expense-history-summary-card">
+
+                <div class="expense-history-summary-icon amount">
+                    ₹
+                </div>
+
+                <div>
+
+                    <span>
+                        Total Amount
+                    </span>
+
+                    <strong id="historyTotalAmount">
+                        ₹0.00
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="expense-history-summary-card">
+
+                <div class="expense-history-summary-icon count">
+                    #
+                </div>
+
+                <div>
+
+                    <span>
+                        Total Expenses
+                    </span>
+
+                    <strong id="historyTotalCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="expense-history-summary-card">
+
+                <div class="expense-history-summary-icon active">
+                    ✓
+                </div>
+
+                <div>
+
+                    <span>
+                        Active
+                    </span>
+
+                    <strong id="historyActiveCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="expense-history-summary-card">
+
+                <div class="expense-history-summary-icon inactive">
+                    ×
+                </div>
+
+                <div>
+
+                    <span>
+                        Inactive
+                    </span>
+
+                    <strong id="historyInactiveCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FILTERS
+        ================================================== -->
+
+        <section class="expense-history-filter-card">
+
+            <div class="expense-history-filter-header">
+
+                <div>
+
+                    <h2>
+                        History Filters
+                    </h2>
+
+                    <p>
+                        Filter expenses by date and status
+                    </p>
+
+                </div>
+
+
+                <button type="button" class="expense-history-reset-btn" onclick="resetHistoryFilters()">
+                    Reset
+                </button>
+
+            </div>
+
+
+            <div class="expense-history-filter-grid">
+
+
+                <div class="expense-history-filter-group">
+
+                    <label for="historyFromDate">
+                        From Date
+                    </label>
+
+                    <input type="date" id="historyFromDate">
+
+                </div>
+
+
+                <div class="expense-history-filter-group">
+
+                    <label for="historyToDate">
+                        To Date
+                    </label>
+
+                    <input type="date" id="historyToDate">
+
+                </div>
+
+
+                <div class="expense-history-filter-group history-checkbox-group">
+
+                    <label class="history-checkbox-label">
+
+                        <input type="checkbox" id="historyIncludeInactive">
+
+                        <span>
+                            Include inactive
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             LOADING
+        ================================================== -->
+
+        <section id="expenseHistoryLoading" class="expense-history-card expense-history-loading">
+
+            <div class="history-loader"></div>
+
+            <p>
+                Loading expense history...
+            </p>
+
+        </section>
+
+
+        <!-- =================================================
+             TABLE
+        ================================================== -->
+
+        <section id="expenseHistoryTableCard" class="expense-history-card" style="display: none;">
+
+            <div class="expense-history-table-header">
+
+                <div>
+
+                    <h2>
+                        Expense Records
+                    </h2>
+
+                    <p id="historyTableSubtitle">
+                        0 records
+                    </p>
+
+                </div>
+
+
+                <button type="button" class="expense-history-refresh-btn" onclick="loadCarExpenseHistory()">
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+
+            <div class="expense-history-table-wrapper">
+
+                <table class="expense-history-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                #
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Category
+                            </th>
+
+                            <th>
+                                Driver
+                            </th>
+
+                            <th>
+                                Trip
+                            </th>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Vendor
+                            </th>
+
+                            <th>
+                                Payment
+                            </th>
+
+                            <th>
+                                Receipt
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="expenseHistoryTableBody">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             EMPTY
+        ================================================== -->
+
+        <section id="expenseHistoryEmpty" class="expense-history-card expense-history-empty" style="display: none;">
+
+            <div class="history-empty-icon">
+                📋
+            </div>
+
+            <h2>
+                No Expenses Found
+            </h2>
+
+            <p>
+                There are no expense records for this vehicle
+                matching the selected filters.
+            </p>
+
+        </section>
+
+
+        <!-- =================================================
+             ERROR
+        ================================================== -->
+
+        <section id="expenseHistoryError" class="expense-history-card expense-history-error" style="display: none;">
+
+            <div class="history-error-icon">
+                !
+            </div>
+
+            <h2>
+                Unable to Load History
+            </h2>
+
+            <p id="expenseHistoryErrorMessage">
+                Something went wrong.
+            </p>
+
+            <button type="button" class="expense-history-primary-btn" onclick="loadCarExpenseHistory()">
+                Try Again
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <script src="../assets/js/api.js"></script>
+
+    <script src="../assets/js/auth.js"></script>
+
+    <script src="../assets/js/layout.js"></script>
+
+    <script src="../assets/js/common.js"></script>
+
+    <script src="../assets/js/expense-history.js"></script>
+
+</body>
+
+</html>

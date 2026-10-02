@@ -20,7 +20,7 @@ class Car(Base):
 
     owner = relationship("Users", back_populates="cars")
     services = relationship("Services", back_populates="car", cascade="all, delete-orphan",)
-    expenses = relationship("Expenses", back_populates="car", cascade="all, delete-orphan",)
+    expenses = relationship("Expense", back_populates="car")
     fuel_records = relationship("Fuel", back_populates="car", cascade="all, delete-orphan",)
     driver_assignments = relationship("DriverVehicleAssignment", back_populates="car", cascade="all, delete-orphan")
     trips = relationship("Trip", back_populates="car")

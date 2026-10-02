@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Monthly Expense Summary</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+
+    <link rel="stylesheet" href="/frontend/assets/css/monthly-expense-summary.css">
+</head>
+
+<body>
+
+    <div id="appNavbar"></div>
+
+    <div id="appSidebar"></div>
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <main class="dashboard-main">
+
+        <!-- Header -->
+        <section class="monthly-page-header">
+
+            <div>
+
+                <div class="monthly-breadcrumb">
+                    Expenses / Monthly Summary
+                </div>
+
+                <h1>
+                    Monthly Expense Summary
+                </h1>
+
+                <p>
+                    View yearly and month-wise
+                    vehicle expense details.
+                </p>
+
+            </div>
+
+            <div class="monthly-header-actions">
+
+                <button type="button" class="monthly-secondary-btn" onclick="goBackToExpenses()">
+                    ← Expenses
+                </button>
+
+                <button type="button" class="monthly-primary-btn" onclick="loadMonthlySummary()">
+                    Refresh
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- Filters -->
+        <section class="monthly-filter-card">
+
+            <div class="monthly-filter-group">
+
+                <label for="summaryYear">
+                    Year
+                </label>
+
+                <select id="summaryYear">
+                </select>
+
+            </div>
+
+
+            <div class="monthly-filter-group">
+
+                <label for="summaryCar">
+                    Car
+                </label>
+
+                <select id="summaryCar">
+
+                    <option value="">
+                        All Cars
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <!-- Loading -->
+        <section id="monthlyLoading" class="monthly-state">
+
+            <div class="monthly-loader"></div>
+
+            <p>
+                Loading monthly expense summary...
+            </p>
+
+        </section>
+
+
+        <!-- Error -->
+        <section id="monthlyError" class="monthly-state monthly-error-state">
+
+            <div class="monthly-error-icon">
+                !
+            </div>
+
+            <h3>
+                Unable to load summary
+            </h3>
+
+            <p id="monthlyErrorMessage">
+                Something went wrong.
+            </p>
+
+            <button type="button" class="monthly-retry-btn" onclick="loadMonthlySummary()">
+                Retry
+            </button>
+
+        </section>
+
+
+        <!-- Content -->
+        <section id="monthlyContent" class="monthly-content">
+
+            <!-- Summary Cards -->
+            <div class="monthly-summary-grid">
+
+                <div class="monthly-summary-card">
+
+                    <div class="monthly-summary-icon amount-icon">
+                        ₹
+                    </div>
+
+                    <div>
+                        <span>
+                            Yearly Expense
+                        </span>
+
+                        <strong id="yearlyExpense">
+                            ₹0.00
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="monthly-summary-card">
+
+                    <div class="monthly-summary-icon count-icon">
+                        #
+                    </div>
+
+                    <div>
+                        <span>
+                            Total Transactions
+                        </span>
+
+                        <strong id="yearlyTransactions">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="monthly-summary-card">
+
+                    <div class="monthly-summary-icon average-icon">
+                        ↗
+                    </div>
+
+                    <div>
+                        <span>
+                            Average Expense
+                        </span>
+
+                        <strong id="yearlyAverage">
+                            ₹0.00
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="monthly-summary-card">
+
+                    <div class="monthly-summary-icon highest-icon">
+                        ↑
+                    </div>
+
+                    <div>
+                        <span>
+                            Highest Expense Month
+                        </span>
+
+                        <strong id="highestExpenseMonth">
+                            -
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Monthly Table -->
+            <div class="monthly-card">
+
+                <div class="monthly-card-header">
+
+                    <div>
+                        <h3>
+                            Monthly Breakdown
+                        </h3>
+
+                        <p>
+                            Expense summary for each month
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="monthly-table-wrapper">
+
+                    <table class="monthly-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>#</th>
+                                <th>Month</th>
+                                <th>Transactions</th>
+                                <th>Average Expense</th>
+                                <th>Total Expense</th>
+                                <th>Top Category</th>
+                                <th>Details</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="monthlySummaryTable">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- Selected Month Details -->
+            <div id="monthDetailsCard" class="monthly-card">
+
+                <div class="monthly-card-header">
+
+                    <div>
+                        <h3 id="monthDetailsTitle">
+                            Month Details
+                        </h3>
+
+                        <p>
+                            Category-wise expense breakdown
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div id="monthCategoryGrid" class="month-category-grid">
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/layout.js"></script>
+    <script src="../assets/js/common.js"></script>
+
+    <script src="/frontend/assets/js/monthly-expense-summary.js"></script>
+
+</body>
+
+</html>

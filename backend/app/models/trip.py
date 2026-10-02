@@ -34,6 +34,7 @@ class Trip(Base):
 
     driver = relationship("Driver", back_populates="trips")
     car = relationship("Car", back_populates="trips")
+    expenses = relationship("Expense", back_populates="trip")       
 
     __table_args__ = (
         Index("ix_trips_driver_status", "driver_id", "status"),

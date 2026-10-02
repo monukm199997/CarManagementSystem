@@ -255,21 +255,6 @@ const MENU_ITEMS = [
         ]
     },
 
-
-    {
-        key: "expenses",
-        label: "Expenses",
-        icon: "💰",
-        url: "/frontend/expenses/expenses.html",
-        roles: [
-            "customer",
-            "staff",
-            "manager",
-            "admin",
-            "super_admin"
-        ]
-    },
-
     {
         key: "drivers",
         label: "Drivers",
@@ -306,6 +291,20 @@ const MENU_ITEMS = [
             "super_admin"
         ]
     },
+
+    {
+        key: "expenses",
+        label: "Expenses",
+        icon: "💰",
+        url: "/frontend/expenses/expenses.html",
+        roles: [
+            "staff",
+            "manager",
+            "admin",
+            "super_admin"
+        ]
+    },
+
 
     {
         key: "reports",
