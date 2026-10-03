@@ -17,4 +17,11 @@ class Users(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    cars = relationship("Car", back_populates="owner", cascade="all, delete-orphan",)
+    cars = relationship(
+        "Car",
+        back_populates="owner",
+        cascade="all, delete-orphan",
+    )
+    notifications = relationship(
+        "Notification", back_populates="user", cascade="all, delete-orphan"
+    )

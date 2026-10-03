@@ -102,9 +102,7 @@ function formatLayoutRole(role) {
 function renderNavbar(user) {
 
     const navbar =
-        document.getElementById(
-            "appNavbar"
-        );
+        document.getElementById("appNavbar");
 
 
     if (!navbar) {
@@ -136,11 +134,81 @@ function renderNavbar(user) {
 
             <div class="navbar-user">
 
-                <span class="navbar-notification">
-                    🔔
-                </span>
+
+                <!-- NOTIFICATION -->
+                <div class="navbar-notification-wrapper">
+
+                    <button
+                        type="button"
+                        id="notificationBell"
+                        class="navbar-notification"
+                        aria-label="Notifications"
+                    >
+                        🔔
+
+                        <span
+                            id="notificationBadge"
+                            class="notification-badge"
+                            style="display: none;"
+                        >
+                            0
+                        </span>
+                    </button>
 
 
+                    <div
+                        id="notificationDropdown"
+                        class="notification-dropdown"
+                    >
+
+                        <div
+                            class="notification-dropdown-header"
+                        >
+
+                            <strong>
+                                Notifications
+                            </strong>
+
+                            <span
+                                id="notificationDropdownCount"
+                                class="notification-dropdown-count"
+                            >
+                                0 unread
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            id="notificationDropdownList"
+                            class="notification-dropdown-list"
+                        >
+                            <div
+                                class="notification-dropdown-loading"
+                            >
+                                Loading...
+                            </div>
+                        </div>
+
+
+                        <div
+                            class="notification-dropdown-footer"
+                        >
+
+                            <a
+                                href="/frontend/notifications/notifications.html"
+                            >
+                                View all notifications →
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- USER -->
                 <div class="navbar-user-info">
 
                     <strong>
@@ -595,6 +663,66 @@ function setupLayoutEvents() {
 
     }
 
+    const notificationBell =
+        document.getElementById(
+            "notificationBell"
+        );
+
+
+    const notificationDropdown =
+        document.getElementById(
+            "notificationDropdown"
+        );
+
+
+    if (
+        notificationBell &&
+        notificationDropdown
+    ) {
+
+        notificationBell.addEventListener(
+            "click",
+            event => {
+
+                event.stopPropagation();
+
+                notificationDropdown.classList.toggle(
+                    "show"
+                );
+
+            }
+        );
+
+
+        notificationDropdown.addEventListener(
+            "click",
+            event => {
+
+                event.stopPropagation();
+
+            }
+        );
+
+
+        document.addEventListener(
+            "click",
+            () => {
+
+                notificationDropdown.classList.remove(
+                    "show"
+                );
+
+            }
+        );
+    }
+
+    loadNavbarNotifications();
+
+    setInterval(
+        loadNavbarNotifications,
+        30000
+    );
+
 }
 
 
@@ -631,4 +759,331 @@ function escapeLayoutHtml(value) {
             "&#039;"
         );
 
+}
+
+
+// ============================================
+// NOTIFICATION CENTER
+// ============================================
+
+async function loadNavbarNotifications() {
+
+    const badge =
+        document.getElementById(
+            "notificationBadge"
+        );
+
+    const countText =
+        document.getElementById(
+            "notificationDropdownCount"
+        );
+
+    const list =
+        document.getElementById(
+            "notificationDropdownList"
+        );
+
+
+    if (!badge || !list) {
+        return;
+    }
+
+
+    try {
+
+        const countResponse =
+            await apiRequest(
+                "/notifications/unread-count"
+            );
+
+
+        const unreadCount =
+            Number(
+                countResponse?.unread_count || 0
+            );
+
+
+        updateNotificationBadge(
+            unreadCount
+        );
+
+
+        if (countText) {
+
+            countText.textContent =
+                `${unreadCount} unread`;
+        }
+
+
+        const notifications =
+            await apiRequest(
+                "/notifications/?limit=5"
+            );
+
+
+        renderNavbarNotifications(
+            notifications
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Failed to load navbar notifications:",
+            error
+        );
+
+        list.innerHTML = `
+            <div class="notification-dropdown-empty">
+                Unable to load notifications.
+            </div>
+        `;
+    }
+}
+
+
+function updateNotificationBadge(
+    unreadCount
+) {
+
+    const badge =
+        document.getElementById(
+            "notificationBadge"
+        );
+
+
+    if (!badge) {
+        return;
+    }
+
+
+    if (unreadCount <= 0) {
+
+        badge.style.display = "none";
+
+        return;
+    }
+
+
+    badge.style.display = "flex";
+
+
+    if (unreadCount > 99) {
+
+        badge.textContent = "99+";
+
+    } else {
+
+        badge.textContent =
+            unreadCount;
+    }
+}
+
+function renderNavbarNotifications(
+    notifications
+) {
+
+    const list =
+        document.getElementById(
+            "notificationDropdownList"
+        );
+
+
+    if (!list) {
+        return;
+    }
+
+
+    if (!notifications.length) {
+
+        list.innerHTML = `
+            <div class="notification-dropdown-empty">
+                No notifications.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    list.innerHTML =
+        notifications
+            .map(notification => {
+
+                const unreadClass =
+                    notification.is_read
+                        ? ""
+                        : "unread";
+
+
+                const icon =
+                    getNavbarNotificationIcon(
+                        notification.type
+                    );
+
+
+                return `
+
+                    <div
+                        class="navbar-notification-item ${unreadClass}"
+                        data-notification-id="${notification.id}"
+                    >
+
+                        <div
+                            class="navbar-notification-item-icon"
+                        >
+                            ${icon}
+                        </div>
+
+
+                        <div
+                            class="navbar-notification-item-content"
+                        >
+
+                            <div
+                                class="navbar-notification-item-title"
+                            >
+                                ${escapeLayoutHtml(
+                    notification.title
+                )}
+                            </div>
+
+
+                            <div
+                                class="navbar-notification-item-message"
+                            >
+                                ${escapeLayoutHtml(
+                    notification.message
+                )}
+                            </div>
+
+
+                            <div
+                                class="navbar-notification-item-time"
+                            >
+                                ${formatNavbarNotificationTime(
+                    notification.created_at
+                )}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            })
+            .join("");
+
+
+    setupNavbarNotificationItems();
+}
+
+
+function setupNavbarNotificationItems() {
+
+    document
+        .querySelectorAll(
+            ".navbar-notification-item"
+        )
+        .forEach(item => {
+
+            item.addEventListener(
+                "click",
+                async () => {
+
+                    const notificationId =
+                        item.dataset.notificationId;
+
+
+                    const notification =
+                        await apiRequest(
+                            `/notifications/${notificationId}`
+                        );
+
+
+                    if (
+                        notification &&
+                        !notification.is_read
+                    ) {
+
+                        await apiRequest(
+                            `/notifications/${notificationId}/read`,
+                            {
+                                method: "PATCH",
+                                body: JSON.stringify({
+                                    is_read: true
+                                })
+                            }
+                        );
+                    }
+
+
+                    window.location.href =
+                        "/frontend/notifications/notifications.html";
+                }
+            );
+
+        });
+}
+
+
+function getNavbarNotificationIcon(
+    type
+) {
+
+    const icons = {
+
+        document_expiry: "📄",
+
+        license_expiry: "🪪",
+
+        service_due: "🔧",
+
+        insurance_expiry: "🛡️",
+
+        // tax_expiry: "💳",
+
+        trip_alert: "🛣️",
+
+        expense_alert: "💰",
+
+        system: "🔔"
+
+    };
+
+
+    return icons[type] || "🔔";
+}
+
+
+function formatNavbarNotificationTime(
+    value
+) {
+
+    if (!value) {
+        return "";
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "";
+    }
+
+
+    return date.toLocaleString(
+        "en-IN",
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }
+    );
 }
