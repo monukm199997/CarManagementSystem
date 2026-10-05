@@ -3,7 +3,9 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from app.models.notification import Notification
-from app.models.user import Users
+from app.services.notification_recipient import (
+    get_notification_recipients,
+)
 from app.models.vehicle_document import VehicleDocument
 from app.models.car import Car
 
@@ -147,6 +149,12 @@ def generate_insurance_expiry_notifications(
     """
     Generate notifications only for active
     Insurance documents.
+
+    Recipients are resolved through the centralized
+    notification recipient resolver.
+
+    User notification preferences are checked
+    before creating notifications.
     """
 
     documents = (
@@ -157,8 +165,6 @@ def generate_insurance_expiry_notifications(
         )
         .all()
     )
-
-    users = db.query(Users).filter(Users.is_active.is_(True)).all()
 
     created_count = 0
     checked_documents = 0
@@ -190,7 +196,34 @@ def generate_insurance_expiry_notifications(
 
         priority = alert_info["priority"]
 
-        for user in users:
+        # -------------------------------------------------
+        # RESOLVE NOTIFICATION RECIPIENTS
+        # -------------------------------------------------
+
+        recipients = get_notification_recipients(
+            db=db,
+            notification_type="insurance_expiry",
+            car_id=document.car_id,
+        )
+
+        # -------------------------------------------------
+        # CREATE NOTIFICATIONS
+        # -------------------------------------------------
+
+        for user in recipients:
+
+            # -------------------------------------------------
+            # CHECK USER NOTIFICATION PREFERENCE
+            # -------------------------------------------------
+
+            preference = user.notification_preferences
+
+            if preference and not preference.insurance_expiry:
+                continue
+
+            # -------------------------------------------------
+            # DUPLICATE CHECK
+            # -------------------------------------------------
 
             if notification_already_exists(
                 db=db,
@@ -220,3 +253,4 @@ def generate_insurance_expiry_notifications(
         "created_count": created_count,
         "checked_documents": checked_documents,
     }
+

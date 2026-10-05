@@ -14,6 +14,12 @@ from app.schamas.notification import (
     NotificationReadUpdate,
 )
 
+from app.models.notification_preference import NotificationPreference
+from app.schamas.notification_preference import (
+    NotificationPreferenceUpdate,
+    NotificationPreferenceOut,
+)
+
 from app.services.document_expiry_alert import (
     generate_document_expiry_notifications,
 )
@@ -139,6 +145,63 @@ def get_my_notifications(
         .limit(limit)
         .all()
     )
+
+
+@router.get("/preferences", response_model=NotificationPreferenceOut)
+def get_notification_preferences(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    preference = (
+        db.query(NotificationPreference)
+        .filter(NotificationPreference.user_id == current_user.id)
+        .first()
+    )
+
+    if not preference:
+        preference = NotificationPreference(
+            user_id=current_user.id,
+            document_expiry=True,
+            insurance_expiry=True,
+            service_due=True,
+            license_expiry=True,
+        )
+
+        db.add(preference)
+        db.commit()
+        db.refresh(preference)
+
+    return preference
+
+
+@router.put("/preferences", response_model=NotificationPreferenceOut)
+def update_notification_preferences(
+    preference_data: NotificationPreferenceUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    preference = (
+        db.query(NotificationPreference)
+        .filter(NotificationPreference.user_id == current_user.id)
+        .first()
+    )
+
+    if not preference:
+        preference = NotificationPreference(
+            user_id=current_user.id,
+        )
+
+        db.add(preference)
+
+    preference.document_expiry = preference_data.document_expiry
+    preference.insurance_expiry = preference_data.insurance_expiry
+    preference.service_due = preference_data.service_due
+    preference.license_expiry = preference_data.license_expiry
+
+    db.commit()
+    db.refresh(preference)
+
+    return preference
 
 
 # ---------------------------------------------------------
@@ -376,3 +439,32 @@ def generate_insurance_expiry_alerts(
         **result,
     }
 
+
+@router.get("/test-recipients/{notification_type}")
+def test_notification_recipients(
+    notification_type: str,
+    car_id: int | None = None,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    from app.services.notification_recipient import get_notification_recipients
+
+    recipients = get_notification_recipients(
+        db=db,
+        notification_type=notification_type,
+        car_id=car_id,
+    )
+
+    return {
+        "notification_type": notification_type,
+        "car_id": car_id,
+        "recipients": [
+            {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "role": user.role,
+            }
+            for user in recipients
+        ],
+    }

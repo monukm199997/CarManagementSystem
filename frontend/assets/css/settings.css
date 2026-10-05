@@ -1,0 +1,33 @@
+/* ==========================================
+   NOTIFICATION SETTINGS
+========================================== */
+
+.notification-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 10px 0;
+}
+
+.notification-setting-info {
+    flex: 1;
+}
+
+.notification-setting-info h6 {
+    font-weight: 600;
+}
+
+.notification-toggle {
+    width: 2.5rem !important;
+    height: 1.25rem;
+    cursor: pointer;
+}
+
+@media (max-width: 576px) {
+
+    .notification-setting-row {
+        align-items: flex-start;
+    }
+
+}

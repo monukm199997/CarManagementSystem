@@ -3,7 +3,9 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from app.models.notification import Notification
-from app.models.user import Users
+from app.services.notification_recipient import (
+    get_notification_recipients,
+)
 from app.models.driver import Driver
 
 LICENSE_WARNING_DAYS = 30
@@ -140,7 +142,13 @@ def generate_driver_license_expiry_notifications(
 ):
     """
     Check active drivers and create license
-    expiry notifications for active users.
+    expiry notifications for eligible users.
+
+    Recipients are resolved through the centralized
+    notification recipient resolver.
+
+    User notification preferences are checked
+    before creating notifications.
     """
 
     drivers = (
@@ -151,8 +159,6 @@ def generate_driver_license_expiry_notifications(
         )
         .all()
     )
-
-    users = db.query(Users).filter(Users.is_active.is_(True)).all()
 
     created_count = 0
 
@@ -171,7 +177,33 @@ def generate_driver_license_expiry_notifications(
 
         priority = alert_info["priority"]
 
-        for user in users:
+        # -------------------------------------------------
+        # RESOLVE NOTIFICATION RECIPIENTS
+        # -------------------------------------------------
+
+        recipients = get_notification_recipients(
+            db=db,
+            notification_type="license_expiry",
+        )
+
+        # -------------------------------------------------
+        # CREATE NOTIFICATIONS
+        # -------------------------------------------------
+
+        for user in recipients:
+
+            # -------------------------------------------------
+            # CHECK USER NOTIFICATION PREFERENCE
+            # -------------------------------------------------
+
+            preference = user.notification_preferences
+
+            if preference and not preference.license_expiry:
+                continue
+
+            # -------------------------------------------------
+            # DUPLICATE CHECK
+            # -------------------------------------------------
 
             if notification_already_exists(
                 db=db,

@@ -396,7 +396,22 @@ const MENU_ITEMS = [
             "admin",
             "super_admin"
         ]
+    },
+
+    {
+        key: "settings",
+        label: "Settings",
+        icon: "⚙️",
+        url: "/frontend/admin/settings.html",
+        roles: [
+            "customer",
+            "staff",
+            "manager",
+            "admin",
+            "super_admin"
+        ]
     }
+
 
 ];
 
@@ -411,6 +426,13 @@ function getCurrentMenuKey() {
         window.location.pathname
             .toLowerCase();
 
+    if (
+        path.includes(
+            "/admin/settings.html"
+        )
+    ) {
+        return "settings";
+    }
 
     if (
         path.includes(
@@ -1040,8 +1062,6 @@ function getNavbarNotificationIcon(
         service_due: "🔧",
 
         insurance_expiry: "🛡️",
-
-        // tax_expiry: "💳",
 
         trip_alert: "🛣️",
 

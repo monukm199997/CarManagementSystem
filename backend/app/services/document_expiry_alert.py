@@ -3,7 +3,9 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from app.models.notification import Notification
-from app.models.user import Users
+from app.services.notification_recipient import (
+    get_notification_recipients,
+)
 from app.models.vehicle_document import VehicleDocument
 from app.models.car import Car
 
@@ -148,7 +150,12 @@ def generate_document_expiry_notifications(
 ):
     """
     Check active vehicle documents and create
-    expiry notifications for active users.
+    expiry notifications for eligible users.
+
+    Recipients are resolved through the centralized
+    notification recipient resolver.
+
+    Preferences are checked before creating notifications.
     """
 
     documents = (
@@ -160,18 +167,15 @@ def generate_document_expiry_notifications(
         .all()
     )
 
-    users = db.query(Users).filter(Users.is_active.is_(True)).all()
-
     created_count = 0
 
     for document in documents:
 
         document_type = (
-            document.document_type.strip().lower()
-            if document.document_type
-            else ""
+            document.document_type.strip().lower() if document.document_type else ""
         )
 
+        # Insurance has its own dedicated alert service.
         if document_type == "insurance":
             continue
 
@@ -185,6 +189,15 @@ def generate_document_expiry_notifications(
         # so explicitly load the car.
         car = db.query(Car).filter(Car.id == document.car_id).first()
 
+        # Resolve users according to:
+        # - role
+        # - vehicle ownership
+        recipients = get_notification_recipients(
+            db=db,
+            notification_type="document_expiry",
+            car_id=document.car_id,
+        )
+
         title, message = get_document_expiry_message(
             document,
             car,
@@ -193,7 +206,20 @@ def generate_document_expiry_notifications(
 
         priority = alert_info["priority"]
 
-        for user in users:
+        for user in recipients:
+
+            # -------------------------------------------------
+            # CHECK USER NOTIFICATION PREFERENCE
+            # -------------------------------------------------
+
+            preference = user.notification_preferences
+
+            if preference and not preference.document_expiry:
+                continue
+
+            # -------------------------------------------------
+            # DUPLICATE CHECK
+            # -------------------------------------------------
 
             if notification_already_exists(
                 db=db,

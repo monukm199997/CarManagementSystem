@@ -26,6 +26,7 @@ from app.models import driver
 from app.models.driver_vehicle_assignment import DriverVehicleAssignment
 from app.models.trip import Trip
 from app.models.notification import Notification
+from app.models.notification_preference import NotificationPreference
 
 
 config = context.config

@@ -3,7 +3,9 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from app.models.notification import Notification
-from app.models.user import Users
+from app.services.notification_recipient import (
+    get_notification_recipients,
+)
 from app.models.service import Services
 from app.models.car import Car
 
@@ -159,7 +161,17 @@ def notification_already_exists(
 def generate_service_due_notifications(
     db: Session,
 ):
-    
+    """
+    Check vehicle services and create service due
+    notifications for eligible users.
+
+    Recipients are resolved through the centralized
+    notification recipient resolver.
+
+    User notification preferences are checked
+    before creating notifications.
+    """
+
     services = (
         db.query(Services)
         .filter(
@@ -167,8 +179,6 @@ def generate_service_due_notifications(
         )
         .all()
     )
-
-    users = db.query(Users).filter(Users.is_active.is_(True)).all()
 
     created_count = 0
 
@@ -190,7 +200,34 @@ def generate_service_due_notifications(
 
         priority = alert_info["priority"]
 
-        for user in users:
+        # -------------------------------------------------
+        # RESOLVE NOTIFICATION RECIPIENTS
+        # -------------------------------------------------
+
+        recipients = get_notification_recipients(
+            db=db,
+            notification_type="service_due",
+            car_id=service.car_id,
+        )
+
+        # -------------------------------------------------
+        # CREATE NOTIFICATIONS
+        # -------------------------------------------------
+
+        for user in recipients:
+
+            # -------------------------------------------------
+            # CHECK USER NOTIFICATION PREFERENCE
+            # -------------------------------------------------
+
+            preference = user.notification_preferences
+
+            if preference and not preference.service_due:
+                continue
+
+            # -------------------------------------------------
+            # DUPLICATE CHECK
+            # -------------------------------------------------
 
             if notification_already_exists(
                 db=db,
