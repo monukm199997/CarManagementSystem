@@ -2,22 +2,40 @@ from sqlalchemy.orm import Session
 
 from app.models.service import Services
 from app.models.car import Car
+from app.services.reports.report_access import (
+    validate_customer_car_access,
+    apply_customer_car_filter,
+)
 
 
 def get_service_report(
     db: Session,
+    current_user,
     car_id: int | None = None,
     status: str | None = None,
     service_type: str | None = None,
     page: int = 1,
     page_size: int = 50,
 ):
+    validate_customer_car_access(
+        db=db,
+        current_user=current_user,
+        car_id=car_id,
+    )
+    
     query = db.query(
         Services,
         Car.registration_number,
         Car.brand,
         Car.model,
     ).join(Car, Car.id == Services.car_id)
+
+
+    query = apply_customer_car_filter(
+        query,
+        current_user,
+        Car,
+    )
 
     # Vehicle filter
     if car_id is not None:

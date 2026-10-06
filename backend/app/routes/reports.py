@@ -4,6 +4,35 @@ from sqlalchemy.orm import Session
 from datetime import date
 from app.db.session import get_db
 from app.dependencies.auth import get_current_user
+from app.dependencies.role import require_roles
+from app.core.roles import (
+    SUPER_ADMIN,
+    ADMIN,
+    MANAGER,
+    STAFF,
+    CUSTOMER,
+)
+
+REPORT_VIEW_ROLES = (
+    SUPER_ADMIN,
+    ADMIN,
+    MANAGER,
+    STAFF,
+    CUSTOMER,
+)
+
+REPORT_EXPORT_ROLES = (
+    SUPER_ADMIN,
+    ADMIN,
+    MANAGER,
+    STAFF,
+    CUSTOMER,
+)
+
+REPORT_ADMIN_ROLES = (
+    SUPER_ADMIN,
+    ADMIN,
+)
 from app.services.reports.vehicle_report import get_vehicle_report
 from app.services.reports.service_report import get_service_report
 from app.services.reports.fuel_report import get_fuel_report
@@ -28,6 +57,7 @@ from app.schamas.reports import (
     DocumentReportResponse,
     CombinedVehicleCostResponse,
     DashboardSummaryResponse,
+    ReportDownloadHistoryResponse,
 )
 
 from app.services.reports.csv_reports import (
@@ -62,6 +92,11 @@ from app.services.reports.pdf_reports import (
     export_document_pdf,
     export_vehicle_cost_pdf,
 )
+from app.services.reports.download_history import (
+    record_download_history,
+    get_download_history,
+    normalize_filters,
+)
 
 router = APIRouter(
     prefix="/reports",
@@ -73,7 +108,15 @@ router = APIRouter(
 def vehicle_report(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     return get_vehicle_report(
         db=db,
@@ -89,10 +132,19 @@ def service_report(
     filters: dict = Depends(common_report_filters),
     service_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     return get_service_report(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         status=filters["status"],
         service_type=service_type,
@@ -106,7 +158,15 @@ def fuel_report(
     filters: dict = Depends(common_report_filters),
     fuel_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     return get_fuel_report(
         db=db,
@@ -123,7 +183,15 @@ def expense_report(
     trip_id: int | None = Query(default=None),
     category: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     return get_expense_report(
         db=db,
@@ -141,7 +209,14 @@ def expense_report(
 def driver_report(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+        )
+    ),
 ):
     return get_driver_report(
         db=db,
@@ -156,7 +231,15 @@ def driver_report(
 def trip_report(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     return get_trip_report(
         db=db,
@@ -174,7 +257,15 @@ def document_report(
     document_type: str | None = Query(default=None),
     insurance_status: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     return get_document_report(
         db=db,
@@ -191,7 +282,15 @@ def document_report(
 def combined_vehicle_cost_report(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     return get_combined_vehicle_cost_report(
         db=db,
@@ -208,7 +307,15 @@ def dashboard_summary(
     from_date: date | None = Query(default=None),
     to_date: date | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     validate_report_date_range(
         from_date=from_date,
@@ -226,12 +333,29 @@ def dashboard_summary(
 def export_vehicles_csv(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     csv_content = export_vehicle_csv(
         db=db,
         car_id=filters["car_id"],
         status=filters["status"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="vehicles",
+        export_format="csv",
+        file_name="vehicles.csv",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -246,13 +370,30 @@ def export_services_csv(
     filters: dict = Depends(common_report_filters),
     service_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     csv_content = export_service_csv(
         db=db,
         car_id=filters["car_id"],
         status=filters["status"],
         service_type=service_type,
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="services",
+        export_format="csv",
+        file_name="services.csv",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -267,12 +408,29 @@ def export_fuel_csv_route(
     filters: dict = Depends(common_report_filters),
     fuel_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     csv_content = export_fuel_csv(
         db=db,
         car_id=filters["car_id"],
         fuel_type=fuel_type,
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="fuel",
+        export_format="csv",
+        file_name="fuel.csv",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -288,7 +446,15 @@ def export_expenses_csv(
     trip_id: int | None = Query(default=None, ge=1),
     category: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     csv_content = export_expense_csv(
         db=db,
@@ -297,6 +463,15 @@ def export_expenses_csv(
         status=filters["status"],
         category=category,
         trip_id=trip_id,
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="expenses",
+        export_format="csv",
+        file_name="expenses.csv",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -310,12 +485,29 @@ def export_expenses_csv(
 def export_drivers_csv(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     csv_content = export_driver_csv(
         db=db,
         driver_id=filters["driver_id"],
         status=filters["status"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="drivers",
+        export_format="csv",
+        file_name="drivers.csv",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -329,13 +521,30 @@ def export_drivers_csv(
 def export_trips_csv(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     csv_content = export_trip_csv(
         db=db,
         car_id=filters["car_id"],
         driver_id=filters["driver_id"],
         status=filters["status"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="trips",
+        export_format="csv",
+        file_name="trips.csv",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -350,13 +559,30 @@ def export_documents_csv(
     filters: dict = Depends(common_report_filters),
     document_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     csv_content = export_document_csv(
         db=db,
         car_id=filters["car_id"],
         document_type=document_type,
         status=filters["status"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="documents",
+        export_format="csv",
+        file_name="documents.csv",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -370,13 +596,30 @@ def export_documents_csv(
 def export_vehicle_cost_csv_route(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     csv_content = export_vehicle_cost_csv(
         db=db,
         car_id=filters["car_id"],
         from_date=filters["from_date"],
         to_date=filters["to_date"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="vehicle_cost",
+        export_format="csv",
+        file_name="vehicle_cost.csv",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -390,12 +633,29 @@ def export_vehicle_cost_csv_route(
 def export_vehicles_excel(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_vehicle_excel(
         db=db,
         car_id=filters["car_id"],
         status=filters["status"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="vehicles",
+        export_format="excel",
+        file_name="vehicles.xlsx",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -412,13 +672,30 @@ def export_services_excel(
     filters: dict = Depends(common_report_filters),
     service_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_service_excel(
         db=db,
         car_id=filters["car_id"],
         status=filters["status"],
         service_type=service_type,
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="services",
+        export_format="excel",
+        file_name="services.xlsx",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -435,12 +712,29 @@ def export_fuel_excel_route(
     filters: dict = Depends(common_report_filters),
     fuel_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_fuel_excel(
         db=db,
         car_id=filters["car_id"],
         fuel_type=fuel_type,
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="fuel",
+        export_format="excel",
+        file_name="fuel.xlsx",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -458,7 +752,15 @@ def export_expenses_excel(
     trip_id: int | None = Query(default=None, ge=1),
     category: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_expense_excel(
         db=db,
@@ -467,6 +769,15 @@ def export_expenses_excel(
         status=filters["status"],
         category=category,
         trip_id=trip_id,
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="expenses",
+        export_format="excel",
+        file_name="expenses.xlsx",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -482,12 +793,29 @@ def export_expenses_excel(
 def export_drivers_excel(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_driver_excel(
         db=db,
         driver_id=filters["driver_id"],
         status=filters["status"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="drivers",
+        export_format="excel",
+        file_name="drivers.xlsx",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -503,13 +831,30 @@ def export_drivers_excel(
 def export_trips_excel(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_trip_excel(
         db=db,
         car_id=filters["car_id"],
         driver_id=filters["driver_id"],
         status=filters["status"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="trips",
+        export_format="excel",
+        file_name="trips.xlsx",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -526,13 +871,30 @@ def export_documents_excel(
     filters: dict = Depends(common_report_filters),
     document_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_document_excel(
         db=db,
         car_id=filters["car_id"],
         document_type=document_type,
         status=filters["status"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="documents",
+        export_format="excel",
+        file_name="documents.xlsx",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -548,13 +910,30 @@ def export_documents_excel(
 def export_vehicle_cost_excel_route(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_vehicle_cost_excel(
         db=db,
         car_id=filters["car_id"],
         from_date=filters["from_date"],
         to_date=filters["to_date"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="vehicle_cost",
+        export_format="excel",
+        file_name="vehicle_cost.xlsx",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -570,12 +949,28 @@ def export_vehicle_cost_excel_route(
 def export_vehicles_pdf(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_vehicle_pdf(
         db=db,
         car_id=filters["car_id"],
         status=filters["status"],
+    )
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="vehicles",
+        export_format="pdf",
+        file_name="vehicles.pdf",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -590,13 +985,30 @@ def export_services_pdf(
     filters: dict = Depends(common_report_filters),
     service_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_service_pdf(
         db=db,
         car_id=filters["car_id"],
         status=filters["status"],
         service_type=service_type,
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="services",
+        export_format="pdf",
+        file_name="services.pdf",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -611,12 +1023,29 @@ def export_fuel_pdf_route(
     filters: dict = Depends(common_report_filters),
     fuel_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_fuel_pdf(
         db=db,
         car_id=filters["car_id"],
         fuel_type=fuel_type,
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="fuel",
+        export_format="pdf",
+        file_name="fuel.pdf",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -632,7 +1061,15 @@ def export_expenses_pdf(
     trip_id: int | None = Query(default=None, ge=1),
     category: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_expense_pdf(
         db=db,
@@ -641,6 +1078,15 @@ def export_expenses_pdf(
         status=filters["status"],
         category=category,
         trip_id=trip_id,
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="expenses",
+        export_format="pdf",
+        file_name="expenses.pdf",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -654,12 +1100,29 @@ def export_expenses_pdf(
 def export_drivers_pdf(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_driver_pdf(
         db=db,
         driver_id=filters["driver_id"],
         status=filters["status"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="drivers",
+        export_format="pdf",
+        file_name="drivers.pdf",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -673,13 +1136,30 @@ def export_drivers_pdf(
 def export_trips_pdf(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_trip_pdf(
         db=db,
         car_id=filters["car_id"],
         driver_id=filters["driver_id"],
         status=filters["status"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="trips",
+        export_format="pdf",
+        file_name="trips.pdf",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -694,13 +1174,30 @@ def export_documents_pdf(
     filters: dict = Depends(common_report_filters),
     document_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_document_pdf(
         db=db,
         car_id=filters["car_id"],
         document_type=document_type,
         status=filters["status"],
+    )
+
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="documents",
+        export_format="pdf",
+        file_name="documents.pdf",
+        filters=normalize_filters(filters),
     )
 
     return Response(
@@ -714,7 +1211,15 @@ def export_documents_pdf(
 def export_vehicle_cost_pdf_route(
     filters: dict = Depends(common_report_filters),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
 ):
     content = export_vehicle_cost_pdf(
         db=db,
@@ -723,9 +1228,51 @@ def export_vehicle_cost_pdf_route(
         to_date=filters["to_date"],
     )
 
+    record_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type="vehicle_cost",
+        export_format="pdf",
+        file_name="vehicle_cost.pdf",
+        filters=normalize_filters(filters),
+    )
+
     return Response(
         content=content,
         media_type="application/pdf",
         headers={"Content-Disposition": "attachment; filename=vehicle_cost.pdf"},
     )
 
+
+@router.get("/download-history", response_model=ReportDownloadHistoryResponse)
+def download_history(
+    report_type: str | None = Query(default=None),
+    export_format: str | None = Query(default=None),
+    page: int = Query(
+        default=1,
+        ge=1,
+    ),
+    page_size: int = Query(
+        default=50,
+        ge=1,
+        le=500,
+    ),
+    db: Session = Depends(get_db),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+            CUSTOMER,
+        )
+    ),
+):
+    return get_download_history(
+        db=db,
+        user_id=current_user.id,
+        report_type=report_type,
+        export_format=export_format,
+        page=page,
+        page_size=page_size,
+    )

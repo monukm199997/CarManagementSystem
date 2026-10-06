@@ -287,3 +287,29 @@ class CommonReportFilters(BaseModel):
 
     page: int = 1
     page_size: int = 50
+
+
+class ReportDownloadHistoryItem(BaseModel):
+
+    id: int
+
+    user_id: int
+
+    report_type: str
+
+    export_format: str
+
+    file_name: str
+
+    filters: Optional[dict] = None
+
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ReportDownloadHistoryResponse(BaseModel):
+
+    data: list[ReportDownloadHistoryItem]
+
+    pagination: ReportPagination

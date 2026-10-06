@@ -27,6 +27,8 @@ from app.models.driver_vehicle_assignment import DriverVehicleAssignment
 from app.models.trip import Trip
 from app.models.notification import Notification
 from app.models.notification_preference import NotificationPreference
+from app.models.report_download_history import ReportDownloadHistory
+
 
 
 config = context.config

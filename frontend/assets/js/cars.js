@@ -21,12 +21,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadOwnersMap();
 
+    await loadOwners();
+
     await loadCars();
 
     applyRolePermissions();
 
 });
-
 
 /* =========================================
    EVENT LISTENERS
@@ -685,18 +686,17 @@ async function loadOwners() {
         return;
     }
 
-
     try {
 
         const users =
             await apiRequest("/user/users");
 
-
-        const activeUsers =
+        const activeCustomers =
             users.filter(
-                user => user.is_active
+                user =>
+                    user.is_active &&
+                    String(user.role).toLowerCase() === "customer"
             );
-
 
         ownerSelect.innerHTML = `
             <option value="">
@@ -704,8 +704,23 @@ async function loadOwners() {
             </option>
         `;
 
+        if (activeCustomers.length === 0) {
 
-        activeUsers.forEach(user => {
+            const option =
+                document.createElement("option");
+
+            option.value = "";
+            option.textContent =
+                "No active customers found";
+
+            option.disabled = true;
+
+            ownerSelect.appendChild(option);
+
+            return;
+        }
+
+        activeCustomers.forEach(user => {
 
             const option =
                 document.createElement("option");
@@ -713,7 +728,9 @@ async function loadOwners() {
             option.value = user.id;
 
             option.textContent =
-                `${user.name} (${user.email})`;
+                user.email
+                    ? `${user.name} (${user.email})`
+                    : user.name;
 
             ownerSelect.appendChild(option);
 
@@ -726,10 +743,13 @@ async function loadOwners() {
             error
         );
 
+        ownerSelect.innerHTML = `
+            <option value="">
+                Failed to load customers
+            </option>
+        `;
     }
-
 }
-
 
 /* =========================================
    ADD CAR MODAL
