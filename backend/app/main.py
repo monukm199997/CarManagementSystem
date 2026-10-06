@@ -18,6 +18,7 @@ from app.routes.driver_vehicle_assignments import router as driver_vehicle_assig
 from app.routes.trips import router as trips
 from app.routes.expenses import router as expenses
 from app.routes.notifications import router as notifications
+from app.routes.reports import router as reports
 
 from app.services.document_expiry_alert import (
     generate_document_expiry_notifications,
@@ -193,6 +194,7 @@ app.include_router(driver_vehicle_assignments)
 app.include_router(trips)
 app.include_router(expenses)
 app.include_router(notifications)
+app.include_router(reports)
 
 
 # =========================================================
