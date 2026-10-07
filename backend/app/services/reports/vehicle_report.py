@@ -8,20 +8,38 @@ from app.models.fuel import Fuel
 from app.models.expense import Expense
 from app.models.trip import Trip
 
+from app.core.roles import CUSTOMER
+from app.services.reports.report_access import (
+    validate_customer_car_access,
+)
+
 
 def get_vehicle_report(
     db: Session,
+    current_user,
     car_id: int | None = None,
     status: str | None = None,
     page: int = 1,
     page_size: int = 50,
 ):
+
+    validate_customer_car_access(
+        db=db,
+        current_user=current_user,
+        car_id=car_id,
+    )
+     
     query = db.query(
         Car,
         Users.name.label("owner_name"),
         Users.email.label("owner_email"),
         Users.phone.label("owner_phone"),
     ).join(Users, Users.id == Car.owner_id)
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)

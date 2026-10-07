@@ -2,9 +2,9 @@ from sqlalchemy.orm import Session
 
 from app.models.service import Services
 from app.models.car import Car
+from app.core.roles import CUSTOMER
 from app.services.reports.report_access import (
     validate_customer_car_access,
-    apply_customer_car_filter,
 )
 
 
@@ -31,11 +31,10 @@ def get_service_report(
     ).join(Car, Car.id == Services.car_id)
 
 
-    query = apply_customer_car_filter(
-        query,
-        current_user,
-        Car,
-    )
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     # Vehicle filter
     if car_id is not None:

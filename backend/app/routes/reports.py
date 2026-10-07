@@ -120,6 +120,7 @@ def vehicle_report(
 ):
     return get_vehicle_report(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         status=filters["status"],
         page=filters["page"],
