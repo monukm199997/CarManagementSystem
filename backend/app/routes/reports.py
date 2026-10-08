@@ -171,6 +171,7 @@ def fuel_report(
 ):
     return get_fuel_report(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         fuel_type=fuel_type,
         page=filters["page"],
@@ -196,6 +197,7 @@ def expense_report(
 ):
     return get_expense_report(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         driver_id=filters["driver_id"],
         trip_id=trip_id,
@@ -244,6 +246,7 @@ def trip_report(
 ):
     return get_trip_report(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         driver_id=filters["driver_id"],
         status=filters["status"],
@@ -270,6 +273,7 @@ def document_report(
 ):
     return get_document_report(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         document_type=document_type,
         status=filters["status"],
@@ -295,6 +299,7 @@ def combined_vehicle_cost_report(
 ):
     return get_combined_vehicle_cost_report(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         from_date=filters["from_date"],
         to_date=filters["to_date"],
@@ -325,6 +330,7 @@ def dashboard_summary(
 
     return get_dashboard_summary(
         db=db,
+        current_user=current_user,
         from_date=from_date,
         to_date=to_date,
     )

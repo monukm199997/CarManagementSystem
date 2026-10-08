@@ -4,10 +4,15 @@ from sqlalchemy.orm import Session
 
 from app.models.vehicle_document import VehicleDocument
 from app.models.car import Car
+from app.core.roles import CUSTOMER
+from app.services.reports.report_access import (
+    validate_customer_car_access,
+)
 
 
 def get_document_report(
     db: Session,
+    current_user,
     car_id: int | None = None,
     document_type: str | None = None,
     status: str | None = None,
@@ -15,12 +20,21 @@ def get_document_report(
     page: int = 1,
     page_size: int = 50,
 ):
+
+    validate_customer_car_access(
+        db=db,
+        current_user=current_user,
+        car_id=car_id,
+    )
     query = db.query(
         VehicleDocument,
         Car.registration_number,
         Car.brand,
         Car.model,
     ).join(Car, Car.id == VehicleDocument.car_id)
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(Car.owner_id == current_user.id)
 
     # -----------------------------
     # Basic filters

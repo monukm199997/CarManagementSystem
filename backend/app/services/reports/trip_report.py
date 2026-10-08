@@ -3,16 +3,27 @@ from sqlalchemy.orm import Session
 from app.models.trip import Trip
 from app.models.car import Car
 from app.models.driver import Driver
+from app.core.roles import CUSTOMER
+from app.services.reports.report_access import (
+    validate_customer_car_access,
+)
 
 
 def get_trip_report(
     db: Session,
+    current_user,
     car_id: int | None = None,
     driver_id: int | None = None,
     status: str | None = None,
     page: int = 1,
     page_size: int = 50,
 ):
+
+    validate_customer_car_access(
+        db=db,
+        current_user=current_user,
+        car_id=car_id,
+    )
     query = (
         db.query(
             Trip,
@@ -31,6 +42,9 @@ def get_trip_report(
             Driver.id == Trip.driver_id,
         )
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(Car.owner_id == current_user.id)
 
     # -----------------------------
     # VEHICLE FILTER

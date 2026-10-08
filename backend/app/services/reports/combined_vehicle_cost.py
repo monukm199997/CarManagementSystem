@@ -7,21 +7,31 @@ from app.models.car import Car
 from app.models.service import Services
 from app.models.fuel import Fuel
 from app.models.expense import Expense
+from app.core.roles import CUSTOMER
+from app.services.reports.report_access import (
+    validate_customer_car_access,
+)
 
 
 def get_combined_vehicle_cost_report(
     db: Session,
+    current_user,
     car_id: int | None = None,
     from_date: date | None = None,
     to_date: date | None = None,
     page: int = 1,
     page_size: int = 50,
 ):
-    # --------------------------------------------------
-    # Get vehicles
-    # --------------------------------------------------
+    validate_customer_car_access(
+        db=db,
+        current_user=current_user,
+        car_id=car_id,
+    )
 
     query = db.query(Car)
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(Car.owner_id == current_user.id)
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)

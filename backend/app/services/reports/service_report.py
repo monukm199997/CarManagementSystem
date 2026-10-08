@@ -22,7 +22,7 @@ def get_service_report(
         current_user=current_user,
         car_id=car_id,
     )
-    
+
     query = db.query(
         Services,
         Car.registration_number,
@@ -30,11 +30,8 @@ def get_service_report(
         Car.model,
     ).join(Car, Car.id == Services.car_id)
 
-
     if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+        query = query.filter(Car.owner_id == current_user.id)
 
     # Vehicle filter
     if car_id is not None:

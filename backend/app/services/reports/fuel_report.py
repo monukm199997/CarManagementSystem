@@ -2,21 +2,36 @@ from sqlalchemy.orm import Session
 
 from app.models.fuel import Fuel
 from app.models.car import Car
+from app.core.roles import CUSTOMER
+from app.services.reports.report_access import (
+    validate_customer_car_access,
+)
 
 
 def get_fuel_report(
     db: Session,
+    current_user,
     car_id: int | None = None,
     fuel_type: str | None = None,
     page: int = 1,
     page_size: int = 50,
 ):
+
+    validate_customer_car_access(
+        db=db,
+        current_user=current_user,
+        car_id=car_id,
+    )
+    
     query = db.query(
         Fuel,
         Car.registration_number,
         Car.brand,
         Car.model,
     ).join(Car, Car.id == Fuel.car_id)
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(Car.owner_id == current_user.id)
 
     # Vehicle filter
     if car_id is not None:

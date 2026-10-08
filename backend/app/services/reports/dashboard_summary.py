@@ -10,10 +10,12 @@ from app.models.expense import Expense
 from app.models.driver import Driver
 from app.models.trip import Trip
 from app.models.vehicle_document import VehicleDocument
+from app.core.roles import CUSTOMER
 
 
 def get_dashboard_summary(
     db: Session,
+    current_user,
     from_date: date | None = None,
     to_date: date | None = None,
 ):
@@ -21,25 +23,43 @@ def get_dashboard_summary(
     # Vehicles
     # --------------------------------------------------
 
-    total_vehicles = db.query(func.count(Car.id)).scalar() or 0
+    vehicle_query = db.query(Car)
+
+    if current_user.role == CUSTOMER:
+        vehicle_query = vehicle_query.filter(Car.owner_id == current_user.id)
+
+    total_vehicles = vehicle_query.count()
 
     # --------------------------------------------------
     # Drivers
     # --------------------------------------------------
 
-    total_drivers = db.query(func.count(Driver.id)).scalar() or 0
+    if current_user.role == CUSTOMER:
+        total_drivers = 0
+    else:
+        total_drivers = db.query(func.count(Driver.id)).scalar() or 0
 
     # --------------------------------------------------
     # Documents
     # --------------------------------------------------
 
-    total_documents = db.query(func.count(VehicleDocument.id)).scalar() or 0
+    document_query = db.query(VehicleDocument).join(
+        Car, Car.id == VehicleDocument.car_id
+    )
+
+    if current_user.role == CUSTOMER:
+        document_query = document_query.filter(Car.owner_id == current_user.id)
+
+    total_documents = document_query.count()
 
     # --------------------------------------------------
     # Services
     # --------------------------------------------------
 
-    service_query = db.query(Services)
+    service_query = db.query(Services).join(Car, Car.id == Services.car_id)
+
+    if current_user.role == CUSTOMER:
+        service_query = service_query.filter(Car.owner_id == current_user.id)
 
     if from_date is not None:
         service_query = service_query.filter(Services.service_date >= from_date)
@@ -58,7 +78,10 @@ def get_dashboard_summary(
     # Fuel
     # --------------------------------------------------
 
-    fuel_query = db.query(Fuel)
+    fuel_query = db.query(Fuel).join(Car, Car.id == Fuel.car_id)
+
+    if current_user.role == CUSTOMER:
+        fuel_query = fuel_query.filter(Car.owner_id == current_user.id)
 
     if from_date is not None:
         fuel_query = fuel_query.filter(Fuel.fuel_date >= from_date)
@@ -77,7 +100,10 @@ def get_dashboard_summary(
     # Expenses
     # --------------------------------------------------
 
-    expense_query = db.query(Expense)
+    expense_query = db.query(Expense).join(Car, Car.id == Expense.car_id)
+
+    if current_user.role == CUSTOMER:
+        expense_query = expense_query.filter(Car.owner_id == current_user.id)
 
     if from_date is not None:
         expense_query = expense_query.filter(Expense.expense_date >= from_date)
@@ -96,7 +122,10 @@ def get_dashboard_summary(
     # Trips
     # --------------------------------------------------
 
-    trip_query = db.query(Trip)
+    trip_query = db.query(Trip).join(Car, Car.id == Trip.car_id)
+
+    if current_user.role == CUSTOMER:
+        trip_query = trip_query.filter(Car.owner_id == current_user.id)
 
     if from_date is not None:
         trip_query = trip_query.filter(
