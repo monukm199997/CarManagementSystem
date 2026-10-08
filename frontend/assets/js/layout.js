@@ -379,10 +379,79 @@ const MENU_ITEMS = [
         label: "Reports",
         icon: "📈",
         url: "/frontend/reports/reports.html",
-        roles: [
-            "manager",
-            "admin",
-            "super_admin"
+        roles: ["customer", "staff", "manager", "admin", "super_admin"],
+        expandable: true,
+        children: [
+            {
+                key: "reports-dashboard",
+                label: "Dashboard Summary",
+                icon: "📊",
+                url: "/frontend/reports/reports.html?report=dashboard",
+                roles: ["customer", "staff", "manager", "admin", "super_admin"]
+            },
+            {
+                key: "reports-vehicles",
+                label: "Vehicles",
+                icon: "🚗",
+                url: "/frontend/reports/reports.html?report=vehicles",
+                roles: ["customer", "staff", "manager", "admin", "super_admin"]
+            },
+            {
+                key: "reports-services",
+                label: "Services",
+                icon: "🔧",
+                url: "/frontend/reports/reports.html?report=services",
+                roles: ["customer", "staff", "manager", "admin", "super_admin"]
+            },
+            {
+                key: "reports-fuel",
+                label: "Fuel",
+                icon: "⛽",
+                url: "/frontend/reports/reports.html?report=fuel",
+                roles: ["customer", "staff", "manager", "admin", "super_admin"]
+            },
+            {
+                key: "reports-expenses",
+                label: "Expenses",
+                icon: "💰",
+                url: "/frontend/reports/reports.html?report=expenses",
+                roles: ["customer", "staff", "manager", "admin", "super_admin"]
+            },
+            {
+                key: "reports-drivers",
+                label: "Drivers",
+                icon: "👨‍✈️",
+                url: "/frontend/reports/reports.html?report=drivers",
+                roles: ["staff", "manager", "admin", "super_admin"]
+            },
+            {
+                key: "reports-trips",
+                label: "Trips",
+                icon: "🛣️",
+                url: "/frontend/reports/reports.html?report=trips",
+                roles: ["customer", "staff", "manager", "admin", "super_admin"]
+            },
+            {
+                key: "reports-documents",
+                label: "Documents",
+                icon: "📄",
+                url: "/frontend/reports/reports.html?report=documents",
+                roles: ["customer", "staff", "manager", "admin", "super_admin"]
+            },
+            {
+                key: "reports-vehicle-cost",
+                label: "Vehicle Cost",
+                icon: "💵",
+                url: "/frontend/reports/reports.html?report=vehicle-cost",
+                roles: ["customer", "staff", "manager", "admin", "super_admin"]
+            },
+            {
+                key: "reports-download-history",
+                label: "Download History",
+                icon: "⬇️",
+                url: "/frontend/reports/reports.html?report=download-history",
+                roles: ["customer", "staff", "manager", "admin", "super_admin"]
+            }
         ]
     },
 
@@ -505,123 +574,211 @@ function getCurrentMenuKey() {
 // SIDEBAR
 // ============================================
 
-function renderSidebar(user) {
-
-    const sidebar =
-        document.getElementById(
-            "appSidebar"
-        );
-
+function renderSidebar() {
+    const sidebar = document.getElementById("appSidebar");
 
     if (!sidebar) {
-
-        console.error(
-            "appSidebar element not found."
-        );
-
         return;
     }
 
+    const user = getLayoutUser();
 
-    const currentPage =
-        getCurrentMenuKey();
+    if (!user) {
+        sidebar.innerHTML = "";
+        return;
+    }
 
+    const userRole = String(user.role || "").toLowerCase();
 
-    const visibleItems =
-        MENU_ITEMS.filter(
-            item =>
-                item.roles.includes(
-                    user.role
-                )
-        );
+    const visibleItems = MENU_ITEMS.filter(item => {
+        return item.roles && item.roles.includes(userRole);
+    });
 
+    const currentPath = window.location.pathname;
+    const currentParams = new URLSearchParams(window.location.search);
+    const currentReport = currentParams.get("report");
 
-    const menuHtml =
-        visibleItems
-            .map(item => {
-
-                const activeClass =
-                    item.key === currentPage
-                        ? "active"
-                        : "";
-
-
-                return `
-
-                    <li class="${activeClass}">
-
-                        <a href="${item.url}">
-
-                            <span class="sidebar-icon">
-                                ${item.icon}
-                            </span>
-
-                            <span>
-                                ${item.label}
-                            </span>
-
-                        </a>
-
-                    </li>
-
-                `;
-
-            })
-            .join("");
-
-
-    sidebar.innerHTML = `
-
-        <aside
-            id="dashboardSidebar"
-            class="dashboard-sidebar"
-        >
-
-            <div class="sidebar-title">
-                MAIN MENU
-            </div>
-
-
-            <ul class="sidebar-menu">
-
-                ${menuHtml}
-
-            </ul>
-
-
-            <div class="sidebar-title mt-4">
-                ACCOUNT
-            </div>
-
-
-            <ul class="sidebar-menu">
-
-                <li>
-
-                    <a
-                        href="#"
-                        id="sidebarLogout"
-                    >
-
-                        <span class="sidebar-icon">
-                            🚪
-                        </span>
-
-                        <span>
-                            Logout
-                        </span>
-
-                    </a>
-
-                </li>
-
-            </ul>
-
-        </aside>
-
+    let sidebarHtml = `
+        <div class="sidebar-menu">
+            <div class="sidebar-section-title">MAIN MENU</div>
     `;
+
+    visibleItems.forEach(item => {
+
+        // -----------------------------------------
+        // Normal menu item
+        // -----------------------------------------
+        if (!item.expandable) {
+
+            const isActive = currentPath === item.url ||
+                (
+                    item.key === "dashboard" &&
+                    currentPath.endsWith("/dashboard.html")
+                );
+
+            sidebarHtml += `
+                <a
+                    href="${item.url}"
+                    class="sidebar-menu-item ${isActive ? "active" : ""}"
+                    data-menu-key="${item.key}"
+                >
+                    <span class="sidebar-menu-icon">${item.icon}</span>
+                    <span class="sidebar-menu-label">${item.label}</span>
+                </a>
+            `;
+
+            return;
+        }
+
+        // -----------------------------------------
+        // Expandable menu
+        // -----------------------------------------
+        const visibleChildren = (item.children || []).filter(child => {
+            return child.roles && child.roles.includes(userRole);
+        });
+
+        const isReportsPage = currentPath.includes("/reports/");
+
+        const isExpanded = isReportsPage;
+
+        sidebarHtml += `
+            <div class="sidebar-expandable ${isExpanded ? "expanded" : ""}">
+
+                <div
+                    class="sidebar-menu-item sidebar-expandable-header ${isReportsPage ? "active-parent" : ""}"
+                    data-expand-key="${item.key}"
+                >
+                    <span class="sidebar-menu-icon">
+                        ${item.icon}
+                    </span>
+
+                    <span class="sidebar-menu-label">
+                        ${item.label}
+                    </span>
+
+                    <span class="sidebar-expand-arrow">
+                        ${isExpanded ? "▼" : "▶"}
+                    </span>
+                </div>
+
+                <div class="sidebar-submenu"
+                     style="display: ${isExpanded ? "block" : "none"};">
+
+        `;
+
+        visibleChildren.forEach(child => {
+
+            let childActive = false;
+
+            if (isReportsPage) {
+
+                if (currentReport) {
+                    childActive = currentReport === getReportKeyFromMenu(child.key);
+                } else {
+                    childActive = child.key === "reports-dashboard";
+                }
+
+            }
+
+            sidebarHtml += `
+                <a
+                    href="${child.url}"
+                    class="sidebar-submenu-item ${childActive ? "active" : ""}"
+                    data-menu-key="${child.key}"
+                >
+                    <span class="sidebar-submenu-icon">
+                        ${child.icon}
+                    </span>
+
+                    <span class="sidebar-submenu-label">
+                        ${child.label}
+                    </span>
+                </a>
+            `;
+        });
+
+        sidebarHtml += `
+                </div>
+            </div>
+        `;
+    });
+
+    sidebarHtml += `
+        </div>
+    `;
+
+    sidebar.innerHTML = sidebarHtml;
+
+    setupReportsSidebarToggle();
 }
 
+function getReportKeyFromMenu(menuKey) {
+
+    const mapping = {
+        "reports-dashboard": "dashboard",
+        "reports-vehicles": "vehicles",
+        "reports-services": "services",
+        "reports-fuel": "fuel",
+        "reports-expenses": "expenses",
+        "reports-drivers": "drivers",
+        "reports-trips": "trips",
+        "reports-documents": "documents",
+        "reports-vehicle-cost": "vehicle-cost",
+        "reports-download-history": "download-history"
+    };
+
+    return mapping[menuKey] || "dashboard";
+}
+
+
+function setupReportsSidebarToggle() {
+
+    const headers = document.querySelectorAll(
+        ".sidebar-expandable-header"
+    );
+
+    headers.forEach(header => {
+
+        header.addEventListener("click", function () {
+
+            const parent = this.closest(".sidebar-expandable");
+
+            if (!parent) {
+                return;
+            }
+
+            const submenu = parent.querySelector(".sidebar-submenu");
+            const arrow = parent.querySelector(".sidebar-expand-arrow");
+
+            if (!submenu) {
+                return;
+            }
+
+            const isOpen = parent.classList.contains("expanded");
+
+            if (isOpen) {
+
+                parent.classList.remove("expanded");
+
+                submenu.style.display = "none";
+
+                if (arrow) {
+                    arrow.textContent = "▶";
+                }
+
+            } else {
+
+                parent.classList.add("expanded");
+
+                submenu.style.display = "block";
+
+                if (arrow) {
+                    arrow.textContent = "▼";
+                }
+            }
+        });
+    });
+}
 
 // ============================================
 // EVENTS
