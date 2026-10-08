@@ -352,6 +352,7 @@ def export_vehicles_csv(
 ):
     csv_content = export_vehicle_csv(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         status=filters["status"],
     )
@@ -389,6 +390,7 @@ def export_services_csv(
 ):
     csv_content = export_service_csv(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         status=filters["status"],
         service_type=service_type,
@@ -427,6 +429,7 @@ def export_fuel_csv_route(
 ):
     csv_content = export_fuel_csv(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         fuel_type=fuel_type,
     )
@@ -465,6 +468,7 @@ def export_expenses_csv(
 ):
     csv_content = export_expense_csv(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         driver_id=filters["driver_id"],
         status=filters["status"],
@@ -498,7 +502,6 @@ def export_drivers_csv(
             ADMIN,
             MANAGER,
             STAFF,
-            CUSTOMER,
         )
     ),
 ):
@@ -540,6 +543,7 @@ def export_trips_csv(
 ):
     csv_content = export_trip_csv(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         driver_id=filters["driver_id"],
         status=filters["status"],
@@ -578,6 +582,7 @@ def export_documents_csv(
 ):
     csv_content = export_document_csv(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         document_type=document_type,
         status=filters["status"],
@@ -615,6 +620,7 @@ def export_vehicle_cost_csv_route(
 ):
     csv_content = export_vehicle_cost_csv(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         from_date=filters["from_date"],
         to_date=filters["to_date"],
@@ -652,6 +658,7 @@ def export_vehicles_excel(
 ):
     content = export_vehicle_excel(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         status=filters["status"],
     )
@@ -691,6 +698,7 @@ def export_services_excel(
 ):
     content = export_service_excel(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         status=filters["status"],
         service_type=service_type,
@@ -731,6 +739,7 @@ def export_fuel_excel_route(
 ):
     content = export_fuel_excel(
         db=db,
+        curent_user=current_user,
         car_id=filters["car_id"],
         fuel_type=fuel_type,
     )
@@ -771,6 +780,7 @@ def export_expenses_excel(
 ):
     content = export_expense_excel(
         db=db,
+        curent_user=current_user,
         car_id=filters["car_id"],
         driver_id=filters["driver_id"],
         status=filters["status"],
@@ -850,6 +860,8 @@ def export_trips_excel(
 ):
     content = export_trip_excel(
         db=db,
+        curent_user=current_user,
+        current_user=current_user,
         car_id=filters["car_id"],
         driver_id=filters["driver_id"],
         status=filters["status"],
@@ -890,6 +902,7 @@ def export_documents_excel(
 ):
     content = export_document_excel(
         db=db,
+        curent_user=current_user,
         car_id=filters["car_id"],
         document_type=document_type,
         status=filters["status"],
@@ -929,6 +942,7 @@ def export_vehicle_cost_excel_route(
 ):
     content = export_vehicle_cost_excel(
         db=db,
+        curent_user=current_user,
         car_id=filters["car_id"],
         from_date=filters["from_date"],
         to_date=filters["to_date"],
@@ -968,6 +982,7 @@ def export_vehicles_pdf(
 ):
     content = export_vehicle_pdf(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         status=filters["status"],
     )
@@ -1004,6 +1019,7 @@ def export_services_pdf(
 ):
     content = export_service_pdf(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         status=filters["status"],
         service_type=service_type,
@@ -1042,6 +1058,7 @@ def export_fuel_pdf_route(
 ):
     content = export_fuel_pdf(
         db=db,
+        current_user=current_user,
         car_id=filters["car_id"],
         fuel_type=fuel_type,
     )
@@ -1080,6 +1097,7 @@ def export_expenses_pdf(
 ):
     content = export_expense_pdf(
         db=db,
+        curent_user=current_user,
         car_id=filters["car_id"],
         driver_id=filters["driver_id"],
         status=filters["status"],
@@ -1155,6 +1173,7 @@ def export_trips_pdf(
 ):
     content = export_trip_pdf(
         db=db,
+        curent_user=current_user,
         car_id=filters["car_id"],
         driver_id=filters["driver_id"],
         status=filters["status"],
@@ -1193,6 +1212,7 @@ def export_documents_pdf(
 ):
     content = export_document_pdf(
         db=db,
+        curent_user=current_user,
         car_id=filters["car_id"],
         document_type=document_type,
         status=filters["status"],
@@ -1230,6 +1250,7 @@ def export_vehicle_cost_pdf_route(
 ):
     content = export_vehicle_cost_pdf(
         db=db,
+        curent_user=current_user,
         car_id=filters["car_id"],
         from_date=filters["from_date"],
         to_date=filters["to_date"],
@@ -1277,7 +1298,7 @@ def download_history(
 ):
     return get_download_history(
         db=db,
-        user_id=current_user.id,
+        current_user=current_user,
         report_type=report_type,
         export_format=export_format,
         page=page,

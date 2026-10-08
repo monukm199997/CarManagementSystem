@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
-
+from datetime import date, datetime
 from app.models.report_download_history import (
     ReportDownloadHistory,
 )
+from app.core.roles import SUPER_ADMIN, ADMIN
 
 
 def record_download_history(
@@ -30,28 +31,48 @@ def record_download_history(
 
 def get_download_history(
     db: Session,
-    user_id: int,
+    current_user,
     report_type: str | None = None,
     export_format: str | None = None,
     page: int = 1,
     page_size: int = 50,
 ):
-    query = db.query(ReportDownloadHistory).filter(
-        ReportDownloadHistory.user_id == user_id
-    )
+    query = db.query(ReportDownloadHistory)
+
+    # --------------------------------------------------
+    # Role Based Access
+    # --------------------------------------------------
+
+    if current_user.role not in {SUPER_ADMIN, ADMIN}:
+        query = query.filter(
+            ReportDownloadHistory.user_id == current_user.id
+        )
+
+    # --------------------------------------------------
+    # Optional Filters
+    # --------------------------------------------------
 
     if report_type:
-        query = query.filter(ReportDownloadHistory.report_type == report_type)
+        query = query.filter(
+            ReportDownloadHistory.report_type == report_type
+        )
 
     if export_format:
-        query = query.filter(ReportDownloadHistory.export_format == export_format)
+        query = query.filter(
+            ReportDownloadHistory.export_format == export_format
+        )
+
+    # --------------------------------------------------
+    # Pagination
+    # --------------------------------------------------
 
     total_records = query.count()
 
     offset = (page - 1) * page_size
 
     rows = (
-        query.order_by(
+        query
+        .order_by(
             ReportDownloadHistory.created_at.desc(),
             ReportDownloadHistory.id.desc(),
         )
@@ -61,7 +82,9 @@ def get_download_history(
     )
 
     total_pages = (
-        (total_records + page_size - 1) // page_size if total_records > 0 else 0
+        (total_records + page_size - 1) // page_size
+        if total_records > 0
+        else 0
     )
 
     return {
@@ -73,10 +96,6 @@ def get_download_history(
             "total_pages": total_pages,
         },
     }
-
-
-from datetime import date, datetime
-
 
 def normalize_filters(
     filters: dict | None,

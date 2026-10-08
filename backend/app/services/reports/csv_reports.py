@@ -10,14 +10,19 @@ from app.models.trip import Trip
 from app.models.vehicle_document import VehicleDocument
 
 from app.services.reports.csv_export import create_csv_response
+from app.core.roles import CUSTOMER
 
 
 def export_vehicle_csv(
     db: Session,
+    current_user,
     car_id: int | None = None,
     status: str | None = None,
 ):
     query = db.query(Car)
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(Car.owner_id == current_user.id)
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)
@@ -56,6 +61,7 @@ def export_vehicle_csv(
 
 def export_service_csv(
     db: Session,
+    current_user,
     car_id: int | None = None,
     status: str | None = None,
     service_type: str | None = None,
@@ -69,6 +75,9 @@ def export_service_csv(
         Car,
         Car.id == Services.car_id,
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(Car.owner_id == current_user.id)
 
     if car_id is not None:
         query = query.filter(Services.car_id == car_id)
@@ -133,6 +142,7 @@ def export_service_csv(
 
 def export_fuel_csv(
     db: Session,
+    current_user,
     car_id: int | None = None,
     fuel_type: str | None = None,
 ):
@@ -145,6 +155,9 @@ def export_fuel_csv(
         Car,
         Car.id == Fuel.car_id,
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(Car.owner_id == current_user.id)
 
     if car_id is not None:
         query = query.filter(Fuel.car_id == car_id)
@@ -208,6 +221,7 @@ def export_fuel_csv(
 
 def export_expense_csv(
     db: Session,
+    current_user,
     car_id: int | None = None,
     driver_id: int | None = None,
     status: str | None = None,
@@ -236,6 +250,9 @@ def export_expense_csv(
             Trip.id == Expense.trip_id,
         )
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(Car.owner_id == current_user.id)
 
     if car_id is not None:
         query = query.filter(Expense.car_id == car_id)
@@ -373,6 +390,7 @@ def export_driver_csv(
 
 def export_trip_csv(
     db: Session,
+    current_user,
     car_id: int | None = None,
     driver_id: int | None = None,
     status: str | None = None,
@@ -395,6 +413,9 @@ def export_trip_csv(
             Driver.id == Trip.driver_id,
         )
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(Car.owner_id == current_user.id)
 
     if car_id is not None:
         query = query.filter(Trip.car_id == car_id)
@@ -478,6 +499,7 @@ def export_trip_csv(
 
 def export_document_csv(
     db: Session,
+    current_user,
     car_id: int | None = None,
     document_type: str | None = None,
     status: str | None = None,
@@ -491,6 +513,11 @@ def export_document_csv(
         Car,
         Car.id == VehicleDocument.car_id,
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(VehicleDocument.car_id == car_id)
@@ -555,11 +582,17 @@ def export_document_csv(
 
 def export_vehicle_cost_csv(
     db: Session,
+    current_user,
     car_id: int | None = None,
     from_date: date | None = None,
     to_date: date | None = None,
 ):
     query = db.query(Car)
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)
@@ -649,4 +682,3 @@ def export_vehicle_cost_csv(
         headers=headers,
         rows=rows,
     )
-

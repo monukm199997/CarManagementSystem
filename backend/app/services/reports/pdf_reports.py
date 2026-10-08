@@ -14,14 +14,21 @@ from app.models.vehicle_document import VehicleDocument
 from app.services.reports.pdf_export import (
     create_pdf_response,
 )
+from app.core.roles import CUSTOMER
 
 
 def export_vehicle_pdf(
     db: Session,
+    current_user,
     car_id: int | None = None,
     status: str | None = None,
 ):
     query = db.query(Car)
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)
@@ -74,6 +81,7 @@ def export_vehicle_pdf(
 
 def export_service_pdf(
     db: Session,
+    current_user,
     car_id: int | None = None,
     status: str | None = None,
     service_type: str | None = None,
@@ -87,6 +95,11 @@ def export_service_pdf(
         Car,
         Car.id == Services.car_id,
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Services.car_id == car_id)
@@ -170,6 +183,7 @@ def export_service_pdf(
 
 def export_fuel_pdf(
     db: Session,
+    current_user,
     car_id: int | None = None,
     fuel_type: str | None = None,
 ):
@@ -182,6 +196,11 @@ def export_fuel_pdf(
         Car,
         Car.id == Fuel.car_id,
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Fuel.car_id == car_id)
@@ -262,6 +281,7 @@ def export_fuel_pdf(
 
 def export_expense_pdf(
     db: Session,
+    current_user,
     car_id: int | None = None,
     driver_id: int | None = None,
     status: str | None = None,
@@ -290,6 +310,11 @@ def export_expense_pdf(
             Trip.id == Expense.trip_id,
         )
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Expense.car_id == car_id)
@@ -464,6 +489,7 @@ def export_driver_pdf(
 
 def export_trip_pdf(
     db: Session,
+    current_user,
     car_id: int | None = None,
     driver_id: int | None = None,
     status: str | None = None,
@@ -485,6 +511,11 @@ def export_trip_pdf(
             Driver.id == Trip.driver_id,
         )
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Trip.car_id == car_id)
@@ -582,9 +613,9 @@ def export_trip_pdf(
         ],
     )
 
-
 def export_document_pdf(
     db: Session,
+    current_user,
     car_id: int | None = None,
     document_type: str | None = None,
     status: str | None = None,
@@ -598,6 +629,11 @@ def export_document_pdf(
         Car,
         Car.id == VehicleDocument.car_id,
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(VehicleDocument.car_id == car_id)
@@ -677,14 +713,19 @@ def export_document_pdf(
         ],
     )
 
-
 def export_vehicle_cost_pdf(
     db: Session,
+    current_user,
     car_id: int | None = None,
     from_date: date | None = None,
     to_date: date | None = None,
 ):
     query = db.query(Car)
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)
@@ -794,3 +835,4 @@ def export_vehicle_cost_pdf(
             ),
         ],
     )
+

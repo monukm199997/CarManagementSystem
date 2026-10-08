@@ -10,7 +10,7 @@ from app.models.expense import Expense
 from app.models.driver import Driver
 from app.models.trip import Trip
 from app.models.vehicle_document import VehicleDocument
-
+from app.core.roles import CUSTOMER
 from app.services.reports.excel_export import (
     create_excel_response,
 )
@@ -18,10 +18,16 @@ from app.services.reports.excel_export import (
 
 def export_vehicle_excel(
     db: Session,
+    current_user,
     car_id: int | None = None,
     status: str | None = None,
 ):
     query = db.query(Car)
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)
@@ -59,6 +65,7 @@ def export_vehicle_excel(
 
 def export_service_excel(
     db: Session,
+    current_user,
     car_id: int | None = None,
     status: str | None = None,
     service_type: str | None = None,
@@ -72,6 +79,11 @@ def export_service_excel(
         Car,
         Car.id == Services.car_id,
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Services.car_id == car_id)
@@ -137,6 +149,7 @@ def export_service_excel(
 
 def export_fuel_excel(
     db: Session,
+    current_user,
     car_id: int | None = None,
     fuel_type: str | None = None,
 ):
@@ -149,6 +162,11 @@ def export_fuel_excel(
         Car,
         Car.id == Fuel.car_id,
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Fuel.car_id == car_id)
@@ -213,6 +231,7 @@ def export_fuel_excel(
 
 def export_expense_excel(
     db: Session,
+    current_user,
     car_id: int | None = None,
     driver_id: int | None = None,
     status: str | None = None,
@@ -241,6 +260,11 @@ def export_expense_excel(
             Trip.id == Expense.trip_id,
         )
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Expense.car_id == car_id)
@@ -380,6 +404,7 @@ def export_driver_excel(
 
 def export_trip_excel(
     db: Session,
+    current_user,
     car_id: int | None = None,
     driver_id: int | None = None,
     status: str | None = None,
@@ -402,6 +427,11 @@ def export_trip_excel(
             Driver.id == Trip.driver_id,
         )
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Trip.car_id == car_id)
@@ -486,6 +516,7 @@ def export_trip_excel(
 
 def export_document_excel(
     db: Session,
+    current_user,
     car_id: int | None = None,
     document_type: str | None = None,
     status: str | None = None,
@@ -499,6 +530,11 @@ def export_document_excel(
         Car,
         Car.id == VehicleDocument.car_id,
     )
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(VehicleDocument.car_id == car_id)
@@ -564,11 +600,17 @@ def export_document_excel(
 
 def export_vehicle_cost_excel(
     db: Session,
+    current_user,
     car_id: int | None = None,
     from_date: date | None = None,
     to_date: date | None = None,
 ):
     query = db.query(Car)
+
+    if current_user.role == CUSTOMER:
+        query = query.filter(
+            Car.owner_id == current_user.id
+        )
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)
