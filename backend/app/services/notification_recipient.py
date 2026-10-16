@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.models.user import Users
 from app.models.car import Car
+from app.models.driver import Driver
 
 from app.core.roles import (
     SUPER_ADMIN,
@@ -10,7 +11,6 @@ from app.core.roles import (
     STAFF,
     CUSTOMER,
 )
-
 
 MANAGEMENT_ROLES = {
     SUPER_ADMIN,
@@ -31,85 +31,90 @@ def get_notification_recipients(
     db: Session,
     notification_type: str,
     car_id: int | None = None,
+    driver_id: int | None = None,
 ):
     """
-    Resolve users who should receive an automatic notification.
+    Resolve active users who should receive automatic notifications.
 
     Vehicle notifications:
-        SUPER_ADMIN -> all vehicles
-        ADMIN       -> all vehicles
-        MANAGER     -> all vehicles
-        STAFF       -> all vehicles
-        CUSTOMER    -> only own vehicle
+        Management users -> users in the vehicle's company
+        CUSTOMER         -> own vehicle, if in the same company
 
     License notifications:
-        SUPER_ADMIN -> all drivers
-        ADMIN       -> all drivers
-        MANAGER     -> all drivers
-        STAFF       -> all drivers
-        CUSTOMER    -> none
+        Management users -> users in the driver's company
+        CUSTOMER         -> none
 
-    System notifications:
-        No automatic recipients.
+    If the relevant vehicle/driver cannot be found or has no company,
+    no recipients are returned.
     """
-
-    users = (
-        db.query(Users)
-        .filter(Users.is_active.is_(True))
-        .all()
-    )
 
     # ---------------------------------------------------------
     # VEHICLE RELATED NOTIFICATIONS
     # ---------------------------------------------------------
     if notification_type in VEHICLE_NOTIFICATION_TYPES:
 
-        # If there is no specific car, only management users
-        # should receive the notification.
-        if car_id is None:
-            return [
-                user
-                for user in users
-                if user.role in MANAGEMENT_ROLES
-            ]
+        # A vehicle-specific notification must have a valid car.
+        if car_id is not None:
+            car = db.query(Car).filter(Car.id == car_id).first()
 
-        car = (
-            db.query(Car)
-            .filter(Car.id == car_id)
-            .first()
+            if not car or not car.company_id:
+                return []
+
+            users = (
+                db.query(Users)
+                .filter(
+                    Users.is_active.is_(True),
+                    Users.company_id == car.company_id,
+                )
+                .all()
+            )
+
+            recipients = []
+
+            for user in users:
+                if user.role in MANAGEMENT_ROLES:
+                    recipients.append(user)
+                elif user.role == CUSTOMER and car.owner_id == user.id:
+                    recipients.append(user)
+
+            return recipients
+
+        # No specific vehicle: return management users only.
+        # Do not mix users across companies.
+        return (
+            db.query(Users)
+            .filter(
+                Users.is_active.is_(True),
+                Users.role.in_(MANAGEMENT_ROLES),
+                Users.company_id.isnot(None),
+            )
+            .all()
         )
-
-        if not car:
-            return []
-
-        recipients = []
-
-        for user in users:
-
-            # Management roles can see all vehicles.
-            if user.role in MANAGEMENT_ROLES:
-                recipients.append(user)
-                continue
-
-            # Customer can see only their own vehicle.
-            if (
-                user.role == CUSTOMER
-                and car.owner_id == user.id
-            ):
-                recipients.append(user)
-
-        return recipients
 
     # ---------------------------------------------------------
     # DRIVER LICENSE EXPIRY
     # ---------------------------------------------------------
     if notification_type == "license_expiry":
 
-        return [
-            user
-            for user in users
-            if user.role in MANAGEMENT_ROLES
-        ]
+        if driver_id is None:
+            # Without a specific driver, avoid sending a global
+            # notification to all companies' users.
+            return []
+
+        driver = db.query(Driver).filter(Driver.id == driver_id).first()
+
+        if not driver or not driver.company_id:
+            return []
+
+        return (
+            db.query(Users)
+            .filter(
+                Users.is_active.is_(True),
+                Users.company_id == driver.company_id,
+                Users.role.in_(MANAGEMENT_ROLES),
+            )
+            .all()
+        )
 
     # ---------------------------------------------------------
     # OTHER / SYSTEM NOTIFICATIONS

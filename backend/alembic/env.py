@@ -28,6 +28,7 @@ from app.models.trip import Trip
 from app.models.notification import Notification
 from app.models.notification_preference import NotificationPreference
 from app.models.report_download_history import ReportDownloadHistory
+from app.models.company import Company
 
 
 

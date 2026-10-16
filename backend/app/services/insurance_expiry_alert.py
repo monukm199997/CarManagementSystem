@@ -9,22 +9,16 @@ from app.services.notification_recipient import (
 from app.models.vehicle_document import VehicleDocument
 from app.models.car import Car
 
+
 INSURANCE_WARNING_DAYS = 30
 
 
-def get_insurance_alert_level(
-    expiry_date: date,
-):
-    """
-    Determine notification priority based on
-    insurance expiry date.
-    """
+def get_insurance_alert_level(expiry_date: date):
+    """Determine notification priority based on insurance expiry."""
 
     today = date.today()
-
     days_remaining = (expiry_date - today).days
 
-    # Already expired
     if days_remaining < 0:
         return {
             "level": "expired",
@@ -32,7 +26,6 @@ def get_insurance_alert_level(
             "days_remaining": days_remaining,
         }
 
-    # Expires within 7 days
     if days_remaining <= 7:
         return {
             "level": "urgent",
@@ -40,7 +33,6 @@ def get_insurance_alert_level(
             "days_remaining": days_remaining,
         }
 
-    # Expires within 30 days
     if days_remaining <= INSURANCE_WARNING_DAYS:
         return {
             "level": "warning",
@@ -51,67 +43,43 @@ def get_insurance_alert_level(
     return None
 
 
-def get_insurance_message(
-    document,
-    car,
-    alert_info,
-):
-    """
-    Generate insurance notification title
-    and message.
-    """
+def get_insurance_message(document, car, alert_info):
+    """Generate insurance notification title and message."""
 
-    registration_number = car.registration_number if car else f"Car #{document.car_id}"
+    registration_number = (
+        car.registration_number
+        if car
+        else f"Car #{document.car_id}"
+    )
 
     days_remaining = alert_info["days_remaining"]
-
     level = alert_info["level"]
 
-    # -----------------------------------------
-    # EXPIRED
-    # -----------------------------------------
-
     if level == "expired":
-
         title = "Insurance has expired"
-
-        message = f"Insurance for vehicle " f"{registration_number} has expired."
-
-    # -----------------------------------------
-    # URGENT
-    # -----------------------------------------
+        message = (
+            f"Insurance for vehicle {registration_number} has expired."
+        )
 
     elif level == "urgent":
-
         if days_remaining == 0:
             remaining_text = "today"
-
         elif days_remaining == 1:
             remaining_text = "in 1 day"
-
         else:
             remaining_text = f"in {days_remaining} days"
 
         title = "Insurance expiring soon"
-
         message = (
-            f"Insurance for vehicle "
-            f"{registration_number} will expire "
-            f"{remaining_text}."
+            f"Insurance for vehicle {registration_number} "
+            f"will expire {remaining_text}."
         )
 
-    # -----------------------------------------
-    # WARNING
-    # -----------------------------------------
-
     else:
-
         title = "Insurance expiring soon"
-
         message = (
-            f"Insurance for vehicle "
-            f"{registration_number} will expire "
-            f"in {days_remaining} days."
+            f"Insurance for vehicle {registration_number} "
+            f"will expire in {days_remaining} days."
         )
 
     return title, message
@@ -123,10 +91,7 @@ def notification_already_exists(
     document_id: int,
     priority: str,
 ):
-    """
-    Prevent duplicate insurance notifications
-    for the same user, document and priority.
-    """
+    """Prevent duplicate insurance notifications."""
 
     existing = (
         db.query(Notification)
@@ -143,18 +108,10 @@ def notification_already_exists(
     return existing is not None
 
 
-def generate_insurance_expiry_notifications(
-    db: Session,
-):
+def generate_insurance_expiry_notifications(db: Session):
     """
-    Generate notifications only for active
-    Insurance documents.
-
-    Recipients are resolved through the centralized
-    notification recipient resolver.
-
-    User notification preferences are checked
-    before creating notifications.
+    Generate notifications for active insurance documents.
+    Recipients must belong to the associated vehicle's company.
     """
 
     documents = (
@@ -170,23 +127,36 @@ def generate_insurance_expiry_notifications(
     checked_documents = 0
 
     for document in documents:
-
         document_type = (
-            document.document_type.strip().lower() if document.document_type else ""
+            document.document_type.strip().lower()
+            if document.document_type
+            else ""
         )
 
-        # Only Insurance documents
         if document_type != "insurance":
             continue
 
         checked_documents += 1
 
-        alert_info = get_insurance_alert_level(document.expiry_date)
+        alert_info = get_insurance_alert_level(
+            document.expiry_date
+        )
 
         if not alert_info:
             continue
 
-        car = db.query(Car).filter(Car.id == document.car_id).first()
+        # Only process vehicles assigned to a company.
+        car = (
+            db.query(Car)
+            .filter(
+                Car.id == document.car_id,
+                Car.company_id.isnot(None),
+            )
+            .first()
+        )
+
+        if not car:
+            continue
 
         title, message = get_insurance_message(
             document,
@@ -196,34 +166,21 @@ def generate_insurance_expiry_notifications(
 
         priority = alert_info["priority"]
 
-        # -------------------------------------------------
-        # RESOLVE NOTIFICATION RECIPIENTS
-        # -------------------------------------------------
-
         recipients = get_notification_recipients(
             db=db,
             notification_type="insurance_expiry",
-            car_id=document.car_id,
+            car_id=car.id,
         )
 
-        # -------------------------------------------------
-        # CREATE NOTIFICATIONS
-        # -------------------------------------------------
-
         for user in recipients:
-
-            # -------------------------------------------------
-            # CHECK USER NOTIFICATION PREFERENCE
-            # -------------------------------------------------
+            # Defensive company-isolation check.
+            if user.company_id != car.company_id:
+                continue
 
             preference = user.notification_preferences
 
             if preference and not preference.insurance_expiry:
                 continue
-
-            # -------------------------------------------------
-            # DUPLICATE CHECK
-            # -------------------------------------------------
 
             if notification_already_exists(
                 db=db,
@@ -244,7 +201,6 @@ def generate_insurance_expiry_notifications(
             )
 
             db.add(notification)
-
             created_count += 1
 
     db.commit()
@@ -253,4 +209,3 @@ def generate_insurance_expiry_notifications(
         "created_count": created_count,
         "checked_documents": checked_documents,
     }
-

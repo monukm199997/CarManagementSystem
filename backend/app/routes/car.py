@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status,Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from app.schamas.car import CarOut, CarCreate, CarUpdate
 from sqlalchemy.orm import Session
 from app.db.session import get_db
@@ -6,83 +6,86 @@ from app.dependencies.auth import get_current_user
 from app.dependencies.role import require_roles
 from app.models.user import Users
 from app.models.car import Car
-from typing import List,Optional
+from typing import List, Optional
 from app.core.roles import ADMIN, MANAGER, STAFF, SUPER_ADMIN
 from app.dependencies.ownership import check_car_access
+from app.models.company import Company
+from app.utils.helpers import ensure_company_access
 
 router = APIRouter(prefix="/cars", tags=["Cars"])
 
-
 @router.post("/", response_model=CarOut)
 def create_car(
-    payload: CarCreate, 
-    db: Session = Depends(get_db), 
-    cureent_user=Depends(require_roles(SUPER_ADMIN,ADMIN, MANAGER))
+    payload: CarCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(SUPER_ADMIN, ADMIN, MANAGER)),
 ):
-    owner = db.query(Users).filter(Users.id == payload.owner_id).first()
-    if not owner:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Owner not found"
-        )
+    ensure_company_access(current_user)
 
-    regis_no = (
-        db.query(Car)
-        .filter(Car.registration_number == payload.registration_number)
-        .first()
+    registration_number = payload.registration_number.strip().upper()
+
+    existing_car = (
+        db.query(Car).filter(Car.registration_number == registration_number).first()
     )
-    if regis_no:
+
+    if existing_car:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Registration number already exist",
+            detail="Registration number already exists",
         )
-    data = payload.dict()
 
-    data["registration_number"] = (data["registration_number"].strip().upper())
-    data["brand"] = (data["brand"].strip().title())
-    data["model"] = (data["model"].strip().title())
-    data["fuel_type"] = (data["fuel_type"].strip().title())
-    if data.get("color"):
-        data["color"] = (data["color"].strip().title())
+    data = payload.dict()
+    data["registration_number"] = registration_number
+    data["brand"] = payload.brand.strip().title()
+    data["model"] = payload.model.strip().title()
+    data["fuel_type"] = payload.fuel_type.strip().title()
+
+    if payload.color:
+        data["color"] = payload.color.strip().title()
+
+    # Company is derived from the authenticated user.
+    data["company_id"] = current_user.company_id
+
+    # Temporary compatibility for the existing NOT NULL owner_id column.
+    data["owner_id"] = current_user.id
 
     car = Car(**data)
 
-    db.add(car)
-    db.commit()
-    db.refresh(car)
-    return car
+    try:
+        db.add(car)
+        db.commit()
+        db.refresh(car)
+        return car
+    except Exception:
+        db.rollback()
+        raise
 
 @router.get("/", response_model=List[CarOut])
 def list_car(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
-
     search: Optional[str] = Query(
         None,
         description="Search by registration number, brand or model",
     ),
-
     brand: Optional[str] = Query(
         None,
         description="Filter by brand",
     ),
-
     fuel_type: Optional[str] = Query(
         None,
         description="Filter by fuel type",
     ),
-
     status_filter: Optional[str] = Query(
         None,
         alias="status",
         description="Filter by active/inactive status",
     ),
-
     page: int = Query(
         1,
         ge=1,
         description="Page number",
     ),
-
     limit: int = Query(
         10,
         ge=1,
@@ -92,10 +95,12 @@ def list_car(
 ):
     car_query = db.query(Car)
 
+    ensure_company_access(current_user)
+
+    car_query = db.query(Car).filter(Car.company_id == current_user.company_id)
+
     if current_user.role == "customer":
-        car_query = car_query.filter(
-            Car.owner_id == current_user.id
-        )
+        car_query = car_query.filter(Car.owner_id == current_user.id)
 
     if search:
         search_term = f"%{search.strip()}%"
@@ -109,14 +114,10 @@ def list_car(
         )
 
     if brand:
-        car_query = car_query.filter(
-            Car.brand == brand
-        )
+        car_query = car_query.filter(Car.brand == brand)
 
     if fuel_type:
-        car_query = car_query.filter(
-            Car.fuel_type == fuel_type
-        )
+        car_query = car_query.filter(Car.fuel_type == fuel_type)
 
     if status_filter:
         status_value = status_filter.strip().lower()
@@ -130,19 +131,12 @@ def list_car(
                 detail="Status must be active or inactive",
             )
 
-        car_query = car_query.filter(
-            Car.status == status_value
-        )
+        car_query = car_query.filter(Car.status == status_value)
 
     offset = (page - 1) * limit
 
-    return (
-        car_query
-        .order_by(Car.id.desc())
-        .offset(offset)
-        .limit(limit)
-        .all()
-    )
+    return car_query.order_by(Car.id.desc()).offset(offset).limit(limit).all()
+
 
 @router.get("/owners")
 def get_car_owners(
@@ -155,10 +149,12 @@ def get_car_owners(
         )
     ),
 ):
+    ensure_company_access(current_user)
     owners = (
         db.query(Users)
         .filter(
-            Users.is_active.is_(True)
+            Users.is_active.is_(True),
+            Users.company_id == current_user.company_id,
         )
         .order_by(Users.name.asc())
         .all()
@@ -172,69 +168,73 @@ def get_car_owners(
         for user in owners
     ]
 
+
 @router.get("/{car_id}", response_model=CarOut)
 def get_car(
-    car_id:int, 
-    db:Session = Depends(get_db), 
-    current_user=Depends(get_current_user)
-    ):
+    car_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+):
 
-    car = db.query(Car).filter(Car.id == car_id).first()
+    ensure_company_access(current_user)
+
+    car = (
+        db.query(Car)
+        .filter(
+            Car.id == car_id,
+            Car.company_id == current_user.company_id,
+        )
+        .first()
+    )
+
     if not car:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Car not found")
-    
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Car not found",
+        )
+
     check_car_access(car, current_user)
     return car
 
+
 @router.put("/{car_id}", response_model=CarOut)
 def upadate_car(
-    car_id:int, 
-    payload: CarUpdate, 
-    db:Session = Depends(get_db), 
-    current_user = Depends(require_roles(SUPER_ADMIN, ADMIN, MANAGER))
-    ):
-    car = db.query(Car).filter(Car.id == car_id).first()
-    if not car:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Car not found")
+    car_id: int,
+    payload: CarUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(SUPER_ADMIN, ADMIN, MANAGER)),
+):
+    ensure_company_access(current_user)
 
-    update_data = payload.dict(
-    exclude_unset=True
+    car = (
+        db.query(Car)
+        .filter(
+            Car.id == car_id,
+            Car.company_id == current_user.company_id,
+        )
+        .first()
     )
 
-    if "brand" in update_data:
-        update_data["brand"] = (
-            update_data["brand"]
-            .strip()
-            .title()
+    if not car:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Car not found",
         )
+
+    update_data = payload.dict(exclude_unset=True)
+
+    if "brand" in update_data:
+        update_data["brand"] = update_data["brand"].strip().title()
 
     if "model" in update_data:
-        update_data["model"] = (
-            update_data["model"]
-            .strip()
-            .title()
-        )
+        update_data["model"] = update_data["model"].strip().title()
 
     if "fuel_type" in update_data:
-        update_data["fuel_type"] = (
-            update_data["fuel_type"]
-            .strip()
-            .title()
-        )
+        update_data["fuel_type"] = update_data["fuel_type"].strip().title()
 
     if "color" in update_data and update_data["color"]:
-        update_data["color"] = (
-            update_data["color"]
-            .strip()
-            .title()
-        )
+        update_data["color"] = update_data["color"].strip().title()
 
     if "status" in update_data:
-        update_data["status"] = (
-            update_data["status"]
-            .strip()
-            .lower()
-        )
+        update_data["status"] = update_data["status"].strip().lower()
 
         if update_data["status"] not in {
             "active",
@@ -251,15 +251,29 @@ def upadate_car(
     db.refresh(car)
     return car
 
+
 @router.delete("/{car_id}")
 def delete_car(
-    car_id:int, 
-    db:Session = Depends(get_db), 
-    current_user = Depends(require_roles(SUPER_ADMIN, ADMIN, MANAGER))
-    ): 
-    car = db.query(Car).filter(Car.id == car_id).first()
+    car_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(SUPER_ADMIN, ADMIN, MANAGER)),
+):
+    ensure_company_access(current_user)
+
+    car = (
+        db.query(Car)
+        .filter(
+            Car.id == car_id,
+            Car.company_id == current_user.company_id,
+        )
+        .first()
+    )
+
     if not car:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Car not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Car not found",
+        )
     car.status = "inactive"
     db.commit()
     return {"message": "Car deactivated"}
@@ -277,9 +291,14 @@ def activate_car(
         )
     ),
 ):
+    ensure_company_access(current_user)
+
     car = (
         db.query(Car)
-        .filter(Car.id == car_id)
+        .filter(
+            Car.id == car_id,
+            Car.company_id == current_user.company_id,
+        )
         .first()
     )
 

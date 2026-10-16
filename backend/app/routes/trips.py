@@ -11,14 +11,11 @@ from app.models.driver import Driver
 from app.models.car import Car
 from app.models.trip import Trip
 from app.models.driver_vehicle_assignment import DriverVehicleAssignment
+from app.models.company import Company
+from app.utils.helpers import ensure_company_access, get_company_trip_or_404
 
 from app.schamas.trip import TripCreate, TripUpdate, TripOut
-from app.core.roles import (
-    SUPER_ADMIN,
-    ADMIN,
-    MANAGER,
-    STAFF
-)
+from app.core.roles import SUPER_ADMIN, ADMIN, MANAGER, STAFF
 from app.utils.helpers import (
     get_driver_or_404,
     get_car_or_404,
@@ -40,25 +37,51 @@ router = APIRouter(prefix="/trips", tags=["Trips"])
 def create_trip(
     payload: TripCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(
-        require_roles(
-            SUPER_ADMIN,
-            ADMIN,
-            MANAGER,
-            STAFF
-        )
-    ),
+    current_user=Depends(require_roles(SUPER_ADMIN, ADMIN, MANAGER, STAFF)),
 ):
 
-    driver = get_driver_or_404(db, payload.driver_id)
+    ensure_company_access(current_user)
+
+    driver = (
+        db.query(Driver)
+        .filter(
+            Driver.id == payload.driver_id,
+            Driver.company_id == current_user.company_id,
+        )
+        .first()
+    )
+
+    if not driver:
+        raise HTTPException(
+            status_code=404,
+            detail="Driver not found",
+        )
+
     validate_driver_for_trip(driver)
-    car = get_car_or_404(db, payload.car_id)
+
+    car = (
+        db.query(Car)
+        .filter(
+            Car.id == payload.car_id,
+            Car.company_id == current_user.company_id,
+        )
+        .first()
+    )
+
+    if not car:
+        raise HTTPException(
+            status_code=404,
+            detail="Car not found",
+        )
 
     validate_trip_dates(payload.start_datetime, payload.end_datetime)
-
     validate_odometer(payload.start_odometer, payload.end_odometer)
 
-    get_active_driver_assignment(db, payload.driver_id, payload.car_id)
+    get_active_driver_assignment(
+        db,
+        payload.driver_id,
+        payload.car_id,
+    )
 
     trip = Trip(
         driver_id=payload.driver_id,
@@ -95,7 +118,18 @@ def get_trips(
     current_user=Depends(get_current_user),
 ):
 
-    query = db.query(Trip)
+    ensure_company_access(current_user)
+
+    query = (
+        db.query(Trip)
+        .join(Driver, Driver.id == Trip.driver_id)
+        .join(Car, Car.id == Trip.car_id)
+        .filter(
+            Driver.company_id == current_user.company_id,
+            Car.company_id == current_user.company_id,
+        )
+    )
+
     if driver_id is not None:
         query = query.filter(Trip.driver_id == driver_id)
     if car_id is not None:
@@ -114,12 +148,13 @@ def get_trip(
     trip_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
 
-    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+    ensure_company_access(current_user)
 
-    if not trip:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found"
-        )
+    trip = get_company_trip_or_404(
+        db,
+        trip_id,
+        current_user.company_id,
+    )
 
     return trip
 
@@ -132,21 +167,16 @@ def update_trip(
     trip_id: int,
     payload: TripUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(
-        require_roles(
-            SUPER_ADMIN,
-            ADMIN,
-            MANAGER,
-            STAFF
-        )),
+    current_user=Depends(require_roles(SUPER_ADMIN, ADMIN, MANAGER, STAFF)),
 ):
 
-    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+    ensure_company_access(current_user)
 
-    if not trip:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found"
-        )
+    trip = get_company_trip_or_404(
+        db,
+        trip_id,
+        current_user.company_id,
+    )
 
     if trip.status == "cancelled":
 
@@ -202,18 +232,21 @@ def update_trip(
 def delete_trip(
     trip_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles(
-        SUPER_ADMIN,
-        ADMIN,
-    )),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+        )
+    ),
 ):
 
-    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+    ensure_company_access(current_user)
 
-    if not trip:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found"
-        )
+    trip = get_company_trip_or_404(
+        db,
+        trip_id,
+        current_user.company_id,
+    )
 
     if trip.status == "completed":
         raise HTTPException(
@@ -237,21 +270,16 @@ def update_trip_status(
     trip_id: int,
     trip_status: Literal["planned", "ongoing", "completed", "cancelled"],
     db: Session = Depends(get_db),
-    current_user=Depends(
-        require_roles(
-        SUPER_ADMIN,
-        ADMIN,
-        MANAGER,
-        STAFF
-    )),
+    current_user=Depends(require_roles(SUPER_ADMIN, ADMIN, MANAGER, STAFF)),
 ):
 
-    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+    ensure_company_access(current_user)
 
-    if not trip:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found"
-        )
+    trip = get_company_trip_or_404(
+        db,
+        trip_id,
+        current_user.company_id,
+    )
 
     if trip.status == "completed":
 
@@ -261,12 +289,10 @@ def update_trip_status(
         )
 
     if trip.status == "cancelled":
-         raise HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=("Cancelled trip status cannot be changed"),
         )
-
-
 
     if trip_status == "completed":
 

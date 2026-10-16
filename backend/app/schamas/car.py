@@ -1,5 +1,7 @@
+
 from pydantic import BaseModel
 from datetime import datetime
+
 
 class CarBase(BaseModel):
     registration_number: str
@@ -11,7 +13,8 @@ class CarBase(BaseModel):
 
 
 class CarCreate(CarBase):
-    owner_id: int
+    pass
+
 
 class CarUpdate(BaseModel):
     brand: str | None = None
@@ -21,12 +24,13 @@ class CarUpdate(BaseModel):
     color: str | None = None
     status: str | None = None
 
+
 class CarOut(CarBase):
     id: int
     status: str
     owner_id: int
+    company_id: int | None = None
     created_at: datetime
-
 
     class Config:
         from_attributes = True

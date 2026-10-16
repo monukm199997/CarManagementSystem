@@ -2,7 +2,7 @@ from datetime import date
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-
+from sqlalchemy import and_, func
 from app.models.car import Car
 from app.models.service import Services
 from app.models.fuel import Fuel
@@ -14,6 +14,7 @@ from app.core.roles import CUSTOMER
 from app.services.reports.excel_export import (
     create_excel_response,
 )
+from app.services.reports.report_access import company_vehicle_filter
 
 
 def export_vehicle_excel(
@@ -24,10 +25,7 @@ def export_vehicle_excel(
 ):
     query = db.query(Car)
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)
@@ -80,10 +78,7 @@ def export_service_excel(
         Car.id == Services.car_id,
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Services.car_id == car_id)
@@ -163,10 +158,7 @@ def export_fuel_excel(
         Car.id == Fuel.car_id,
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Fuel.car_id == car_id)
@@ -261,10 +253,7 @@ def export_expense_excel(
         )
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Expense.car_id == car_id)
@@ -350,10 +339,25 @@ def export_expense_excel(
 
 def export_driver_excel(
     db: Session,
+    current_user,
     driver_id: int | None = None,
     status: str | None = None,
 ):
-    query = db.query(Driver)
+    company_id = current_user.company_id
+
+    if (
+        not company_id
+        or current_user.company is None
+        or current_user.company.status != "active"
+    ):
+        from fastapi import HTTPException
+
+        raise HTTPException(
+            status_code=403,
+            detail="Your company is inactive or unavailable.",
+        )
+
+    query = db.query(Driver).filter(Driver.company_id == company_id)
 
     if driver_id is not None:
         query = query.filter(Driver.id == driver_id)
@@ -424,14 +428,14 @@ def export_trip_excel(
         )
         .join(
             Driver,
-            Driver.id == Trip.driver_id,
+            and_(
+                Driver.id == Trip.driver_id,
+                Driver.company_id == Car.company_id,
+            ),
         )
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Trip.car_id == car_id)
@@ -531,10 +535,7 @@ def export_document_excel(
         Car.id == VehicleDocument.car_id,
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(VehicleDocument.car_id == car_id)
@@ -606,11 +607,7 @@ def export_vehicle_cost_excel(
     to_date: date | None = None,
 ):
     query = db.query(Car)
-
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)

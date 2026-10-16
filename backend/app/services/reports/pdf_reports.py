@@ -1,6 +1,7 @@
 from datetime import date
 
-from sqlalchemy import func
+from fastapi import HTTPException
+from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
 from app.models.car import Car
@@ -11,10 +12,9 @@ from app.models.driver import Driver
 from app.models.trip import Trip
 from app.models.vehicle_document import VehicleDocument
 
-from app.services.reports.pdf_export import (
-    create_pdf_response,
-)
 from app.core.roles import CUSTOMER
+from app.services.reports.report_access import company_vehicle_filter
+from app.services.reports.pdf_export import create_pdf_response
 
 
 def export_vehicle_pdf(
@@ -24,11 +24,7 @@ def export_vehicle_pdf(
     status: str | None = None,
 ):
     query = db.query(Car)
-
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)
@@ -79,6 +75,7 @@ def export_vehicle_pdf(
         ],
     )
 
+
 def export_service_pdf(
     db: Session,
     current_user,
@@ -96,10 +93,7 @@ def export_service_pdf(
         Car.id == Services.car_id,
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Services.car_id == car_id)
@@ -156,10 +150,7 @@ def export_service_pdf(
             ]
         )
 
-    total_service_cost = sum(
-        float(row[9] or 0)
-        for row in rows
-    )
+    total_service_cost = sum(float(row[9] or 0) for row in rows)
 
     return create_pdf_response(
         headers=headers,
@@ -181,6 +172,7 @@ def export_service_pdf(
         ],
     )
 
+
 def export_fuel_pdf(
     db: Session,
     current_user,
@@ -197,10 +189,7 @@ def export_fuel_pdf(
         Car.id == Fuel.car_id,
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Fuel.car_id == car_id)
@@ -254,10 +243,7 @@ def export_fuel_pdf(
             ]
         )
 
-    total_fuel_cost = sum(
-        float(row[10] or 0)
-        for row in rows
-    )
+    total_fuel_cost = sum(float(row[10] or 0) for row in rows)
 
     return create_pdf_response(
         headers=headers,
@@ -278,6 +264,7 @@ def export_fuel_pdf(
             ),
         ],
     )
+
 
 def export_expense_pdf(
     db: Session,
@@ -311,10 +298,7 @@ def export_expense_pdf(
         )
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Expense.car_id == car_id)
@@ -389,10 +373,7 @@ def export_expense_pdf(
             ]
         )
 
-    total_expense_amount = sum(
-        float(row[11] or 0)
-        for row in rows
-    )
+    total_expense_amount = sum(float(row[11] or 0) for row in rows)
 
     return create_pdf_response(
         headers=headers,
@@ -414,12 +395,26 @@ def export_expense_pdf(
         ],
     )
 
+
 def export_driver_pdf(
     db: Session,
+    current_user,
     driver_id: int | None = None,
     status: str | None = None,
 ):
-    query = db.query(Driver)
+    company_id = current_user.company_id
+
+    if (
+        not company_id
+        or current_user.company is None
+        or current_user.company.status != "active"
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Your company is inactive or unavailable.",
+        )
+
+    query = db.query(Driver).filter(Driver.company_id == company_id)
 
     if driver_id is not None:
         query = query.filter(Driver.id == driver_id)
@@ -472,13 +467,7 @@ def export_driver_pdf(
             ),
             (
                 "Active Drivers",
-                str(
-                    sum(
-                        1
-                        for row in rows
-                        if str(row[8]).lower() == "active"
-                    )
-                ),
+                str(sum(1 for row in rows if str(row[8]).lower() == "active")),
             ),
             (
                 "Report Type",
@@ -486,6 +475,7 @@ def export_driver_pdf(
             ),
         ],
     )
+
 
 def export_trip_pdf(
     db: Session,
@@ -508,14 +498,14 @@ def export_trip_pdf(
         )
         .join(
             Driver,
-            Driver.id == Trip.driver_id,
+            and_(
+                Driver.id == Trip.driver_id,
+                Driver.company_id == Car.company_id,
+            ),
         )
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Trip.car_id == car_id)
@@ -597,14 +587,7 @@ def export_trip_pdf(
             ),
             (
                 "Completed Trips",
-                str(
-                    sum(
-                        1
-                        for row in rows
-                        if str(row[15]).lower()
-                        == "completed"
-                    )
-                ),
+                str(sum(1 for row in rows if str(row[15]).lower() == "completed")),
             ),
             (
                 "Report Type",
@@ -612,6 +595,7 @@ def export_trip_pdf(
             ),
         ],
     )
+
 
 def export_document_pdf(
     db: Session,
@@ -630,10 +614,7 @@ def export_document_pdf(
         Car.id == VehicleDocument.car_id,
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(VehicleDocument.car_id == car_id)
@@ -697,14 +678,7 @@ def export_document_pdf(
             ),
             (
                 "Active Documents",
-                str(
-                    sum(
-                        1
-                        for row in rows
-                        if str(row[9]).lower()
-                        == "active"
-                    )
-                ),
+                str(sum(1 for row in rows if str(row[9]).lower() == "active")),
             ),
             (
                 "Report Type",
@@ -712,6 +686,7 @@ def export_document_pdf(
             ),
         ],
     )
+
 
 def export_vehicle_cost_pdf(
     db: Session,
@@ -721,12 +696,8 @@ def export_vehicle_cost_pdf(
     to_date: date | None = None,
 ):
     query = db.query(Car)
-
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
-
+    query = company_vehicle_filter(query, current_user)
+    
     if car_id is not None:
         query = query.filter(Car.id == car_id)
 
@@ -811,10 +782,7 @@ def export_vehicle_cost_pdf(
             ]
         )
 
-    total_vehicle_cost = sum(
-        float(row[7] or 0)
-        for row in rows
-    )
+    total_vehicle_cost = sum(float(row[7] or 0) for row in rows)
 
     return create_pdf_response(
         headers=headers,
@@ -835,4 +803,3 @@ def export_vehicle_cost_pdf(
             ),
         ],
     )
-

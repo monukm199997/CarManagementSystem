@@ -13,16 +13,11 @@ EXPIRY_WARNING_DAYS = 30
 
 
 def get_document_alert_level(expiry_date: date):
-    """
-    Determine notification priority based on
-    vehicle document expiry date.
-    """
+    """Determine notification priority based on document expiry."""
 
     today = date.today()
-
     days_remaining = (expiry_date - today).days
 
-    # Already expired
     if days_remaining < 0:
         return {
             "level": "expired",
@@ -30,7 +25,6 @@ def get_document_alert_level(expiry_date: date):
             "days_remaining": days_remaining,
         }
 
-    # Expiring within 7 days
     if days_remaining <= 7:
         return {
             "level": "urgent",
@@ -38,7 +32,6 @@ def get_document_alert_level(expiry_date: date):
             "days_remaining": days_remaining,
         }
 
-    # Expiring within 30 days
     if days_remaining <= EXPIRY_WARNING_DAYS:
         return {
             "level": "warning",
@@ -54,62 +47,36 @@ def get_document_expiry_message(
     car,
     alert_info,
 ):
-    """
-    Generate notification title and message.
-    """
+    """Generate notification title and message."""
 
     document_type = document.document_type or "Vehicle document"
 
     registration_number = car.registration_number if car else f"Car #{document.car_id}"
 
     days_remaining = alert_info["days_remaining"]
-
     level = alert_info["level"]
 
-    # -----------------------------
-    # EXPIRED
-    # -----------------------------
-
     if level == "expired":
-
         title = f"{document_type} has expired"
-
         message = f"{document_type} for vehicle " f"{registration_number} has expired."
 
-    # -----------------------------
-    # URGENT
-    # -----------------------------
-
     elif level == "urgent":
-
         if days_remaining == 0:
-
             remaining_text = "today"
-
         elif days_remaining == 1:
-
             remaining_text = "in 1 day"
-
         else:
-
             remaining_text = f"in {days_remaining} days"
 
         title = f"{document_type} expiring soon"
-
         message = (
             f"{document_type} for vehicle "
             f"{registration_number} will expire "
             f"{remaining_text}."
         )
 
-    # -----------------------------
-    # WARNING
-    # -----------------------------
-
     else:
-
         title = f"{document_type} expiring soon"
-
         message = (
             f"{document_type} for vehicle "
             f"{registration_number} will expire "
@@ -125,10 +92,7 @@ def notification_already_exists(
     document_id: int,
     priority: str,
 ):
-    """
-    Prevent duplicate notifications for
-    the same document, user and priority.
-    """
+    """Prevent duplicate notifications for a document and user."""
 
     existing = (
         db.query(Notification)
@@ -149,13 +113,10 @@ def generate_document_expiry_notifications(
     db: Session,
 ):
     """
-    Check active vehicle documents and create
-    expiry notifications for eligible users.
+    Generate expiry notifications for active documents.
 
-    Recipients are resolved through the centralized
-    notification recipient resolver.
-
-    Preferences are checked before creating notifications.
+    Only recipients belonging to the associated car's company
+    are eligible to receive company-specific notifications.
     """
 
     documents = (
@@ -170,7 +131,6 @@ def generate_document_expiry_notifications(
     created_count = 0
 
     for document in documents:
-
         document_type = (
             document.document_type.strip().lower() if document.document_type else ""
         )
@@ -181,21 +141,28 @@ def generate_document_expiry_notifications(
 
         alert_info = get_document_alert_level(document.expiry_date)
 
-        # More than 30 days remaining
         if not alert_info:
             continue
 
-        # VehicleDocument has only car_id,
-        # so explicitly load the car.
-        car = db.query(Car).filter(Car.id == document.car_id).first()
+        # Resolve the vehicle and its company.
+        car = (
+            db.query(Car)
+            .filter(
+                Car.id == document.car_id,
+                Car.company_id.isnot(None),
+            )
+            .first()
+        )
 
-        # Resolve users according to:
-        # - role
-        # - vehicle ownership
+        # Skip documents whose vehicle is missing or not assigned
+        # to a company. Do not generate cross-tenant notifications.
+        if not car:
+            continue
+
         recipients = get_notification_recipients(
             db=db,
             notification_type="document_expiry",
-            car_id=document.car_id,
+            car_id=car.id,
         )
 
         title, message = get_document_expiry_message(
@@ -207,19 +174,14 @@ def generate_document_expiry_notifications(
         priority = alert_info["priority"]
 
         for user in recipients:
-
-            # -------------------------------------------------
-            # CHECK USER NOTIFICATION PREFERENCE
-            # -------------------------------------------------
+            # Defensive tenant isolation check.
+            if user.company_id != car.company_id:
+                continue
 
             preference = user.notification_preferences
 
             if preference and not preference.document_expiry:
                 continue
-
-            # -------------------------------------------------
-            # DUPLICATE CHECK
-            # -------------------------------------------------
 
             if notification_already_exists(
                 db=db,
@@ -240,7 +202,6 @@ def generate_document_expiry_notifications(
             )
 
             db.add(notification)
-
             created_count += 1
 
     db.commit()

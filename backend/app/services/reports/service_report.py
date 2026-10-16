@@ -2,9 +2,10 @@ from sqlalchemy.orm import Session
 
 from app.models.service import Services
 from app.models.car import Car
-from app.core.roles import CUSTOMER
+
 from app.services.reports.report_access import (
     validate_customer_car_access,
+    company_vehicle_filter,
 )
 
 
@@ -30,28 +31,31 @@ def get_service_report(
         Car.model,
     ).join(Car, Car.id == Services.car_id)
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(Car.owner_id == current_user.id)
+    # Restrict report to the authenticated user's company.
+    # Customers are additionally restricted to their own vehicles.
+    query = company_vehicle_filter(
+        query,
+        current_user,
+    )
 
-    # Vehicle filter
     if car_id is not None:
         query = query.filter(Services.car_id == car_id)
 
-    # Service status filter
     if status:
         query = query.filter(Services.status == status)
 
-    # Service type filter
     if service_type:
         query = query.filter(Services.service_type == service_type)
 
-    # Total records before pagination
     total_records = query.count()
 
     offset = (page - 1) * page_size
 
     rows = (
-        query.order_by(Services.service_date.desc(), Services.id.desc())
+        query.order_by(
+            Services.service_date.desc(),
+            Services.id.desc(),
+        )
         .offset(offset)
         .limit(page_size)
         .all()
@@ -60,7 +64,6 @@ def get_service_report(
     data = []
 
     for service, registration_number, brand, model in rows:
-
         data.append(
             {
                 "id": service.id,

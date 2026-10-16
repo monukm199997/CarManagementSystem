@@ -5,9 +5,9 @@ from app.models.car import Car
 from app.models.driver import Driver
 from app.models.trip import Trip
 
-from app.core.roles import CUSTOMER
 from app.services.reports.report_access import (
     validate_customer_car_access,
+    company_vehicle_filter,
 )
 
 
@@ -22,13 +22,12 @@ def get_expense_report(
     page: int = 1,
     page_size: int = 50,
 ):
-
     validate_customer_car_access(
         db=db,
         current_user=current_user,
         car_id=car_id,
     )
-      
+
     query = (
         db.query(
             Expense,
@@ -53,42 +52,40 @@ def get_expense_report(
         )
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(Car.owner_id == current_user.id)
+    # Restrict expenses to vehicles belonging to this company.
+    # Customers are additionally restricted to their own vehicles.
+    query = company_vehicle_filter(
+        query,
+        current_user,
+    )
 
-    # -----------------------------
-    # VEHICLE FILTER
-    # -----------------------------
+    # Defensive protection against inconsistent cross-company links.
+    query = query.filter(
+        (Expense.driver_id.is_(None)) | (Driver.company_id == Car.company_id),
+        (Expense.trip_id.is_(None))
+        | ((Trip.car_id == Expense.car_id) & (Trip.driver_id == Expense.driver_id)),
+    )
+
+    # Vehicle filter
     if car_id is not None:
         query = query.filter(Expense.car_id == car_id)
 
-    # -----------------------------
-    # DRIVER FILTER
-    # -----------------------------
+    # Driver filter
     if driver_id is not None:
         query = query.filter(Expense.driver_id == driver_id)
 
-    # -----------------------------
-    # TRIP FILTER
-    # -----------------------------
+    # Trip filter
     if trip_id is not None:
         query = query.filter(Expense.trip_id == trip_id)
 
-    # -----------------------------
-    # CATEGORY FILTER
-    # -----------------------------
+    # Category filter
     if category:
         query = query.filter(Expense.category == category)
 
-    # -----------------------------
-    # STATUS FILTER
-    # -----------------------------
+    # Status filter
     if status:
         query = query.filter(Expense.status == status)
 
-    # -----------------------------
-    # TOTAL RECORDS
-    # -----------------------------
     total_records = query.count()
 
     offset = (page - 1) * page_size
@@ -114,7 +111,6 @@ def get_expense_report(
         driver_phone,
         trip_status,
     ) in rows:
-
         data.append(
             {
                 "id": expense.id,

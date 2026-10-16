@@ -8,7 +8,8 @@ from app.models.expense import Expense
 from app.models.driver import Driver
 from app.models.trip import Trip
 from app.models.vehicle_document import VehicleDocument
-
+from app.services.reports.report_access import company_vehicle_filter
+from sqlalchemy import and_, func
 from app.services.reports.csv_export import create_csv_response
 from app.core.roles import CUSTOMER
 
@@ -20,9 +21,7 @@ def export_vehicle_csv(
     status: str | None = None,
 ):
     query = db.query(Car)
-
-    if current_user.role == CUSTOMER:
-        query = query.filter(Car.owner_id == current_user.id)
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)
@@ -76,8 +75,7 @@ def export_service_csv(
         Car.id == Services.car_id,
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(Car.owner_id == current_user.id)
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Services.car_id == car_id)
@@ -156,8 +154,7 @@ def export_fuel_csv(
         Car.id == Fuel.car_id,
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(Car.owner_id == current_user.id)
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Fuel.car_id == car_id)
@@ -251,8 +248,7 @@ def export_expense_csv(
         )
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(Car.owner_id == current_user.id)
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Expense.car_id == car_id)
@@ -337,10 +333,28 @@ def export_expense_csv(
 
 def export_driver_csv(
     db: Session,
+    current_user,
     driver_id: int | None = None,
     status: str | None = None,
 ):
-    query = db.query(Driver)
+    company_id = current_user.company_id
+
+    if (
+        not company_id
+        or current_user.company is None
+        or current_user.company.status != "active"
+    ):
+        from fastapi import HTTPException
+
+        raise HTTPException(
+            status_code=403,
+            detail="Your company is inactive or unavailable.",
+        )
+
+    query = db.query(Driver).filter(Driver.company_id == company_id)
+
+    # if current_user.role == CUSTOMER:
+    #     query = query.filter(Driver.owner_id == current_user.id)
 
     if driver_id is not None:
         query = query.filter(Driver.id == driver_id)
@@ -410,12 +424,14 @@ def export_trip_csv(
         )
         .join(
             Driver,
-            Driver.id == Trip.driver_id,
+            and_(
+                Driver.id == Trip.driver_id,
+                Driver.company_id == Car.company_id,
+            ),
         )
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(Car.owner_id == current_user.id)
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Trip.car_id == car_id)
@@ -514,10 +530,7 @@ def export_document_csv(
         Car.id == VehicleDocument.car_id,
     )
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(VehicleDocument.car_id == car_id)
@@ -588,11 +601,7 @@ def export_vehicle_cost_csv(
     to_date: date | None = None,
 ):
     query = db.query(Car)
-
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    query = company_vehicle_filter(query, current_user)
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)

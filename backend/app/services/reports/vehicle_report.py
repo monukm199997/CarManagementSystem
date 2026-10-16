@@ -8,9 +8,9 @@ from app.models.fuel import Fuel
 from app.models.expense import Expense
 from app.models.trip import Trip
 
-from app.core.roles import CUSTOMER
 from app.services.reports.report_access import (
     validate_customer_car_access,
+    company_vehicle_filter,
 )
 
 
@@ -22,13 +22,13 @@ def get_vehicle_report(
     page: int = 1,
     page_size: int = 50,
 ):
-
+    # Validate company and any specifically requested vehicle.
     validate_customer_car_access(
         db=db,
         current_user=current_user,
         car_id=car_id,
     )
-     
+
     query = db.query(
         Car,
         Users.name.label("owner_name"),
@@ -36,10 +36,11 @@ def get_vehicle_report(
         Users.phone.label("owner_phone"),
     ).join(Users, Users.id == Car.owner_id)
 
-    if current_user.role == CUSTOMER:
-        query = query.filter(
-            Car.owner_id == current_user.id
-        )
+    # Apply tenant isolation to the complete vehicle report.
+    query = company_vehicle_filter(
+        query,
+        current_user,
+    )
 
     if car_id is not None:
         query = query.filter(Car.id == car_id)
@@ -56,7 +57,6 @@ def get_vehicle_report(
     data = []
 
     for car, owner_name, owner_email, owner_phone in rows:
-
         total_services = (
             db.query(func.count(Services.id)).filter(Services.car_id == car.id).scalar()
             or 0

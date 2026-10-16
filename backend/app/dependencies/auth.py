@@ -2,17 +2,15 @@ from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
-from app.core.config import SECRET_KEY,ALGORITHM
+from app.core.config import SECRET_KEY, ALGORITHM
 from app.models.user import Users
 from app.db.session import get_db
-
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def get_current_user(
-    token:str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -30,11 +28,28 @@ def get_current_user(
     user = db.query(Users).filter(Users.id == int(user_id)).first()
     if not user:
         raise credentials_exception
-    
+
     if not user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User account is inactive"
+            status_code=status.HTTP_403_FORBIDDEN, detail="User account is inactive"
         )
 
     return user
+
+
+def get_current_company_user(
+    current_user: Users = Depends(get_current_user),
+):
+    if not current_user.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account is not assigned to a company",
+        )
+
+    if not current_user.company or current_user.company.status != "active":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your company is inactive or unavailable",
+        )
+
+    return current_user

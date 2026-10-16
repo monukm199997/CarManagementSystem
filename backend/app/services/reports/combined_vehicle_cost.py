@@ -10,6 +10,7 @@ from app.models.expense import Expense
 from app.core.roles import CUSTOMER
 from app.services.reports.report_access import (
     validate_customer_car_access,
+    get_report_company_id,
 )
 
 
@@ -22,13 +23,18 @@ def get_combined_vehicle_cost_report(
     page: int = 1,
     page_size: int = 50,
 ):
+    company_id = get_report_company_id(current_user)
+
     validate_customer_car_access(
         db=db,
         current_user=current_user,
         car_id=car_id,
     )
 
-    query = db.query(Car)
+    # -----------------------------
+    # VEHICLE QUERY: COMPANY SCOPE
+    # -----------------------------
+    query = db.query(Car).filter(Car.company_id == company_id)
 
     if current_user.role == CUSTOMER:
         query = query.filter(Car.owner_id == current_user.id)
@@ -46,10 +52,9 @@ def get_combined_vehicle_cost_report(
 
     for car in cars:
 
-        # --------------------------------------------------
-        # Service Cost
-        # --------------------------------------------------
-
+        # -----------------------------
+        # SERVICE COST
+        # -----------------------------
         service_query = db.query(func.coalesce(func.sum(Services.cost), 0)).filter(
             Services.car_id == car.id
         )
@@ -62,10 +67,9 @@ def get_combined_vehicle_cost_report(
 
         service_cost = service_query.scalar() or 0
 
-        # --------------------------------------------------
-        # Fuel Cost
-        # --------------------------------------------------
-
+        # -----------------------------
+        # FUEL COST
+        # -----------------------------
         fuel_query = db.query(func.coalesce(func.sum(Fuel.total_cost), 0)).filter(
             Fuel.car_id == car.id
         )
@@ -78,10 +82,9 @@ def get_combined_vehicle_cost_report(
 
         fuel_cost = fuel_query.scalar() or 0
 
-        # --------------------------------------------------
-        # Expense Cost
-        # --------------------------------------------------
-
+        # -----------------------------
+        # EXPENSE COST
+        # -----------------------------
         expense_query = db.query(func.coalesce(func.sum(Expense.amount), 0)).filter(
             Expense.car_id == car.id
         )
@@ -94,10 +97,9 @@ def get_combined_vehicle_cost_report(
 
         expense_cost = expense_query.scalar() or 0
 
-        # --------------------------------------------------
-        # Total
-        # --------------------------------------------------
-
+        # -----------------------------
+        # TOTAL COST
+        # -----------------------------
         service_cost = float(service_cost)
         fuel_cost = float(fuel_cost)
         expense_cost = float(expense_cost)

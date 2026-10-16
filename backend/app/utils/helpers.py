@@ -6,6 +6,9 @@ from app.models.car import Car
 from app.models.driver_vehicle_assignment import DriverVehicleAssignment
 from app.models.expense import Expense
 from app.models.trip import Trip
+from app.models.service import Services
+from app.models.fuel import Fuel
+from app.core.roles import ADMIN, SUPER_ADMIN, MANAGER, STAFF
 from sqlalchemy import func, or_
 
 
@@ -81,6 +84,7 @@ def get_car_or_404(db: Session, car_id: int):
 
     return car
 
+
 def get_expense_or_404(db: Session, expense_id: int):
     expense = db.query(Expense).filter(Expense.id == expense_id).first()
 
@@ -88,6 +92,7 @@ def get_expense_or_404(db: Session, expense_id: int):
         raise HTTPException(status_code=404, detail="Expense not found")
 
     return expense
+
 
 # =========================================================
 # HELPER - DRIVER VALIDATION
@@ -200,31 +205,20 @@ def validate_expense_links(
 
     if driver_id is not None:
 
-        driver = (
-            db.query(Driver)
-            .filter(Driver.id == driver_id)
-            .first()
-        )
+        driver = db.query(Driver).filter(Driver.id == driver_id).first()
 
         if not driver:
-            raise HTTPException(
-                status_code=404,
-                detail="Driver not found."
-            )
+            raise HTTPException(status_code=404, detail="Driver not found.")
 
         if driver.status != "active":
             raise HTTPException(
-                status_code=400,
-                detail="Selected driver is not active."
+                status_code=400, detail="Selected driver is not active."
             )
 
-        if (
-            driver.license_expiry_date
-            and driver.license_expiry_date < expense_date
-        ):
+        if driver.license_expiry_date and driver.license_expiry_date < expense_date:
             raise HTTPException(
                 status_code=400,
-                detail="Selected driver's license was expired on the expense date."
+                detail="Selected driver's license was expired on the expense date.",
             )
 
         assignment = (
@@ -236,8 +230,8 @@ def validate_expense_links(
                 DriverVehicleAssignment.assigned_from <= expense_date,
                 or_(
                     DriverVehicleAssignment.assigned_to.is_(None),
-                    DriverVehicleAssignment.assigned_to >= expense_date
-                )
+                    DriverVehicleAssignment.assigned_to >= expense_date,
+                ),
             )
             .first()
         )
@@ -248,7 +242,7 @@ def validate_expense_links(
                 detail=(
                     "Selected driver was not assigned to the selected "
                     "car on the expense date."
-                )
+                ),
             )
 
     # --------------------------------------------------
@@ -257,32 +251,251 @@ def validate_expense_links(
 
     if trip_id is not None:
 
-        trip = (
-            db.query(Trip)
-            .filter(Trip.id == trip_id)
-            .first()
-        )
+        trip = db.query(Trip).filter(Trip.id == trip_id).first()
 
         if not trip:
-            raise HTTPException(
-                status_code=404,
-                detail="Trip not found."
-            )
+            raise HTTPException(status_code=404, detail="Trip not found.")
 
         if trip.car_id != car_id:
             raise HTTPException(
                 status_code=400,
-                detail="Selected trip does not belong to the selected car."
+                detail="Selected trip does not belong to the selected car.",
             )
 
-        if (
-            driver_id is not None
-            and trip.driver_id != driver_id
-        ):
+        if driver_id is not None and trip.driver_id != driver_id:
             raise HTTPException(
                 status_code=400,
-                detail="Selected trip does not belong to the selected driver."
+                detail="Selected trip does not belong to the selected driver.",
             )
 
 
-        
+def ensure_company_access(current_user):
+    if not current_user.company_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Your account is not assigned to a company",
+        )
+
+    company = current_user.company
+
+    if company is None or company.status != "active":
+        raise HTTPException(
+            status_code=403,
+            detail="Your company is inactive or unavailable",
+        )
+
+
+def get_company_trip_or_404(db: Session, trip_id: int, company_id: int):
+    trip = (
+        db.query(Trip)
+        .join(Driver, Driver.id == Trip.driver_id)
+        .join(Car, Car.id == Trip.car_id)
+        .filter(
+            Trip.id == trip_id,
+            Driver.company_id == company_id,
+            Car.company_id == company_id,
+        )
+        .first()
+    )
+
+    if not trip:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Trip not found",
+        )
+
+    return trip
+
+
+def get_company_car_or_404(
+    db: Session,
+    car_id: int,
+    company_id: int,
+):
+    """Return a car only when it belongs to the user's company."""
+
+    car = (
+        db.query(Car)
+        .filter(
+            Car.id == car_id,
+            Car.company_id == company_id,
+        )
+        .first()
+    )
+
+    if not car:
+        raise HTTPException(
+            status_code=404,
+            detail="Car not found",
+        )
+
+    return car
+
+
+def get_company_service_or_404(
+    db: Session,
+    service_id: int,
+    company_id: int,
+):
+    """Fetch a service only if its car belongs to the given company."""
+
+    service = (
+        db.query(Services)
+        .join(Car, Car.id == Services.car_id)
+        .filter(
+            Services.id == service_id,
+            Car.company_id == company_id,
+        )
+        .first()
+    )
+
+    if not service:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Car service not found",
+        )
+
+    return service
+
+
+def get_company_fuel_or_404(
+    db: Session,
+    fuel_id: int,
+    company_id: int,
+):
+    fuel = (
+        db.query(Fuel)
+        .join(
+            Car,
+            Car.id == Fuel.car_id,
+        )
+        .filter(
+            Fuel.id == fuel_id,
+            Car.company_id == company_id,
+        )
+        .first()
+    )
+
+    if not fuel:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Fuel record not found",
+        )
+
+    return fuel
+
+
+def get_company_driver_or_404(
+    db: Session,
+    driver_id: int,
+    company_id: int,
+):
+    driver = (
+        db.query(Driver)
+        .filter(
+            Driver.id == driver_id,
+            Driver.company_id == company_id,
+        )
+        .first()
+    )
+
+    if not driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Driver not found.",
+        )
+
+    return driver
+
+
+def get_company_expense_or_404(
+    db: Session,
+    expense_id: int,
+    company_id: int,
+):
+    expense = (
+        db.query(Expense)
+        .join(Car, Car.id == Expense.car_id)
+        .filter(
+            Expense.id == expense_id,
+            Car.company_id == company_id,
+        )
+        .first()
+    )
+
+    if not expense:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Expense not found.",
+        )
+
+    return expense
+
+def validate_company_expense_links(
+    db: Session,
+    company_id: int,
+    car_id: int,
+    expense_date: date,
+    driver_id: int | None,
+    trip_id: int | None,
+):
+    get_company_car_or_404(
+        db,
+        car_id,
+        company_id,
+    )
+
+    # The driver must belong to the same company.
+    if driver_id is not None:
+        get_company_driver_or_404(
+            db,
+            driver_id,
+            company_id,
+        )
+
+    # The trip must belong to the same company's car and driver.
+    if trip_id is not None:
+        trip = get_company_trip_or_404(
+            db,
+            trip_id,
+            company_id,
+        )
+
+        if trip.car_id != car_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Trip does not belong to the selected car.",
+            )
+
+        if driver_id is not None and trip.driver_id != driver_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Trip does not belong to the selected driver.",
+            )
+
+    # Preserve the existing business validations.
+    validate_expense_links(
+        db=db,
+        car_id=car_id,
+        expense_date=expense_date,
+        driver_id=driver_id,
+        trip_id=trip_id,
+    )
+
+def apply_customer_car_scope(
+    query,
+    current_user,
+):
+    # Preserve customer ownership restrictions.
+    if current_user.role not in {
+        SUPER_ADMIN,
+        ADMIN,
+        MANAGER,
+        STAFF,
+    }:
+        query = query.filter(
+            Car.owner_id == current_user.id,
+        )
+
+    return query
+

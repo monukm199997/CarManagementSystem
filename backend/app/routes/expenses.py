@@ -1,23 +1,28 @@
 from datetime import date
-from sqlalchemy import func, or_
+
+from sqlalchemy import func
+from sqlalchemy.orm import Session, selectinload
+
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
     Query,
+    status,
 )
 
-from sqlalchemy.orm import Session, selectinload
 from app.db.session import get_db
 from app.dependencies.auth import get_current_user
 from app.dependencies.role import require_roles
+
 from app.models.user import Users
 from app.models.car import Car
 from app.models.expense import Expense
-from app.core.roles import SUPER_ADMIN, ADMIN, MANAGER, STAFF
 from app.models.driver import Driver
 from app.models.trip import Trip
-from app.models.driver_vehicle_assignment import DriverVehicleAssignment
+
+from app.core.roles import SUPER_ADMIN, ADMIN, MANAGER, STAFF
+
 from app.schamas.expense import (
     ExpenseCreate,
     ExpenseUpdate,
@@ -35,41 +40,62 @@ from app.schamas.expense import (
     ExpenseCategory,
     EXPENSE_CATEGORIES,
 )
-from app.utils.helpers import get_car_or_404, get_expense_or_404, validate_expense_links
+
+from app.utils.helpers import (
+    validate_expense_links,
+    ensure_company_access,
+    get_company_car_or_404,
+    get_company_driver_or_404,
+    get_company_trip_or_404,
+    get_company_expense_or_404,
+    validate_company_expense_links,
+    apply_customer_car_scope,
+)
 
 router = APIRouter(prefix="/expenses", tags=["Expenses"])
 
-# =========================================
+# =====================================================
 # CREATE EXPENSE
-# =========================================
+# =====================================================
 
 
-@router.post("/", response_model=ExpenseOut, status_code=201)
+@router.post(
+    "/",
+    response_model=ExpenseOut,
+    status_code=status.HTTP_201_CREATED,
+)
 def create_expense(
     expense_data: ExpenseCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles(SUPER_ADMIN, ADMIN, MANAGER, STAFF)),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+        )
+    ),
 ):
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
-    # Check car exists
-    get_car_or_404(db, expense_data.car_id)
+    if expense_data.amount <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Expense amount must be greater than 0",
+        )
 
-    # Validate driver/trip relationships
-    validate_expense_links(
+    validate_company_expense_links(
         db=db,
+        company_id=company_id,
         car_id=expense_data.car_id,
         expense_date=expense_data.expense_date,
         driver_id=expense_data.driver_id,
         trip_id=expense_data.trip_id,
     )
 
-    # Extra amount validation
-    if expense_data.amount <= 0:
-        raise HTTPException(
-            status_code=400, detail="Expense amount must be greater than 0"
-        )
-
-    # Create expense
     expense = Expense(
         car_id=expense_data.car_id,
         driver_id=expense_data.driver_id,
@@ -91,9 +117,9 @@ def create_expense(
     return expense
 
 
-# =========================================
+# =====================================================
 # GET ALL EXPENSES
-# =========================================
+# =====================================================
 
 
 @router.get("/", response_model=list[ExpenseOut])
@@ -108,37 +134,71 @@ def get_expenses(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-
-    query = db.query(Expense)
-
-    if not include_inactive:
-
-        query = query.filter(Expense.status == "active")
-
-    if car_id is not None:
-        query = query.filter(Expense.car_id == car_id)
-
-    if driver_id is not None:
-        query = query.filter(Expense.driver_id == driver_id)
-
-    if trip_id is not None:
-        query = query.filter(Expense.trip_id == trip_id)
-
-    if category:
-        query = query.filter(Expense.category == category)
-
-    if from_date:
-        query = query.filter(Expense.expense_date >= from_date)
-
-    if to_date:
-        query = query.filter(Expense.expense_date <= to_date)
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
     if from_date and to_date and to_date < from_date:
         raise HTTPException(
-            status_code=400, detail="To date cannot be earlier than from date"
+            status_code=400,
+            detail="To date cannot be earlier than from date",
         )
 
-    return query.order_by(Expense.expense_date.desc(), Expense.id.desc()).all()
+    query = (
+        db.query(Expense)
+        .join(Car, Car.id == Expense.car_id)
+        .filter(Car.company_id == company_id)
+    )
+
+    query = apply_customer_car_scope(
+        query,
+        current_user,
+    )
+
+    if not include_inactive:
+        query = query.filter(
+            Expense.status == "active",
+        )
+
+    if car_id is not None:
+        query = query.filter(
+            Expense.car_id == car_id,
+        )
+
+    if driver_id is not None:
+        query = query.filter(
+            Expense.driver_id == driver_id,
+        )
+
+    if trip_id is not None:
+        query = query.filter(
+            Expense.trip_id == trip_id,
+        )
+
+    if category:
+        query = query.filter(
+            Expense.category == category,
+        )
+
+    if from_date:
+        query = query.filter(
+            Expense.expense_date >= from_date,
+        )
+
+    if to_date:
+        query = query.filter(
+            Expense.expense_date <= to_date,
+        )
+
+    return query.order_by(
+        Expense.expense_date.desc(),
+        Expense.id.desc(),
+    ).all()
+
+# =====================================================
+# DRIVER EXPENSE HISTORY
+# =====================================================
 
 
 @router.get("/driver/{driver_id}/history", response_model=list[ExpenseHistoryItem])
@@ -148,26 +208,59 @@ def get_driver_expense_history(
     to_date: date | None = Query(default=None),
     include_inactive: bool = Query(default=False),
     db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
 ):
-    driver = db.query(Driver).filter(Driver.id == driver_id).first()
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
-    if not driver:
-        raise HTTPException(status_code=404, detail="Driver not found.")
+    driver = get_company_driver_or_404(
+        db,
+        driver_id,
+        company_id,
+    )
 
-    query = db.query(Expense).filter(Expense.driver_id == driver_id)
+    if from_date and to_date and to_date < from_date:
+        raise HTTPException(
+            status_code=400,
+            detail="To date cannot be earlier than from date",
+        )
+
+    query = (
+        db.query(Expense)
+        .join(Car, Car.id == Expense.car_id)
+        .filter(
+            Expense.driver_id == driver.id,
+            Car.company_id == company_id,
+        )
+    )
+
+    query = apply_customer_car_scope(
+        query,
+        current_user,
+    )
 
     if not include_inactive:
-        query = query.filter(Expense.status == "active")
+        query = query.filter(
+            Expense.status == "active",
+        )
 
     if from_date:
-        query = query.filter(Expense.expense_date >= from_date)
+        query = query.filter(
+            Expense.expense_date >= from_date,
+        )
 
     if to_date:
-        query = query.filter(Expense.expense_date <= to_date)
+        query = query.filter(
+            Expense.expense_date <= to_date,
+        )
 
-    expenses = query.order_by(Expense.expense_date.desc()).all()
+    return query.order_by(Expense.expense_date.desc()).all()
 
-    return expenses
+# =====================================================
+# TRIP EXPENSE HISTORY
+# =====================================================
 
 
 @router.get("/trip/{trip_id}/history", response_model=list[ExpenseHistoryItem])
@@ -175,85 +268,154 @@ def get_trip_expense_history(
     trip_id: int,
     include_inactive: bool = Query(default=False),
     db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
 ):
-    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
-    if not trip:
-        raise HTTPException(status_code=404, detail="Trip not found.")
+    trip = get_company_trip_or_404(
+        db,
+        trip_id,
+        company_id,
+    )
 
-    query = db.query(Expense).filter(Expense.trip_id == trip_id)
+    query = (
+        db.query(Expense)
+        .join(Car, Car.id == Expense.car_id)
+        .filter(
+            Expense.trip_id == trip.id,
+            Car.company_id == company_id,
+        )
+    )
+
+    query = apply_customer_car_scope(
+        query,
+        current_user,
+    )
 
     if not include_inactive:
-        query = query.filter(Expense.status == "active")
+        query = query.filter(
+            Expense.status == "active",
+        )
 
-    expenses = query.order_by(Expense.expense_date.desc()).all()
+    return query.order_by(Expense.expense_date.desc()).all()
 
-    return expenses
-
+# =====================================================
+# TRIP EXPENSE SUMMARY
+# =====================================================
 
 @router.get("/trip/{trip_id}/summary")
 def get_trip_expense_summary(
     trip_id: int,
     db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
 ):
-    trip = db.query(Trip).filter(Trip.id == trip_id).first()
-
-    if not trip:
-        raise HTTPException(status_code=404, detail="Trip not found.")
-
-    result = (
-        db.query(func.count(Expense.id), func.coalesce(func.sum(Expense.amount), 0))
-        .filter(Expense.trip_id == trip_id, Expense.status == "active")
-        .first()
+    company_id = ensure_company_access(
+        db,
+        current_user,
     )
+
+    trip = get_company_trip_or_404(
+        db,
+        trip_id,
+        company_id,
+    )
+
+    query = (
+        db.query(
+            func.count(Expense.id),
+            func.coalesce(func.sum(Expense.amount), 0),
+        )
+        .join(Car, Car.id == Expense.car_id)
+        .filter(
+            Expense.trip_id == trip.id,
+            Expense.status == "active",
+            Car.company_id == company_id,
+        )
+    )
+
+    query = apply_customer_car_scope(
+        query,
+        current_user,
+    )
+
+    result = query.first()
 
     expense_count = result[0] or 0
     total_amount = float(result[1] or 0)
 
     return {
-        "trip_id": trip_id,
+        "trip_id": trip.id,
         "car_id": trip.car_id,
         "driver_id": trip.driver_id,
         "expense_count": expense_count,
         "total_amount": total_amount,
     }
 
+# =====================================================
+# DRIVER EXPENSE SUMMARY
+# =====================================================
 
 @router.get("/driver/{driver_id}/summary")
 def get_driver_expense_summary(
     driver_id: int,
     db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
 ):
-    driver = db.query(Driver).filter(Driver.id == driver_id).first()
-
-    if not driver:
-        raise HTTPException(status_code=404, detail="Driver not found.")
-
-    result = (
-        db.query(func.count(Expense.id), func.coalesce(func.sum(Expense.amount), 0))
-        .filter(Expense.driver_id == driver_id, Expense.status == "active")
-        .first()
+    company_id = ensure_company_access(
+        db,
+        current_user,
     )
+
+    driver = get_company_driver_or_404(
+        db,
+        driver_id,
+        company_id,
+    )
+
+    query = (
+        db.query(
+            func.count(Expense.id),
+            func.coalesce(func.sum(Expense.amount), 0),
+        )
+        .join(Car, Car.id == Expense.car_id)
+        .filter(
+            Expense.driver_id == driver.id,
+            Expense.status == "active",
+            Car.company_id == company_id,
+        )
+    )
+
+    query = apply_customer_car_scope(
+        query,
+        current_user,
+    )
+
+    result = query.first()
 
     expense_count = result[0] or 0
     total_amount = float(result[1] or 0)
 
     return {
-        "driver_id": driver_id,
+        "driver_id": driver.id,
         "expense_count": expense_count,
         "total_amount": total_amount,
     }
 
+# =====================================================
+# EXPENSE CATEGORIES
+# =====================================================
 
 @router.get("/categories")
 def get_expense_categories():
     return EXPENSE_CATEGORIES
 
 
-# =========================================
-# GET CAR EXPENSE HISTORY
-# =========================================
-
+# =====================================================
+# CAR EXPENSE HISTORY
+# =====================================================
 
 @router.get("/car/{car_id}/history", response_model=CarExpenseHistoryOut)
 def get_car_expense_history(
@@ -264,10 +426,37 @@ def get_car_expense_history(
     db: Session = Depends(get_db),
     current_user: Users = Depends(get_current_user),
 ):
-    car = db.query(Car).filter(Car.id == car_id).first()
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
-    if not car:
-        raise HTTPException(status_code=404, detail="Car not found")
+    car = get_company_car_or_404(
+        db,
+        car_id,
+        company_id,
+    )
+
+    if (
+        current_user.role
+        not in {
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+        }
+        and car.owner_id != current_user.id
+    ):
+        raise HTTPException(
+            status_code=404,
+            detail="Car not found",
+        )
+
+    if from_date and to_date and to_date < from_date:
+        raise HTTPException(
+            status_code=400,
+            detail="To date cannot be earlier than from date",
+        )
 
     query = (
         db.query(Expense)
@@ -275,30 +464,40 @@ def get_car_expense_history(
             selectinload(Expense.driver),
             selectinload(Expense.trip),
         )
-        .filter(Expense.car_id == car_id)
+        .filter(Expense.car_id == car.id)
     )
 
     if not include_inactive:
-        query = query.filter(Expense.status == "active")
+        query = query.filter(
+            Expense.status == "active",
+        )
 
     if from_date:
-        query = query.filter(Expense.expense_date >= from_date)
+        query = query.filter(
+            Expense.expense_date >= from_date,
+        )
 
     if to_date:
-        query = query.filter(Expense.expense_date <= to_date)
+        query = query.filter(
+            Expense.expense_date <= to_date,
+        )
 
-    expenses = query.order_by(Expense.expense_date.desc(), Expense.id.desc()).all()
-
-    total_expenses = len(expenses)
-
-    total_amount = sum(float(expense.amount or 0) for expense in expenses)
+    expenses = query.order_by(
+        Expense.expense_date.desc(),
+        Expense.id.desc(),
+    ).all()
 
     return {
-        "car_id": car_id,
-        "total_expenses": total_expenses,
-        "total_amount": total_amount,
+        "car_id": car.id,
+        "total_expenses": len(expenses),
+        "total_amount": sum(float(expense.amount or 0) for expense in expenses),
         "expenses": expenses,
     }
+
+
+# =====================================================
+# EXPENSE ANALYTICS
+# =====================================================
 
 
 @router.get("/analytics", response_model=ExpenseAnalyticsOut)
@@ -310,25 +509,50 @@ def get_expense_analytics(
     car_id: int | None = Query(default=None, gt=0),
     category: ExpenseCategory | None = Query(default=None),
 ):
-
-    query = db.query(Expense).filter(Expense.status == "active")
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
     if from_date and to_date and from_date > to_date:
         raise HTTPException(
-            status_code=400, detail="From Date cannot be later than To Date."
+            status_code=400,
+            detail="From Date cannot be later than To Date.",
         )
 
+    query = (
+        db.query(Expense)
+        .join(Car, Car.id == Expense.car_id)
+        .filter(
+            Expense.status == "active",
+            Car.company_id == company_id,
+        )
+    )
+
+    query = apply_customer_car_scope(
+        query,
+        current_user,
+    )
+
     if from_date:
-        query = query.filter(Expense.expense_date >= from_date)
+        query = query.filter(
+            Expense.expense_date >= from_date,
+        )
 
     if to_date:
-        query = query.filter(Expense.expense_date <= to_date)
+        query = query.filter(
+            Expense.expense_date <= to_date,
+        )
 
     if car_id:
-        query = query.filter(Expense.car_id == car_id)
+        query = query.filter(
+            Expense.car_id == car_id,
+        )
 
     if category:
-        query = query.filter(Expense.category == category)
+        query = query.filter(
+            Expense.category == category,
+        )
 
     summary = query.with_entities(
         func.count(Expense.id),
@@ -380,7 +604,10 @@ def get_expense_analytics(
         for row in car_rows
     ]
 
-    month_expression = func.to_char(Expense.expense_date, "YYYY-MM")
+    month_expression = func.to_char(
+        Expense.expense_date,
+        "YYYY-MM",
+    )
 
     monthly_rows = (
         query.with_entities(
@@ -402,7 +629,10 @@ def get_expense_analytics(
         for row in monthly_rows
     ]
 
-    payment_expression = func.coalesce(Expense.payment_method, "unknown")
+    payment_expression = func.coalesce(
+        Expense.payment_method,
+        "unknown",
+    )
 
     payment_rows = (
         query.with_entities(
@@ -435,6 +665,10 @@ def get_expense_analytics(
     )
 
 
+# =====================================================
+# MONTHLY EXPENSE SUMMARY
+# =====================================================
+
 @router.get("/monthly-summary", response_model=MonthlyExpenseSummaryOut)
 def get_monthly_expense_summary(
     year: int = Query(..., ge=2000, le=2100),
@@ -442,13 +676,30 @@ def get_monthly_expense_summary(
     db: Session = Depends(get_db),
     current_user: Users = Depends(get_current_user),
 ):
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
-    base_query = db.query(Expense).filter(
-        Expense.status == "active", func.extract("year", Expense.expense_date) == year
+    base_query = (
+        db.query(Expense)
+        .join(Car, Car.id == Expense.car_id)
+        .filter(
+            Expense.status == "active",
+            Car.company_id == company_id,
+            func.extract("year", Expense.expense_date) == year,
+        )
+    )
+
+    base_query = apply_customer_car_scope(
+        base_query,
+        current_user,
     )
 
     if car_id:
-        base_query = base_query.filter(Expense.car_id == car_id)
+        base_query = base_query.filter(
+            Expense.car_id == car_id,
+        )
 
     yearly_summary = base_query.with_entities(
         func.count(Expense.id),
@@ -460,7 +711,10 @@ def get_monthly_expense_summary(
     total_amount = float(yearly_summary[1] or 0)
     average_expense = float(yearly_summary[2] or 0)
 
-    month_expression = func.extract("month", Expense.expense_date)
+    month_expression = func.extract(
+        "month",
+        Expense.expense_date,
+    )
 
     monthly_rows = (
         base_query.with_entities(
@@ -477,10 +731,14 @@ def get_monthly_expense_summary(
     months = []
 
     for row in monthly_rows:
-
         month_number = int(row.month)
+
         month_query = base_query.filter(
-            func.extract("month", Expense.expense_date) == month_number
+            func.extract(
+                "month",
+                Expense.expense_date,
+            )
+            == month_number,
         )
 
         category_rows = (
@@ -496,11 +754,11 @@ def get_monthly_expense_summary(
 
         categories = [
             MonthlyExpenseCategorySummary(
-                category=row.category,
-                total_amount=float(row.total_amount or 0),
-                expense_count=int(row.expense_count or 0),
+                category=category_row.category,
+                total_amount=float(category_row.total_amount or 0),
+                expense_count=int(category_row.expense_count or 0),
             )
-            for row in category_rows
+            for category_row in category_rows
         ]
 
         months.append(
@@ -522,6 +780,10 @@ def get_monthly_expense_summary(
     )
 
 
+# =====================================================
+# GET EXPENSES FOR A CAR
+# =====================================================
+
 @router.get("/car/{car_id}", response_model=list[ExpenseOut])
 def get_car_expenses(
     car_id: int,
@@ -529,22 +791,49 @@ def get_car_expenses(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    # Check car exists
-    get_car_or_404(db, car_id)
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
-    query = db.query(Expense).filter(Expense.car_id == car_id)
+    car = get_company_car_or_404(
+        db,
+        car_id,
+        company_id,
+    )
+
+    if (
+        current_user.role
+        not in {
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+        }
+        and car.owner_id != current_user.id
+    ):
+        raise HTTPException(
+            status_code=404,
+            detail="Car not found",
+        )
+
+    query = db.query(Expense).filter(
+        Expense.car_id == car.id,
+    )
 
     if not include_inactive:
+        query = query.filter(
+            Expense.status == "active",
+        )
 
-        query = query.filter(Expense.status == "active")
+    return query.order_by(
+        Expense.expense_date.desc(),
+        Expense.id.desc(),
+    ).all()
 
-    return query.order_by(Expense.expense_date.desc(), Expense.id.desc()).all()
-
-
-# ========================================
+# ====================================================
 # GET SINGLE EXPENSE
-# =========================================
-
+# =====================================================
 
 @router.get("/{expense_id}", response_model=ExpenseOut)
 def get_expense(
@@ -552,74 +841,147 @@ def get_expense(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
-    return get_expense_or_404(db, expense_id)
+    expense = get_company_expense_or_404(
+        db,
+        expense_id,
+        company_id,
+    )
+
+    car = get_company_car_or_404(
+        db,
+        expense.car_id,
+        company_id,
+    )
+
+    if (
+        current_user.role
+        not in {
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+        }
+        and car.owner_id != current_user.id
+    ):
+        raise HTTPException(
+            status_code=404,
+            detail="Expense not found.",
+        )
+
+    return expense
 
 
-# =========================================
+# =====================================================
 # UPDATE EXPENSE
-# =========================================
+# =====================================================
 
 
 @router.put("/{expense_id}", response_model=ExpenseOut)
 def update_expense(
     expense_id: int,
-    expense_data: ExpenseCreate,
+    expense_data: ExpenseUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles(SUPER_ADMIN, ADMIN, MANAGER, STAFF)),
+    current_user=Depends(
+        require_roles(
+            SUPER_ADMIN,
+            ADMIN,
+            MANAGER,
+            STAFF,
+        )
+    ),
 ):
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
-    expense = get_expense_or_404(db, expense_id)
-    update_data = expense_data.model_dump(exclude_unset=True)
+    expense = get_company_expense_or_404(
+        db,
+        expense_id,
+        company_id,
+    )
 
-    new_expense_date = update_data.get("expense_date", expense.expense_date)
+    update_data = expense_data.model_dump(
+        exclude_unset=True,
+    )
 
-    new_driver_id = update_data.get("driver_id", expense.driver_id)
+    new_car_id = update_data.get(
+        "car_id",
+        expense.car_id,
+    )
+    new_expense_date = update_data.get(
+        "expense_date",
+        expense.expense_date,
+    )
+    new_driver_id = update_data.get(
+        "driver_id",
+        expense.driver_id,
+    )
+    new_trip_id = update_data.get(
+        "trip_id",
+        expense.trip_id,
+    )
 
-    new_trip_id = update_data.get("trip_id", expense.trip_id)
+    if "amount" in update_data and update_data["amount"] <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Expense amount must be greater than 0",
+        )
 
-    validate_expense_links(
+    validate_company_expense_links(
         db=db,
-        car_id=expense.car_id,
+        company_id=company_id,
+        car_id=new_car_id,
         expense_date=new_expense_date,
         driver_id=new_driver_id,
         trip_id=new_trip_id,
     )
 
-    update_data = expense_data.model_dump(exclude_unset=True)
-
-    # Amount validation
-    if "amount" in update_data and update_data["amount"] <= 0:
-
-        raise HTTPException(
-            status_code=400, detail="Expense amount must be greater than 0"
-        )
-
     for field, value in update_data.items():
-        setattr(expense, field, value)
+        setattr(
+            expense,
+            field,
+            value,
+        )
 
     db.commit()
     db.refresh(expense)
 
     return expense
 
-
-# =========================================
-# DELETE EXPENSE
-# =========================================
-
+# =====================================================
+# DEACTIVATE EXPENSE (SOFT DELETE)
+# =====================================================
 
 @router.delete("/{expense_id}", response_model=ExpenseOut)
 def delete_expense(
     expense_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles(SUPER_ADMIN, ADMIN)),
+    current_user=Depends(
+        require_roles(SUPER_ADMIN, ADMIN),
+    ),
 ):
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
-    expense = get_expense_or_404(db, expense_id)
+    expense = get_company_expense_or_404(
+        db,
+        expense_id,
+        company_id,
+    )
 
     if expense.status == "inactive":
-        raise HTTPException(status_code=400, detail="Expense is already inactive")
+        raise HTTPException(
+            status_code=400,
+            detail="Expense is already inactive",
+        )
 
     expense.status = "inactive"
 
@@ -629,23 +991,38 @@ def delete_expense(
     return expense
 
 
+# =====================================================
+# ACTIVATE EXPENSE
+# =====================================================
+
 @router.patch("/{expense_id}/activate", response_model=ExpenseOut)
 def activate_expense(
     expense_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles(SUPER_ADMIN, ADMIN)),
+    current_user=Depends(
+        require_roles(SUPER_ADMIN, ADMIN),
+    ),
 ):
+    company_id = ensure_company_access(
+        db,
+        current_user,
+    )
 
-    expense = get_expense_or_404(db, expense_id)
+    expense = get_company_expense_or_404(
+        db,
+        expense_id,
+        company_id,
+    )
 
     if expense.status == "active":
-
-        raise HTTPException(status_code=400, detail="Expense is already active")
+        raise HTTPException(
+            status_code=400,
+            detail="Expense is already active",
+        )
 
     expense.status = "active"
 
     db.commit()
-
     db.refresh(expense)
 
     return expense

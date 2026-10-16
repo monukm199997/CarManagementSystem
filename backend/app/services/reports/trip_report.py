@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 
 from app.models.trip import Trip
 from app.models.car import Car
@@ -6,6 +7,7 @@ from app.models.driver import Driver
 from app.core.roles import CUSTOMER
 from app.services.reports.report_access import (
     validate_customer_car_access,
+    get_report_company_id,
 )
 
 
@@ -18,12 +20,15 @@ def get_trip_report(
     page: int = 1,
     page_size: int = 50,
 ):
+    company_id = get_report_company_id(current_user)
 
+    # Validate requested vehicle access before querying trips.
     validate_customer_car_access(
         db=db,
         current_user=current_user,
         car_id=car_id,
     )
+
     query = (
         db.query(
             Trip,
@@ -33,16 +38,15 @@ def get_trip_report(
             Driver.name.label("driver_name"),
             Driver.phone.label("driver_phone"),
         )
-        .join(
-            Car,
-            Car.id == Trip.car_id,
-        )
-        .join(
-            Driver,
-            Driver.id == Trip.driver_id,
+        .join(Car, Car.id == Trip.car_id)
+        .join(Driver, Driver.id == Trip.driver_id)
+        .filter(
+            Car.company_id == company_id,
+            Driver.company_id == company_id,
         )
     )
 
+    # Customers can only see trips for their own vehicles.
     if current_user.role == CUSTOMER:
         query = query.filter(Car.owner_id == current_user.id)
 
@@ -56,6 +60,22 @@ def get_trip_report(
     # DRIVER FILTER
     # -----------------------------
     if driver_id is not None:
+        # Driver must belong to the current company.
+        driver_exists = (
+            db.query(Driver.id)
+            .filter(
+                Driver.id == driver_id,
+                Driver.company_id == company_id,
+            )
+            .first()
+        )
+
+        if not driver_exists:
+            raise HTTPException(
+                status_code=404,
+                detail="Driver not found.",
+            )
+
         query = query.filter(Trip.driver_id == driver_id)
 
     # -----------------------------
@@ -68,7 +88,6 @@ def get_trip_report(
     # TOTAL RECORDS
     # -----------------------------
     total_records = query.count()
-
     offset = (page - 1) * page_size
 
     rows = (
@@ -91,7 +110,6 @@ def get_trip_report(
         driver_name,
         driver_phone,
     ) in rows:
-
         distance = None
 
         if trip.start_odometer is not None and trip.end_odometer is not None:

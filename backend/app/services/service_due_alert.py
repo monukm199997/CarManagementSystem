@@ -12,19 +12,12 @@ from app.models.car import Car
 SERVICE_WARNING_DAYS = 30
 
 
-def get_service_alert_level(
-    due_date: date,
-):
-    """
-    Determine notification priority based on
-    next service due date.
-    """
+def get_service_alert_level(due_date: date):
+    """Determine notification priority based on next service due date."""
 
     today = date.today()
-
     days_remaining = (due_date - today).days
 
-    # Service is overdue
     if days_remaining < 0:
         return {
             "level": "overdue",
@@ -32,7 +25,6 @@ def get_service_alert_level(
             "days_remaining": days_remaining,
         }
 
-    # Service due within 7 days
     if days_remaining <= 7:
         return {
             "level": "urgent",
@@ -40,7 +32,6 @@ def get_service_alert_level(
             "days_remaining": days_remaining,
         }
 
-    # Service due within 30 days
     if days_remaining <= SERVICE_WARNING_DAYS:
         return {
             "level": "warning",
@@ -56,32 +47,19 @@ def get_service_due_message(
     car: Car | None,
     alert_info,
 ):
-    """
-    Generate notification title and message.
-    """
+    """Generate notification title and message."""
 
     registration_number = car.registration_number if car else f"Car #{service.car_id}"
 
     service_type = service.service_type or "Vehicle service"
-
     days_remaining = alert_info["days_remaining"]
-
     level = alert_info["level"]
 
-    # -----------------------------------------
-    # OVERDUE
-    # -----------------------------------------
-
     if level == "overdue":
-
         title = "Service overdue"
 
         overdue_days = abs(days_remaining)
-
-        if overdue_days == 1:
-            overdue_text = "1 day"
-        else:
-            overdue_text = f"{overdue_days} days"
+        overdue_text = "1 day" if overdue_days == 1 else f"{overdue_days} days"
 
         message = (
             f"{service_type} for vehicle "
@@ -89,40 +67,23 @@ def get_service_due_message(
             f"by {overdue_text}."
         )
 
-    # -----------------------------------------
-    # URGENT
-    # -----------------------------------------
-
     elif level == "urgent":
-
         if days_remaining == 0:
-
             remaining_text = "today"
-
         elif days_remaining == 1:
-
             remaining_text = "in 1 day"
-
         else:
-
             remaining_text = f"in {days_remaining} days"
 
         title = "Service due soon"
-
         message = (
             f"{service_type} for vehicle "
             f"{registration_number} is due "
             f"{remaining_text}."
         )
 
-    # -----------------------------------------
-    # WARNING
-    # -----------------------------------------
-
     else:
-
         title = "Service due soon"
-
         message = (
             f"{service_type} for vehicle "
             f"{registration_number} is due "
@@ -138,10 +99,7 @@ def notification_already_exists(
     service_id: int,
     priority: str,
 ):
-    """
-    Prevent duplicate notifications for the
-    same service, user and alert priority.
-    """
+    """Prevent duplicate notifications for the same service and priority."""
 
     existing = (
         db.query(Notification)
@@ -158,18 +116,10 @@ def notification_already_exists(
     return existing is not None
 
 
-def generate_service_due_notifications(
-    db: Session,
-):
+def generate_service_due_notifications(db: Session):
     """
-    Check vehicle services and create service due
-    notifications for eligible users.
-
-    Recipients are resolved through the centralized
-    notification recipient resolver.
-
-    User notification preferences are checked
-    before creating notifications.
+    Generate service-due notifications only for users belonging
+    to the company that owns the associated vehicle.
     """
 
     services = (
@@ -183,14 +133,30 @@ def generate_service_due_notifications(
     created_count = 0
 
     for service in services:
-
         alert_info = get_service_alert_level(service.next_service_due)
 
-        # More than 30 days remaining
         if not alert_info:
             continue
 
-        car = db.query(Car).filter(Car.id == service.car_id).first()
+        # Find the vehicle and require a company assignment.
+        car = (
+            db.query(Car)
+            .filter(
+                Car.id == service.car_id,
+                Car.company_id.isnot(None),
+            )
+            .first()
+        )
+
+        # Skip orphaned vehicles or vehicles without a company.
+        if not car:
+            continue
+
+        recipients = get_notification_recipients(
+            db=db,
+            notification_type="service_due",
+            car_id=car.id,
+        )
 
         title, message = get_service_due_message(
             service,
@@ -200,34 +166,15 @@ def generate_service_due_notifications(
 
         priority = alert_info["priority"]
 
-        # -------------------------------------------------
-        # RESOLVE NOTIFICATION RECIPIENTS
-        # -------------------------------------------------
-
-        recipients = get_notification_recipients(
-            db=db,
-            notification_type="service_due",
-            car_id=service.car_id,
-        )
-
-        # -------------------------------------------------
-        # CREATE NOTIFICATIONS
-        # -------------------------------------------------
-
         for user in recipients:
-
-            # -------------------------------------------------
-            # CHECK USER NOTIFICATION PREFERENCE
-            # -------------------------------------------------
+            # Defensive tenant-isolation check.
+            if user.company_id != car.company_id:
+                continue
 
             preference = user.notification_preferences
 
             if preference and not preference.service_due:
                 continue
-
-            # -------------------------------------------------
-            # DUPLICATE CHECK
-            # -------------------------------------------------
 
             if notification_already_exists(
                 db=db,
@@ -248,7 +195,6 @@ def generate_service_due_notifications(
             )
 
             db.add(notification)
-
             created_count += 1
 
     db.commit()

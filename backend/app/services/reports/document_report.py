@@ -1,4 +1,5 @@
 from datetime import date
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -7,6 +8,7 @@ from app.models.car import Car
 from app.core.roles import CUSTOMER
 from app.services.reports.report_access import (
     validate_customer_car_access,
+    get_report_company_id,
 )
 
 
@@ -20,26 +22,32 @@ def get_document_report(
     page: int = 1,
     page_size: int = 50,
 ):
+    company_id = get_report_company_id(current_user)
 
     validate_customer_car_access(
         db=db,
         current_user=current_user,
         car_id=car_id,
     )
-    query = db.query(
-        VehicleDocument,
-        Car.registration_number,
-        Car.brand,
-        Car.model,
-    ).join(Car, Car.id == VehicleDocument.car_id)
 
+    query = (
+        db.query(
+            VehicleDocument,
+            Car.registration_number,
+            Car.brand,
+            Car.model,
+        )
+        .join(Car, Car.id == VehicleDocument.car_id)
+        .filter(Car.company_id == company_id)
+    )
+
+    # Customers can only see documents for their own vehicles.
     if current_user.role == CUSTOMER:
         query = query.filter(Car.owner_id == current_user.id)
 
     # -----------------------------
     # Basic filters
     # -----------------------------
-
     if car_id is not None:
         query = query.filter(VehicleDocument.car_id == car_id)
 
@@ -47,27 +55,52 @@ def get_document_report(
         query = query.filter(
             func.lower(VehicleDocument.document_type) == document_type.lower()
         )
+
     if status:
         query = query.filter(VehicleDocument.status == status)
 
     # -----------------------------
-    # Insurance filter
+    # Insurance status filter
     # -----------------------------
+    today = date.today()
 
     if insurance_status:
         query = query.filter(func.lower(VehicleDocument.document_type) == "insurance")
 
+        if insurance_status == "expired":
+            query = query.filter(
+                VehicleDocument.expiry_date.isnot(None),
+                VehicleDocument.expiry_date < today,
+            )
+
+        elif insurance_status == "expiring_soon":
+            query = query.filter(
+                VehicleDocument.expiry_date >= today,
+                VehicleDocument.expiry_date <= date.fromordinal(today.toordinal() + 30),
+            )
+
+        elif insurance_status == "active":
+            query = query.filter(
+                VehicleDocument.expiry_date.isnot(None),
+                VehicleDocument.expiry_date > date.fromordinal(today.toordinal() + 30),
+            )
+
+        elif insurance_status == "all":
+            pass
+
+    # -----------------------------
+    # Total records after filters
+    # -----------------------------
     total_records = query.count()
 
     # -----------------------------
     # Pagination
     # -----------------------------
-
     offset = (page - 1) * page_size
 
     rows = (
         query.order_by(
-            VehicleDocument.expiry_date.asc(),
+            VehicleDocument.expiry_date.asc().nullslast(),
             VehicleDocument.id.desc(),
         )
         .offset(offset)
@@ -75,68 +108,24 @@ def get_document_report(
         .all()
     )
 
-    today = date.today()
-
     data = []
 
-    for (
-        document,
-        registration_number,
-        brand,
-        model,
-    ) in rows:
-
+    for document, registration_number, brand, model in rows:
         days_to_expiry = None
 
         if document.expiry_date is not None:
             days_to_expiry = (document.expiry_date - today).days
 
-        # -----------------------------
-        # Expiry status
-        # -----------------------------
-
         if document.expiry_date is None:
             expiry_status = "No Expiry Date"
-
         elif days_to_expiry < 0:
             expiry_status = "Expired"
-
         elif days_to_expiry <= 30:
             expiry_status = "Expiring Soon"
-
         else:
             expiry_status = "Active"
 
-        is_insurance = document.document_type.lower() == "insurance"
-
-        # -----------------------------
-        # Insurance status filter
-        # -----------------------------
-
-        if insurance_status:
-            if insurance_status == "expired":
-                if not (
-                    is_insurance and days_to_expiry is not None and days_to_expiry < 0
-                ):
-                    continue
-
-            elif insurance_status == "expiring_soon":
-                if not (
-                    is_insurance
-                    and days_to_expiry is not None
-                    and 0 <= days_to_expiry <= 30
-                ):
-                    continue
-
-            elif insurance_status == "active":
-                if not (
-                    is_insurance and days_to_expiry is not None and days_to_expiry > 30
-                ):
-                    continue
-
-            elif insurance_status == "all":
-                if not is_insurance:
-                    continue
+        is_insurance = (document.document_type or "").lower() == "insurance"
 
         data.append(
             {
